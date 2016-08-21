@@ -1,0 +1,365 @@
+.logo-circle {
+    background: transparent;
+    font-family: 'Bitter';
+    border: 1px solid #008840;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    position: relative;
+}
+.dollar {
+    position: absolute;
+    font-size: 30px;
+    color: #008840;
+    opacity: .35;
+    top: 6px;
+    left: 4px;
+}
+.b {
+    font-size: 28px;
+    color: #008840;
+    position: absolute;
+    top: 7px;
+    left: 8px;
+}
+.logo.navbar-brand {
+    font-family: 'Bitter', serif;
+    color: #008840;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+}
+.logo:hover .logo-circle {
+    background: #272727;
+}
+.logo:active .b {
+    color: #007e30;
+}
+.navbar-header .title {
+    font-size: 17px;
+    color: #008840;
+}
+.navbar-inverse .btn-link {
+    color: #008840;
+}
+.navbar-inverse .btn-link:focus, 
+.navbar-inverse .btn-link:hover {
+    color: #009550;
+    text-decoration: none;
+    background: #272727;
+    outline: none;
+}
+.logo.navbar-brand:active, .navbar-inverse .btn-link:active, .navbar-inverse .btn-link:active {
+    color: #00a360;
+}
+.ng-cloak {
+  visibility: hidden;
+}
+#loading {
+    text-align: center;
+    margin-top: 100px;
+}
+#bills-table {
+  margin-bottom: 0;
+}
+ul.bills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+li.bill {
+  position: relative;
+  margin: 0;
+  border-bottom: 1px solid #eee;
+  height: 100px;
+}
+li.bill.editing {
+  height: 125px;
+}
+li.bill > div {
+  position: absolute;
+}
+.bill .name {
+  top: 10px;
+  left: 10px;
+  font-size: 1.2em;
+  max-width: 63%;
+  max-height: 55px;
+  overflow: hidden;
+  background: #fff;
+  z-index: 10;
+}
+.bill .amount {
+  top: 10px;
+  right: 10px;
+  font-size: 1.7em;
+  max-width: 38%;
+}
+.bill .amount .value {
+  position: relative;
+  top: -3px;
+}
+.bill .paid {
+  top: 65px;
+  left: 10px;
+}
+.bill .link {
+  top: 42px;
+  right: 10px;
+  max-width: 93%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bill.editing .link {
+  top: 50px;
+  max-width: 54%;
+}
+.bill .buttons {
+  top: 70px;
+  right: 10px;
+}
+.bill.editing .buttons {
+  top: 95px;
+}
+.table-responsive {
+  border: none;
+}
+#bills-table td {
+  vertical-align: middle;
+}
+th.center, td.center {
+  text-align: center;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+  border-top-color: #f4f4f4;
+}
+.table > tbody > tr:hover {
+  background: #fffffd;
+}
+input.bill-amount {
+  min-width: 100px;
+}
+input.bill-paid {
+  margin-left: 5px;
+}
+.remaining {
+    float: right;
+    font-size: 85%;
+}
+.center {
+    text-align: center;
+}
+.bill-column {
+    width: 20%;
+}
+.paid-column {
+    width: 12%;
+    padding-left: 10px;
+}
+.other-column {
+    width: 27%;
+}
+.gray {
+    color: #aaa;
+}
+.autopay {
+    font-weight: normal;
+}
+.totals {
+    font-weight: bold;
+}
+.collapse:not(.in) form.logout input, .navbar-right button {
+    line-height: 50px;
+    padding: 0 15px;
+    border: none;
+}
+.collapse.in li {
+    margin: 0;
+}
+.collapse.in input, .collapse.in button, .collapsing input, .collapsing button {
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 10px 0;
+    line-height: initial;
+}
+.navbar-right li {
+    margin: 0 4px;
+}
+.navbar button, .navbar input {
+    outline: none !important;
+}
+.add-bill-container {
+    margin: 0 10px 20px;
+}
+.main .page-header {
+    margin: 0;
+    padding: 10px;
+}
+.summary {
+    padding: 10px;
+}
+.calc-results {
+    border-top: 1px solid #bbb;
+    height: 10px;
+}
+.results-text {
+    text-align: center;
+}
+#message {
+    position: fixed;
+    left: 50%;
+    width: 200px;
+    margin-left: -100px;
+    top: 0;
+    line-height: 50px;
+    text-align: center;
+    color: #aaa;
+    z-index: 1500;
+    display: none;
+}
+.contact {
+    text-align: right;
+    margin: 20px 10px 10px;
+}
+.contact .btn-default {
+    color: #aaa;
+}
+.btn .glyphicon {
+    margin-right: 5px;
+}
+@media (min-width: 768px) {
+    .navbar-header {
+        display: flex;
+        align-items: center;
+    }
+}
+@media (max-width: 767px) {
+    .sidebar-toggler {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        z-index: 100;
+    }
+    .sidebar-toggler button {
+        border: 1px solid #2e6da4;
+        border-left: none;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        background: #337ab7;
+        outline: none;
+        color: #fff;
+        padding: 2px 5px;
+    }
+    .sidebar-toggler button:active {
+        background: #286090;
+    }
+    .sidebar {
+        display: block !important;
+        position: fixed;
+        left: -1000px;
+        transition: left 0.25s;
+    }
+    .sidebar.visible {
+        background: #fff;
+        z-index: 90;
+        width: 75%;
+        border-right: 1px solid #ddd;
+        box-shadow: 1px 0 3px #e5e5e5;
+        left: 0;
+        transition: left 0.25s;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    .nav.nav-sidebar {
+        margin-right: -16px;
+    }
+    .sidebar.visible .nav.nav-sidebar:last-child {
+        margin-bottom: 0;
+    }
+    .row .main {
+        padding: 20px 0;
+    }
+}
+@media (min-width: 980px) {
+    button.edit {
+        visibility: hidden;
+    }
+    li.bill:hover button.edit {
+        visibility: visible;
+        background: #f5f5f5;
+        border-color: #eaeaea;
+        color: #aaa;
+    }
+    li.bill:hover button.edit:hover {
+        background: #eee;
+    }
+    li.bill:hover button.edit:active {
+        background: #eaeaea;
+    }
+    li.bill {
+        height: 42px;
+    }
+    li.bill.editing {
+        height: 55px;
+    }
+    .bill .name {
+      top: 9px;
+      left: 10px;
+      font-size: 15px;
+      width: 24%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .bill .amount {
+      top: 10px;
+      left: 25%;
+      width: 11%;
+      font-size: 15px;
+      text-align: right;
+    }
+    .bill.editing .amount {
+      left: 26%;
+      width: 10%;
+    }
+    .bill.editing .amount input {
+      min-width: initial;
+    }
+    .bill .amount .value {
+      top: 0;
+    }
+    .bill .paid {
+      top: 11px;
+      left: 40%;
+      width: 20%;
+    }
+    .bill.editing .paid{
+      top: 15px;
+    }
+    .bill .link {
+      top: 10px;
+      left: 60%;
+      width: 30%;
+    }
+    .bill.editing .link {
+      top: 10px;
+      width: 20%;
+    }
+    .bill .buttons {
+      top: 10px;
+      right: 10px;
+    }
+    .bill.editing .buttons {
+      top: 16px;
+    }
+}
+@media (min-width: 1100px) {
+    .row .main {
+        padding: 20px 100px;
+    }
+}
+.row .main {
+    padding-bottom: 0;
+}

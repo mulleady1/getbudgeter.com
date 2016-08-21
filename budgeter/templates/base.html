@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/logo.png">
+
+    <title>Budgeter | Track Your Finances</title>
+
+    <link rel="stylesheet" href="/static/index.css" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <nav>
+      <div class="nav">
+        <a class="logo" href="/">
+          <span class="logo-circle">
+            <span class="dollar">$</span>
+            <span class="b">B</span>
+          </span>
+        </a>
+        <ul>
+          <li><a class="btn" href="/register">SIGN UP</a></li>
+          <li><a href="/login">LOG IN</a></li>
+        </ul>
+      </div>
+    </nav>
+    {% block content %}
+    {% endblock %}
+    <div class="container footer-container">
+      <div class="content">
+        <small>&copy; 2016 Budgeter</small>
+      </div>
+    </div>
+    <script>
+    var input = document.querySelector('input');
+    if (input) {
+      input.focus();
+    }
+    </script>
+  </body>
+</html>

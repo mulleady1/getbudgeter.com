@@ -1,0 +1,193 @@
+{% raw %}
+<!DOCTYPE html>
+<html lang="en" ng-app="bills">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/logo.png">
+
+    <title>Budgeter | Dashboard</title>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/styles.css" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
+    <link href="/static/dashboard.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div id="loading">
+        Loading...
+    </div>
+    <div id="message"></div>
+    <div class="ng-cloak" ng-controller="BillsController">
+      <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav-content" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="logo navbar-brand" href="/">
+              <span class="logo-circle">
+                <span class="dollar">$</span>
+                <span class="b">B</span>
+              </span>
+            </a>
+            <span class="title hidden-xs hidden-sm">Budgeter Dashboard</span>
+          </div>
+          <div id="nav-content" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav navbar-right">
+              <li>
+                <button class="btn-link" ng-click="onShowCalcClick()">Calculator</button>
+              </li>
+              {% endraw %}
+              <li>
+                <form class="logout" action="/logout" method="post">
+                  <input type="submit" class="btn btn-link" value="Logout {{ username }}" />
+                </form>
+              {% raw %}
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-toggler hidden-sm hidden-md hidden-lg">
+        <button class="sidebar-btn"><span class="glyphicon glyphicon-chevron-right"></span></button>
+      </div>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+              <li ng-repeat="year in years" ng-class="{ active: year.year == activeYear.year }">
+                <a href="#" ng-click="dateSelected(year.label)">{{ year.label }}</a>
+              </li>
+            </ul>
+            <ul class="nav nav-sidebar">
+                <li ng-repeat="month in months" ng-class="{ active: month.month == activeMonth.month }">
+                  <a href="#" ng-click="dateSelected(month.label)">{{ month.label }}</a>
+                </li>
+            </ul>
+          </div>
+          <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <h2 class="page-header">
+              {{ activeMonth.label }} {{ activeYear.label }}
+              <button ng-click="copyLastMonth()" class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-copy"></span>Copy from last month</button>
+            </h2>
+            <ul class="bills">
+              <li ng-class="{ bill: true, editing: bill.showEdit }" ng-repeat="bill in bills | orderBy:predicate">
+                <div class="name">
+                  <input ng-if="bill.showEdit" class="form-control" ng-model="bill.name" placeholder="Name">
+                  <span ng-if="!bill.showEdit" ng-bind="bill.name"></span>
+                </div>
+                <div class="amount">
+                  <span ng-if="bill.showEdit"><input class="form-control bill-amount" ng-model="bill.amount" placeholder="Amount"></span>
+                  <span ng-if="!bill.showEdit"><span class="value">${{ bill.amount }}</span>
+                </div>
+                <div class="paid">
+                  <input ng-if="bill.showEdit" id="autopay-{{ bill._id }}" type="checkbox" class="bill-paid" ng-model="bill.autopay">
+                  <label ng-if="bill.showEdit" for="autopay-{{ bill._id }}" class="autopay">Autopay</label>
+                  <span ng-if="!bill.showEdit">Paid <input type="checkbox" class="bill-paid" ng-model="bill.paid" ng-change="onPaidCheckboxChange(bill)">
+                  <span ng-if="bill.autopay && !bill.showEdit" class="gray">(autopay)</span>
+                </div>
+                <div class="link">
+                  <input ng-if="bill.showEdit" ng-model="bill.link" class="form-control" placeholder="Link">
+                  <a ng-if="!bill.showEdit" href="http://{{ bill.link }}" target="_blank">{{ bill.link }}</a>
+                </div>
+                <div class="buttons">
+                    <button ng-if="bill.showEdit" class="delete btn btn-danger btn-xs" ng-click="onDeleteClick(bill)"><span class="glyphicon glyphicon-trash"></span>Delete</button>
+                    <button ng-if="bill.showEdit" class="save btn btn-primary btn-xs" ng-click="onSaveClick(bill)"><span class="glyphicon glyphicon-floppy-disk"></span>Save</button>
+                    <button ng-if="!bill.showEdit" class="edit btn btn-primary btn-xs" ng-click="onEditClick(bill)"><span class="glyphicon glyphicon-pencil"></span>Edit</button>
+                </div>
+              </li>
+            </ul>
+            <div class="fixed-bottom">
+              <div class="summary">
+                <span>
+                  Paid {{ amountPaid() | currency }} of {{ total() | currency }}
+                </span>
+                <span class="remaining gray">
+                  ({{ total() - amountPaid() | currency }} remaining)
+                </span>
+              </div>
+              <div class="add-bill-container">
+                <button ng-click="onAddClick()" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-plus"></span>Add bill</button>
+              </div>
+              <div class="contact">
+                <a class="btn btn-default btn-xs" href="mailto:info@getbudgeter.com?subject=Budgeter%20Feedback">
+                  <span class="glyphicon glyphicon-envelope"></span> 
+                  Send Feedback
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="calc-dialog" class="modal fade" tabindex="-1" role="dialog" ng-controller="CalculatorController">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" ng-bind="title"></h4>
+            </div>
+            <div class="modal-body">
+              <form class="form-horizontal">
+                <div class="form-group">
+                  <label class="col-xs-6 control-label">Income</label>
+                  <div class="col-xs-6">
+                    <input type="text" class="form-control" ng-model="income">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-xs-6 control-label">- Other expenses</label>
+                  <div class="col-xs-6">
+                    <input type="text" class="form-control" ng-model="expenses">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-xs-6 control-label">- Bills</label>
+                  <div class="col-xs-6">
+                    <input type="text" class="form-control" ng-value="total()" readonly>
+                  </div>
+                </div>
+                <div class="calc-results"></div>
+                <div class="form-group">
+                  <div class="col-xs-12 results-text">
+                    <span ng-bind="calculate()"></span>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="/static/angular.js"></script>
+    <script src="/static/bills.js"></script>
+    <script src="/static/BillService.js"></script>
+    <script src="/static/BillsController.js"></script>
+    <script src="/static/CalculatorController.js"></script>
+  </body>
+</html>
+{% endraw %}

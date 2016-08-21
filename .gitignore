@@ -1,0 +1,10 @@
+*.pyc
+data/
+dump/
+*.log
+config.py
+bin/
+lib/
+include/
+.Python
+runtests
