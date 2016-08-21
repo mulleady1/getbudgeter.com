@@ -2,7 +2,7 @@
 
 angular.module('bills')
 .controller('BillsController', ['BillService', '$scope', '$location', function(BillService, $scope, $location) {
-    function Bill(showEdit) {
+    function Bill() {
         this.name = '';
         this.amount = '';
         this.link = '';

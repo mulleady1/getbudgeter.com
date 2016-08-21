@@ -79,6 +79,3 @@ def copy():
         data = {'msg': ex.message}
 
     return make_json_response(data)
-
-if __name__ == '__main__':
-    app.run(debug=True)
