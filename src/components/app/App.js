@@ -2,9 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import AppActions from '../../actions/AppActions';
 import Header from '../header/Header';
-import Footer from '../footer/Footer';
-import NavLink from '../shared/NavLink';
-import styles from './App.scss';
+import Sidebar from '../sidebar/Sidebar';
+import Content from '../content/Content';
 
 export class App extends React.Component {
 
@@ -18,12 +17,19 @@ export class App extends React.Component {
     AppActions.getSession();
   }
 
+  componentDidMount() {
+    const node = document.querySelector('#loading');
+    node.parentNode.removeChild(node);
+  }
+
   render() {
     return (
       <div className="flex-col main">
         <Header />
-        {this.props.children}
-        <Footer />
+        <div className="flex-row main">
+          <Sidebar />
+          <Content />
+        </div>
       </div>
     );
   }

@@ -7,3 +7,10 @@ export const UPDATE_BILL = 'UPDATE_BILL';
 export const DELETE_BILL = 'DELETE_BILL';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
+export const SET_ACTIVE_TAB = 'SET_ACTIVE_TAB';
+
+export const Tab = {
+  MONTH: 1,
+  WEEK: 2,
+  SEARCH: 3
+};

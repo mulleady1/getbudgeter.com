@@ -6,10 +6,12 @@ import {
   SET_BILLS,
   ADD_BILL,
   UPDATE_BILL,
-  DELETE_BILL
+  DELETE_BILL,
+  SET_ACTIVE_TAB,
+  Tab
 } from '../constants';
 
-function app(state = { user: null }, action) {
+function app(state = { user: {}, activeTab: Tab.MONTH }, action) {
   switch (action.type) {
     case LOGIN:
       return {
@@ -20,6 +22,11 @@ function app(state = { user: null }, action) {
       return {
         ...state,
         user: null
+      };
+    case SET_ACTIVE_TAB:
+      return {
+        ...state,
+        activeTab: action.tab
       };
     default:
       return state;

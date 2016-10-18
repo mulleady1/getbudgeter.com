@@ -3,7 +3,7 @@ var WebpackDevServer = require('webpack-dev-server');
 var config = require('./webpack.config');
 
 const HOST = '0.0.0.0';
-const PORT = 5031;
+const PORT = 5041;
 
 config.entry.unshift('webpack/hot/only-dev-server');
 config.entry.unshift(`webpack-dev-server/client?http://localhost:${PORT}`);
@@ -12,16 +12,16 @@ config.module.loaders[1].loader = 'style-loader!css-loader?modules&importLoaders
 config.plugins[0] = new webpack.HotModuleReplacementPlugin();
 
 new WebpackDevServer(webpack(config), {
-	contentBase: 'public/',
-	hot: true,
-	historyApiFallback: true,
+  contentBase: 'public/',
+  hot: true,
+  historyApiFallback: true,
   proxy: {
-    '**/*.js': 'http://localhost:5030'
+    '**/*.js': 'http://localhost:5040'
   }
 }).listen(PORT, HOST, function (err, result) {
-	if (err) {
-		return console.log(err);
-	}
+  if (err) {
+    return console.log(err);
+  }
 
-	console.log(`Listening at http://${HOST}:${PORT}/`);
+  console.log(`Listening at http://${HOST}:${PORT}/`);
 });

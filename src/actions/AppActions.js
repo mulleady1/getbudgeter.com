@@ -3,7 +3,8 @@ import axios from 'axios';
 import history from '../history';
 import { 
   LOGIN, 
-  LOGOUT 
+  LOGOUT,
+  SET_ACTIVE_TAB 
 } from '../constants';
 
 const debug = require('debug')('budgeter:actions:AppActions');
@@ -55,24 +56,10 @@ export default class AppActions {
     history.push('/');
   }
 
-  static sendContactRequestMessage(name, email, message) {
-    const data = {
-      name,
-      email,
-      message
-    };
-
-    return axios.post('/api/contact', data)
-      .then((res) => {
-        debug('sendContactRequestMessage success');
-        debug('res:', res);
-        return res.data;
-      })
-      .catch((res) => {
-        debug('sendContactRequestMessage error');
-        debug('res:', res);
-        return Promise.reject(new Error(res.data));
-      });
+  static setActiveTab(tab) {
+    store.dispatch({
+      type: SET_ACTIVE_TAB,
+      tab
+    });
   }
-
 }

@@ -8,8 +8,8 @@ import debug from 'debug';
 
 if (process.env.NODE_ENV === 'development') {
   window._debug = debug;
-  axios.defaults.baseURL = `http://${window.location.hostname}:5000`;
-  axios.defaults.withCredentials = true;
+  // axios.defaults.baseURL = `http://${window.location.hostname}:5040`;
+  // axios.defaults.withCredentials = true;
 }
 
 ReactDOM.render((

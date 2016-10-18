@@ -1,0 +1,13 @@
+.wrapper {
+  flex: 0 1 300px;
+  border-right: 1px solid #eee;
+  a {
+    display: block;
+    padding: 10px;
+    cursor: pointer;
+  }
+  a:hover {
+    text-decoration: none;
+    background: #f5f5f5;
+  }
+}
