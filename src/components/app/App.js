@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import AppActions from '../../actions/AppActions';
+import BillActions from '../../actions/BillActions';
 import Header from '../header/Header';
 import Sidebar from '../sidebar/Sidebar';
 import Content from '../content/Content';
+import './App.scss';
 
 export class App extends React.Component {
 
@@ -14,7 +15,7 @@ export class App extends React.Component {
   }
 
   componentWillMount() {
-    AppActions.getSession();
+    BillActions.get();
   }
 
   componentDidMount() {

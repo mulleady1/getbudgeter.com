@@ -12,12 +12,15 @@ config.module.loaders[1].loader = 'style-loader!css-loader?modules&importLoaders
 config.plugins[0] = new webpack.HotModuleReplacementPlugin();
 
 new WebpackDevServer(webpack(config), {
-  contentBase: 'public/',
+  contentBase: 'budgeter/templates/',
   hot: true,
   historyApiFallback: true,
-  proxy: {
-    '**/*.js': 'http://localhost:5040'
-  }
+  // proxy: {
+  //   '/': {
+  //     target: 'http://localhost:5040',
+  //     secure: false
+  //   }
+  // }
 }).listen(PORT, HOST, function (err, result) {
   if (err) {
     return console.log(err);

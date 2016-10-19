@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import moment from 'moment';
 import _ from 'lodash';
 import {
   LOGIN,
@@ -8,10 +9,16 @@ import {
   UPDATE_BILL,
   DELETE_BILL,
   SET_ACTIVE_TAB,
+  SET_YEAR,
+  SET_MONTH,
+  SET_YEAR_AND_MONTH,
   Tab
 } from '../constants';
 
-function app(state = { user: {}, activeTab: Tab.MONTH }, action) {
+const year = moment().year();
+const month = moment().month() + 1;
+
+function app(state = { user: {}, activeTab: Tab.MONTH, year, month }, action) {
   switch (action.type) {
     case LOGIN:
       return {
@@ -27,6 +34,22 @@ function app(state = { user: {}, activeTab: Tab.MONTH }, action) {
       return {
         ...state,
         activeTab: action.tab
+      };
+    case SET_YEAR:
+      return {
+        ...state,
+        year: action.year
+      };
+    case SET_MONTH:
+      return {
+        ...state,
+        month: action.month
+      };
+    case SET_YEAR_AND_MONTH:
+      return {
+        ...state,
+        year: action.year,
+        month: action.month
       };
     default:
       return state;

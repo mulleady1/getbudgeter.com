@@ -1,0 +1,48 @@
+.wrapper {
+  display: inline-block;
+  position: relative;
+  button {
+    border: 1px solid #eee;
+    &:hover {
+      background: #f5f5f5;
+      border: 1px solid #eee;
+    }
+    &:active {
+      background: #f0f0f0;
+    }
+    &:focus {
+      outline: none;
+    }
+  }
+  button:nth-child(1) {
+    border-right: none;
+    width: 25px;
+  }
+  button:nth-child(3) {
+    border-left: none;
+    width: 25px;
+  }
+  ul {
+    position: absolute;
+    max-height: 200px;
+    overflow-y: scroll;
+    background: #fff;
+    box-shadow: 0px 0px 3px 1px #eee;
+    width: 100%;
+  }
+  a {
+    display: block;
+    font-size: 17px;
+    padding: 5px 20px;
+    cursor: pointer;
+    color: #555;
+    &:hover {
+      text-decoration: none;
+      background: #eee;
+      color: #555;
+    }
+    &.active {
+      background: #f5f5f5;
+    }
+  }
+}

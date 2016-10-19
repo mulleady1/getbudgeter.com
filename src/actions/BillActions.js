@@ -1,6 +1,5 @@
 import store from '../store';
 import axios from 'axios';
-import history from '../history';
 import {
   SET_BILLS,
   ADD_BILL,
@@ -13,11 +12,12 @@ const debug = require('debug')('budgeter:actions:BillActions');
 export default class BillActions {
 
   static get() {
-    return axios.get('/bills')
+    const { year, month } = store.getState().app;
+    return axios.get(`/bills/${year}/${month}`)
       .then((res) => {
         store.dispatch({
           type: SET_BILLS,
-          bill: res.data
+          bills: res.data
         });
 
         return res.data;

@@ -8,6 +8,9 @@ export const DELETE_BILL = 'DELETE_BILL';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
 export const SET_ACTIVE_TAB = 'SET_ACTIVE_TAB';
+export const SET_YEAR = 'SET_YEAR';
+export const SET_MONTH = 'SET_MONTH';
+export const SET_YEAR_AND_MONTH = 'SET_YEAR_AND_MONTH';
 
 export const Tab = {
   MONTH: 1,

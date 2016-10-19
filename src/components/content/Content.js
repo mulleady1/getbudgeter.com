@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import AppActions from '../../actions/AppActions';
 import BillList from '../bills/BillList';
-import styles from './Content.scss';
+import Timeframe from '../timeframe/Timeframe';
 
 export class Content extends React.Component {
 
@@ -14,12 +14,18 @@ export class Content extends React.Component {
 
   render() {
     const { 
-      user,
-      bills 
+      bills,
+      year,
+      month
     } = this.props;
 
     return (
       <div className="main">
+        <div>
+          <h2>
+            <Timeframe year={year} month={month} />
+          </h2>
+        </div>
         <BillList bills={bills} />
       </div>
     );
@@ -32,9 +38,12 @@ export class Content extends React.Component {
 }
 
 const setProps = (state) => {
+  const { activeTab, year, month } = state.app;
   return {
-    user: state.app.user,
-    bills: state.bills
+    bills: state.bills,
+    activeTab,
+    year,
+    month
   };
 };
 
