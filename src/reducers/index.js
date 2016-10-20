@@ -63,17 +63,17 @@ function bills(state = [], action) {
     case ADD_BILL:
       return state.concat(action.bill);
     case UPDATE_BILL:
-      const bill = _.find(state, { id: action.bill.id });
+      const bill = _.find(state, { _id: action.bill._id });
       const newBill = {
         ...bill,
         ...action.bill
       };
 
       return state
-        .filter(b => b.id !== newBill.id)
+        .filter(b => b._id !== newBill._id)
         .concat(newBill);
     case DELETE_BILL:
-      return state.filter(b => b.id !== action.bill.id);
+      return state.filter(b => b._id !== action.bill._id);
     default:
       return state;
   }

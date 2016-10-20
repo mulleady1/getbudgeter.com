@@ -57,7 +57,7 @@ export default class BillActions {
   }
 
   static put(bill) {
-    return axios.put('/bills', bill)
+    return axios.put(`/bills/${bill._id}`, bill)
       .then((res) => {
         store.dispatch({
           type: UPDATE_BILL,

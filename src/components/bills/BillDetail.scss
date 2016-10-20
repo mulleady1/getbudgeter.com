@@ -23,9 +23,15 @@
     margin: 0;
   }
 }
+.autopay {
+  color: #aaa;
+}
 .link {
   flex: 1 1 30%;
 }
 .buttons {
   flex: 1 1 10%;
+  button:nth-child(2) {
+    margin-left: 10px;
+  }
 }

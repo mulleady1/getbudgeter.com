@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import BillActions from '../../actions/BillActions';
 import BillDetail from './BillDetail';
 import {Bill} from '../../models';
@@ -10,11 +11,26 @@ export default class BillList extends React.Component {
     super(props);
 
     this.state = {
-      bills: props.bills.slice()
+      bills: []
     };
 
-    this.onClick = this.onClick.bind(this);
+    this.onAddClick = this.onAddClick.bind(this);
+    this.onSaveClick = this.onSaveClick.bind(this);
     this.onDeleteClick = this.onDeleteClick.bind(this);
+  }
+
+  componentWillMount() {
+    this.setBills(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setBills(nextProps);
+  }
+
+  setBills(props) {
+    this.setState({ 
+      bills: props.bills.slice()
+    });
   }
 
   render() {
@@ -22,8 +38,15 @@ export default class BillList extends React.Component {
 
     const items = bills.map((bill) => {
       const key = bill._id || bill.id;
+      const props = {
+        key,
+        bill,
+        onDeleteClick: this.onDeleteClick,
+        onSaveClick: this.onSaveClick
+      };
+
       return (
-        <BillDetail key={key} bill={bill} onDeleteClick={this.onDeleteClick} />
+        <BillDetail {...props} />
       );
     });
 
@@ -33,7 +56,7 @@ export default class BillList extends React.Component {
           {items}
         </ul>
         <div className={styles.footer}>
-          <button className="btn btn-sm btn-primary" onClick={this.onClick}>
+          <button className="btn btn-sm btn-primary" onClick={this.onAddClick}>
             <span className="glyphicon glyphicon-plus"></span>
             <span>Add Bill</span>
           </button>
@@ -42,12 +65,29 @@ export default class BillList extends React.Component {
     );
   }
 
-  onClick() {
+  onAddClick() {
     const { year, month } = this.props;
 
     this.setState({
-      bills: this.state.bills.concat(new Bill(year, month))
+      bills: this.state.bills.concat(new Bill(year, month + 1))
     });
+  }
+
+  onSaveClick(bill) {
+    const tempId = bill.id;
+    delete bill.id;
+    delete bill._editing;
+
+    return BillActions.save(bill)
+      .then(newBill => {
+        if (tempId) {
+          let bills = this.state.bills
+            .filter(b => b.id !== tempId)
+            .concat(newBill);
+            
+          this.setState({ bills });
+        }
+      });
   }
 
   onDeleteClick(bill) {
