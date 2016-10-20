@@ -1,3 +1,10 @@
+.wrapper {
+  & > div {
+    padding: 2px 7px;
+    display: flex;
+    align-items: center;
+  }
+}
 .name {
   flex: 1 1 25%;
 }

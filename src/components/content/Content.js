@@ -25,7 +25,7 @@ export class Content extends React.Component {
         <div className={styles.header}>
           <Timeframe year={year} month={month} />
         </div>
-        <BillList bills={bills} />
+        <BillList bills={bills} year={year} month={month} />
       </div>
     );
   }

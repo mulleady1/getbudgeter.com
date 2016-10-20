@@ -28,17 +28,6 @@ form {
 		margin-bottom: 25px;
 	}
 }
-input:not([type="checkbox"]), textarea, button {
-	display: block;
-	width: 100%;
-	padding: 9px;
-	font-size: 18px;
-	border: 1px solid #555;
-	border-radius: 0;
-	background: transparent;
-	appearance: none;
-	color: #a9a9a9;
-}
 textarea {
 	min-height: 125px;
 }
@@ -103,5 +92,8 @@ section {
   }
   .jc-sb {
     justify-content: space-between;
+  }
+  button span[class^="glyphicon"] ~ * {
+    margin-left: 10px;
   }
 }
