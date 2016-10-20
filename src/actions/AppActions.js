@@ -1,5 +1,6 @@
 import store from '../store';
 import axios from 'axios';
+import BillActions from './BillActions';
 import { 
   LOGOUT,
   SET_ACTIVE_TAB,
@@ -41,6 +42,8 @@ export default class AppActions {
       year,
       month
     });
+
+    BillActions.get(year, month);
   }
   
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import AppActions from '../../actions/AppActions';
 import BillDetail from './BillDetail';
 import styles from './BillList.scss';
 
@@ -10,12 +9,12 @@ export default class BillList extends React.Component {
 
     const items = bills.map((bill, i) => {
       return (
-        <BillDetail key={i} bill={bill} />
+        <BillDetail key={bill._id || i} bill={bill} />
       );
     });
 
     return (
-      <ul>
+      <ul className={styles.wrapper}>
         {items}
       </ul>
     );

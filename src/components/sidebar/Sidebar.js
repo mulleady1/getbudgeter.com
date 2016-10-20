@@ -28,12 +28,12 @@ export class Sidebar extends React.Component {
       <ul className={`${styles.wrapper} flex-col`}>
         <li>
           <a 
-            className={classNames({ active: tab === MONTH })}
+            className={classNames({ [styles.active]: tab === MONTH })}
             onClick={() => this.onClick(MONTH)}>Month</a>
         </li>
         <li>
           <a 
-            className={classNames({ active: tab === WEEK })}
+            className={classNames({ [styles.active]: tab === WEEK })}
             onClick={() => this.onClick(WEEK)}>Week</a>
         </li>
       </ul>

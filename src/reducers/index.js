@@ -16,7 +16,7 @@ import {
 } from '../constants';
 
 const year = moment().year();
-const month = moment().month() + 1;
+const month = moment().month();
 
 function app(state = { user: {}, activeTab: Tab.MONTH, year, month }, action) {
   switch (action.type) {

@@ -1,0 +1,24 @@
+.name {
+  flex: 1 1 25%;
+}
+.amount {
+  flex: 1 1 10%;
+}
+.paid {
+  flex: 1 1 5%;
+  label {
+    font-weight: normal;
+  }
+  span {
+    margin-right: 5px;
+  }
+  input {
+    margin: 0;
+  }
+}
+.link {
+  flex: 1 1 30%;
+}
+.buttons {
+  flex: 1 1 10%;
+}

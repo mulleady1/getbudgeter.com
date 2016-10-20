@@ -28,7 +28,7 @@ form {
 		margin-bottom: 25px;
 	}
 }
-input, textarea, button {
+input:not([type="checkbox"]), textarea, button {
 	display: block;
 	width: 100%;
 	padding: 9px;
@@ -97,5 +97,11 @@ section {
   }
   .jc-center {
     justify-content: center;
+  }
+  .jc-sa {
+    justify-content: space-around;
+  }
+  .jc-sb {
+    justify-content: space-between;
   }
 }

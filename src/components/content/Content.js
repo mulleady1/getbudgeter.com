@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import AppActions from '../../actions/AppActions';
 import BillList from '../bills/BillList';
 import Timeframe from '../timeframe/Timeframe';
+import styles from './Content.scss';
 
 export class Content extends React.Component {
 
@@ -21,10 +22,8 @@ export class Content extends React.Component {
 
     return (
       <div className="main">
-        <div>
-          <h2>
-            <Timeframe year={year} month={month} />
-          </h2>
+        <div className={styles.header}>
+          <Timeframe year={year} month={month} />
         </div>
         <BillList bills={bills} />
       </div>

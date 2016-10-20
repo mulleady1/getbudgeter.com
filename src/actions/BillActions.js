@@ -13,7 +13,7 @@ export default class BillActions {
 
   static get() {
     const { year, month } = store.getState().app;
-    return axios.get(`/bills/${year}/${month}`)
+    return axios.get(`/bills/${year}/${month + 1}`)
       .then((res) => {
         store.dispatch({
           type: SET_BILLS,

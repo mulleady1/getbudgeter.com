@@ -21,6 +21,7 @@ export class App extends React.Component {
   componentDidMount() {
     const node = document.querySelector('#loading');
     node.parentNode.removeChild(node);
+    clearInterval(window._loadTimer);
   }
 
   render() {
