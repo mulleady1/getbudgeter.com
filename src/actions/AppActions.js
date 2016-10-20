@@ -4,10 +4,13 @@ import BillActions from './BillActions';
 import { 
   LOGOUT,
   SET_ACTIVE_TAB,
-  SET_YEAR_AND_MONTH
+  SET_YEAR_AND_MONTH,
+  SET_IS_LOADING
 } from '../constants';
 
 const debug = require('debug')('budgeter:actions:AppActions');
+
+let _timer = null;
 
 export default class AppActions {
 
@@ -36,6 +39,13 @@ export default class AppActions {
     });
   }
   
+  static setIsLoading(isLoading) {
+    store.dispatch({
+      type: SET_IS_LOADING,
+      isLoading
+    });
+  }
+  
   static setYearAndMonth(year, month) {
     store.dispatch({
       type: SET_YEAR_AND_MONTH,
@@ -43,7 +53,17 @@ export default class AppActions {
       month
     });
 
-    BillActions.get(year, month);
+    AppActions.setIsLoading(true);
+
+    if (_timer) {
+      clearTimeout(_timer);
+    }
+
+    _timer = setTimeout(() => {
+      BillActions.get(year, month);
+      AppActions.setIsLoading(false);
+      _timer = null;
+    }, 400);
   }
   
 }

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import AppActions from '../../actions/AppActions';
 import BillList from '../bills/BillList';
 import Timeframe from '../timeframe/Timeframe';
+import {Loading} from '../shared';
 import styles from './Content.scss';
 
 export class Content extends React.Component {
@@ -17,7 +18,8 @@ export class Content extends React.Component {
     const { 
       bills,
       year,
-      month
+      month,
+      isLoading
     } = this.props;
 
     return (
@@ -25,7 +27,11 @@ export class Content extends React.Component {
         <div className={styles.header}>
           <Timeframe year={year} month={month} />
         </div>
-        <BillList bills={bills} year={year} month={month} />
+        { isLoading ? (
+          <Loading />
+        ) : (
+          <BillList bills={bills} year={year} month={month} />
+        )}
       </div>
     );
   }
@@ -37,10 +43,11 @@ export class Content extends React.Component {
 }
 
 const setProps = (state) => {
-  const { activeTab, year, month } = state.app;
+  const { activeTab, isLoading, year, month } = state.app;
   return {
     bills: state.bills,
     activeTab,
+    isLoading,
     year,
     month
   };

@@ -12,6 +12,7 @@ import {
   SET_YEAR,
   SET_MONTH,
   SET_YEAR_AND_MONTH,
+  SET_IS_LOADING,
   Tab
 } from '../constants';
 
@@ -34,6 +35,11 @@ function app(state = { user: {}, activeTab: Tab.MONTH, year, month }, action) {
       return {
         ...state,
         activeTab: action.tab
+      };
+    case SET_IS_LOADING:
+      return {
+        ...state,
+        isLoading: action.isLoading
       };
     case SET_YEAR:
       return {
