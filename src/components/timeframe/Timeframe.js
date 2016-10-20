@@ -76,11 +76,15 @@ export class Timeframe extends React.Component {
     return (
       <div className={styles.wrapper}>
         <div className="flex-row">
-          <button onClick={this.prev}>‹</button>
+          <button className="flex-row ai-center jc-center" onClick={this.prev}>
+            <span className="glyphicon glyphicon-menu-left"></span>
+          </button>
           <button ref="mainButton" onClick={() => this.setState({ show: !show })}>
             {label}
           </button>
-          <button onClick={this.next}>›</button>
+          <button className="flex-row ai-center jc-center" onClick={this.next}>
+            <span className="glyphicon glyphicon-menu-right"></span>
+          </button>
         </div>
         { show ? (
           <ul ref="list">

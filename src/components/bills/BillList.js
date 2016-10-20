@@ -3,6 +3,7 @@ import _ from 'lodash';
 import BillActions from '../../actions/BillActions';
 import BillDetail from './BillDetail';
 import {Bill} from '../../models';
+import {confirm} from '../shared';
 import styles from './BillList.scss';
 
 export default class BillList extends React.Component {
@@ -11,38 +12,27 @@ export default class BillList extends React.Component {
     super(props);
 
     this.state = {
-      bills: []
+      bill: null
     };
 
     this.onAddClick = this.onAddClick.bind(this);
-    this.onSaveClick = this.onSaveClick.bind(this);
-    this.onDeleteClick = this.onDeleteClick.bind(this);
-  }
-
-  componentWillMount() {
-    this.setBills(this.props);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setBills(nextProps);
-  }
-
-  setBills(props) {
-    this.setState({ 
-      bills: props.bills.slice()
-    });
+    this.onSaveExistingClick = this.onSaveExistingClick.bind(this);
+    this.onSaveNewClick = this.onSaveNewClick.bind(this);
+    this.onDeleteExistingClick = this.onDeleteExistingClick.bind(this);
+    this.onDeleteNewClick = this.onDeleteNewClick.bind(this);
   }
 
   render() {
-    const { bills } = this.state;
+    const { bills } = this.props;
+    const { bill } = this.state;
 
-    const items = bills.map((bill) => {
+    const items = _.sortBy(bills, 'name').map((bill) => {
       const key = bill._id || bill.id;
       const props = {
         key,
         bill,
-        onDeleteClick: this.onDeleteClick,
-        onSaveClick: this.onSaveClick
+        onDeleteClick: this.onDeleteExistingClick,
+        onSaveClick: this.onSaveExistingClick
       };
 
       return (
@@ -54,9 +44,17 @@ export default class BillList extends React.Component {
       <div>
         <ul className={styles.wrapper}>
           {items}
+          { bill ? (
+            <BillDetail 
+              key={bill.id} 
+              bill={bill}
+              onDeleteClick={this.onDeleteNewClick}
+              onSaveClick={this.onSaveNewClick} />
+          ) : null
+          }
         </ul>
         <div className={styles.footer}>
-          <button className="btn btn-sm btn-primary" onClick={this.onAddClick}>
+          <button className="btn btn-sm btn-primary" disabled={bill} onClick={this.onAddClick}>
             <span className="glyphicon glyphicon-plus"></span>
             <span>Add Bill</span>
           </button>
@@ -69,34 +67,32 @@ export default class BillList extends React.Component {
     const { year, month } = this.props;
 
     this.setState({
-      bills: this.state.bills.concat(new Bill(year, month + 1))
+      bill: new Bill(year, month + 1)
     });
   }
 
-  onSaveClick(bill) {
-    const tempId = bill.id;
-    delete bill.id;
-    delete bill._editing;
+  onSaveExistingClick(bill) {
+    return BillActions.put(bill);
+  }
 
-    return BillActions.save(bill)
-      .then(newBill => {
-        if (tempId) {
-          let bills = this.state.bills
-            .filter(b => b.id !== tempId)
-            .concat(newBill);
-            
-          this.setState({ bills });
+  onDeleteExistingClick(bill) {
+    confirm()
+      .then(data => {
+        if (data.confirmed) {
+          return BillActions.delete(bill);
         }
       });
   }
 
-  onDeleteClick(bill) {
-    if (bill._id) {
-      return BillActions.delete(bill); 
-    }
-      
-    const bills = this.state.bills.filter(b => b.id !== bill.id);
-    this.setState({ bills });
+  onSaveNewClick(bill) {
+    delete bill.id;
+    delete bill._editing;
+    return BillActions.post(bill)
+      .then(() => this.setState({ bill: null }));
+  }
+
+  onDeleteNewClick() {
+    this.setState({ bill: null });
   }
 
 }

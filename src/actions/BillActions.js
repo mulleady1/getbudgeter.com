@@ -75,7 +75,7 @@ export default class BillActions {
   }
 
   static delete(bill) {
-    return axios.delete('/bills', bill)
+    return axios.delete(`/bills/${bill._id}`, bill)
       .then((res) => {
         store.dispatch({
           type: DELETE_BILL,
@@ -85,7 +85,7 @@ export default class BillActions {
         return res.data;
       })
       .catch((res) => {
-        const msg = 'Error updating bill.';
+        const msg = 'Error deleting bill.';
         debug(msg);
         debug('res:', res);
         return Promise.reject(new Error(msg));

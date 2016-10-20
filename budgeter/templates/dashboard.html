@@ -28,6 +28,9 @@
         margin-top: 50px;
         color: #ccc;
       }
+      #dialog {
+        height: 0;
+      }
     </style>
     
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -40,6 +43,7 @@
   <body>
     <div id="loading">...</div>
     <div id="app"></div>
+    <div id="dialog"></div>
     <script>
       var node = document.querySelector('#loading');
       window._loadTimer = setInterval(function() {

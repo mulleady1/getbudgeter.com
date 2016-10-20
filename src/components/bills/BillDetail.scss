@@ -1,6 +1,7 @@
 .wrapper {
+  border-bottom: 1px solid #eee;
   & > div {
-    padding: 2px 7px;
+    padding: 4px 7px;
     display: flex;
     align-items: center;
   }
@@ -9,10 +10,10 @@
   flex: 1 1 25%;
 }
 .amount {
-  flex: 1 1 10%;
+  flex: 1 1 100px;
 }
 .paid {
-  flex: 1 1 5%;
+  flex: 1 1 130px;
   label {
     font-weight: normal;
   }
@@ -25,13 +26,40 @@
 }
 .autopay {
   color: #aaa;
+  margin: 0 0 0 5px;
 }
 .link {
   flex: 1 1 30%;
 }
 .buttons {
   flex: 1 1 10%;
-  button:nth-child(2) {
-    margin-left: 10px;
+  justify-content: flex-end;
+  button {
+    padding: 3px 7px;
   }
+  button:nth-child(2) {
+    margin: 0 10px;
+  }
+  :global .btn-default {
+    background-color: #fff;
+    border-color: #ddd;
+    color: #aaa;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    &:active {
+      background-color: #f0f0f0;
+    }
+  }
+}
+.display {
+  .buttons button {
+    visibility: hidden;
+  }
+  &:hover .buttons button {
+    visibility: visible;
+  }
+}
+.form {
+
 }
