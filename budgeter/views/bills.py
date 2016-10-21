@@ -17,30 +17,20 @@ class Bills(MethodView):
         start = parser.parse(request.args['start'])
         end = parser.parse(request.args['end'])
         user_id = session['user_id']
-        data = []
-        try:
-            params = {
-                'user_id': user_id,
-                'due': {
-                    '$gte': start,
-                    '$lt': end
-                }
+        params = {
+            'user_id': user_id,
+            'due': {
+                '$gte': start,
+                '$lt': end
             }
+        }
 
-            cursor = mongo.db.bills.find(params)
-            bill = cursor.next()
-            while bill is not None:
-                bill['_id'] = str(bill['_id'])
-                bill['due'] = str(bill['due'])
-                data.append(bill)
-                bill = cursor.next()
-        except StopIteration as e:
-            pass
-        except Exception as ex:
-            data = {'success': False}
-            print ex
+        bills = list(mongo.db.bills.find(params))
+        for bill in bills:
+            bill['_id'] = str(bill['_id'])
+            bill['due'] = str(bill['due'])
 
-        return make_json_response(data)
+        return make_json_response(bills)
 
     def post(self):
         logging.debug('%s /bills', request.method)
