@@ -2,27 +2,23 @@ import store from '../store';
 import axios from 'axios';
 import BillActions from './BillActions';
 import { 
-  LOGOUT,
   SET_ACTIVE_TAB,
   SET_DATE,
-  SET_IS_LOADING
+  SET_IS_LOADING,
+  SET_MESSAGE
 } from '../constants';
 
 const debug = require('debug')('budgeter:actions:AppActions');
 
-let _timer = null;
+let _fetchTimer,
+  _messageTimer;
 
 export default class AppActions {
 
   static logout() {
     return axios.post('/logout')
-      .then((res) => {
-        store.dispatch({
-          type: LOGOUT,
-          user: res.data
-        });
-
-        return res.data;
+      .then(() => {
+        window.location = '/';
       })
       .catch((res) => {
         const msg = 'Error logging out.';
@@ -54,15 +50,32 @@ export default class AppActions {
 
     AppActions.setIsLoading(true);
 
-    if (_timer) {
-      clearTimeout(_timer);
+    if (_fetchTimer) {
+      clearTimeout(_fetchTimer);
     }
 
-    _timer = setTimeout(() => {
-      BillActions.get();
-      AppActions.setIsLoading(false);
-      _timer = null;
+    _fetchTimer = setTimeout(() => {
+      _fetchTimer = null;
+      BillActions.get()
+        .then(() => AppActions.setIsLoading(false));
     }, 400);
   }
   
+  static setMessage(message) {
+    if (_messageTimer) {
+      clearTimeout(_messageTimer);
+    }
+
+    if (message) {
+      _messageTimer = setTimeout(() => {
+        _messageTimer = null;
+        AppActions.setMessage('');
+      }, 2000);
+    }
+
+    store.dispatch({
+      type: SET_MESSAGE,
+      message
+    });
+  }
 }

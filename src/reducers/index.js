@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 import moment from 'moment';
 import _ from 'lodash';
 import {
-  LOGOUT,
   SET_BILLS,
   ADD_BILL,
   UPDATE_BILL,
@@ -11,6 +10,7 @@ import {
   SET_INTERVAL,
   SET_ACTIVE_TAB,
   SET_IS_LOADING,
+  SET_MESSAGE,
   Tab,
   Inteval
 } from '../constants';
@@ -21,14 +21,16 @@ const interval = {
 };
 
 const date = moment().startOf(interval.unit);
+const initialState = {
+  user: {}, 
+  activeTab: Tab.MONTH,
+  message: '', 
+  date, 
+  interval
+};
 
-function app(state = { user: {}, activeTab: Tab.MONTH, date, interval }, action) {
+function app(state = initialState, action) {
   switch (action.type) {
-    case LOGOUT:
-      return {
-        ...state,
-        user: null
-      };
     case SET_DATE:
       return {
         ...state,
@@ -48,6 +50,11 @@ function app(state = { user: {}, activeTab: Tab.MONTH, date, interval }, action)
       return {
         ...state,
         isLoading: action.isLoading
+      };
+    case SET_MESSAGE:
+      return {
+        ...state,
+        message: action.message
       };
     default:
       return state;

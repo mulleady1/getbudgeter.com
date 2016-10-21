@@ -10,46 +10,40 @@ export class Content extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.onLogoutClick = this.onLogoutClick.bind(this);
   }
 
   render() {
     const { 
       bills,
-      year,
-      month,
+      date,
+      interval,
       isLoading
     } = this.props;
 
     return (
       <div className="main">
         <div className={styles.header}>
-          <Timeframe year={year} month={month} />
+          <Timeframe date={date} interval={interval} />
         </div>
         { isLoading ? (
           <Loading />
         ) : (
-          <BillList bills={bills} year={year} month={month} />
+          <BillList bills={bills} date={date} interval={interval} />
         )}
       </div>
     );
   }
 
-  onLogoutClick() {
-    AppActions.logout();
-  }
-
 }
 
 const setProps = (state) => {
-  const { activeTab, isLoading, year, month } = state.app;
+  const { activeTab, isLoading, date, interval } = state.app;
   return {
     bills: state.bills,
     activeTab,
     isLoading,
-    year,
-    month
+    date,
+    interval
   };
 };
 

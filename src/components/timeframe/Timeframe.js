@@ -35,30 +35,32 @@ export class Timeframe extends React.Component {
       return;
     }
 
-    const key = `${this.props.year}-${this.props.month}`;
+    const key = this.props.date.format(DISPLAY_FORMAT);
     const item = list.querySelector(`[data-key="${key}"]`);
-    if (item && item.scrollIntoView) {
-      item.scrollIntoView();
+    if (item) {
+      const listTop = list.getBoundingClientRect().top;
+      const itemTop = item.getBoundingClientRect().top;
+      list.scrollTop = itemTop - listTop;
     }
   }
 
   renderMonths() {
-    const { year } = this.props;
+    const { date } = this.props;
     const years = [
-      year - 1,
-      year,
-      year + 1
+      date.year() - 1,
+      date.year(),
+      date.year() + 1
     ];
 
     return years.map(year => {
       return _.range(12).map(month => {
         const date = moment(`${year}-${month + 1}`, PARSE_FORMAT);
         const label = date.format(DISPLAY_FORMAT);
-        const key = `${year}-${month}`;
-        const cssClass = classNames({ [styles.active]: key === this.key });
+        const key = label;
+        const cssClass = classNames({ [styles.active]: key === this.props.date.format(DISPLAY_FORMAT) });
         return (
           <li key={key} data-key={key}>
-            <a className={cssClass} onClick={() => this.onClick(year, month)}>
+            <a className={cssClass} onClick={() => this.onClick(date)}>
               {label}
             </a>
           </li>
@@ -68,11 +70,10 @@ export class Timeframe extends React.Component {
   }
 
   render() {
-    const { year, month } = this.props;
+    const { date } = this.props;
     const { show } = this.state;
-    const label = moment(`${year}-${month + 1}`, PARSE_FORMAT).format(DISPLAY_FORMAT);
-    this.key = `${year}-${month}`;
-
+    const label = date.format(DISPLAY_FORMAT);
+    
     return (
       <div className={styles.wrapper}>
         <div className="flex-row">
@@ -96,37 +97,19 @@ export class Timeframe extends React.Component {
     );
   }
 
-  onClick(year, month) {
+  onClick(date) {
     this.setState({ show: false });
-    AppActions.setYearAndMonth(year, month);
+    AppActions.setDate(date);
   }
 
   prev() {
-    const { year, month } = this.props;
-    let nextYear, nextMonth;
-    if (month > 0) {
-      nextYear = year;
-      nextMonth = month - 1;
-    } else {
-      nextYear = year - 1;
-      nextMonth = 11;
-    }
-
-    AppActions.setYearAndMonth(nextYear, nextMonth);
+    const { date, interval } = this.props;
+    AppActions.setDate(date.clone().add(-interval.value, interval.unit));
   }
 
   next() {
-    const { year, month } = this.props;
-    let nextYear, nextMonth;
-    if (month < 11) {
-      nextYear = year;
-      nextMonth = month + 1;
-    } else {
-      nextYear = year + 1;
-      nextMonth = 0;
-    }
-
-    AppActions.setYearAndMonth(nextYear, nextMonth);
+    const { date, interval } = this.props;
+    AppActions.setDate(date.clone().add(interval.value, interval.unit));
   }
 
 }

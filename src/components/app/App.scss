@@ -73,6 +73,7 @@ section {
   }
   .main {
     flex-grow: 1;
+    overflow-y: auto;
   }
   .flex-row {
     display: flex;
@@ -96,4 +97,16 @@ section {
   button span[class^="glyphicon"] ~ * {
     margin-left: 10px;
   }
+}
+
+.message {
+  position: fixed;
+  line-height: 55px;
+  top: 0px;
+  left: 50%;
+  width: 200px;
+  margin-left: -100px;
+  text-align: center;
+  color: #aaa;
+  z-index: 110;
 }

@@ -13,6 +13,7 @@ export default class BillDetail extends React.Component {
     };
 
     this.onChange = this.onChange.bind(this);
+    this.onPaidChange = this.onPaidChange.bind(this);
     this.onSaveClick = this.onSaveClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);  
   }
@@ -103,7 +104,7 @@ export default class BillDetail extends React.Component {
         <div className={styles.paid}>
           <label className="flex-row ai-center">
             <span>Paid</span>
-            <input type="checkbox" checked={paid} onChange={() => this.props.onSaveClick(this.props.bill)} />
+            <input type="checkbox" checked={!!paid} onChange={this.onPaidChange} />
           </label>
           { autopay ? (
             <span className={styles.autopay}>(autopay)</span>
@@ -133,6 +134,15 @@ export default class BillDetail extends React.Component {
     }
 
     this.setState(nextState);
+  }
+
+  onPaidChange() {
+    const bill = {
+      ...this.props.bill,
+      paid: !this.props.bill.paid
+    };
+
+    this.props.onSaveClick(bill);
   }
 
   onSaveClick() {

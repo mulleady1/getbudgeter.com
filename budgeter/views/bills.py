@@ -51,8 +51,10 @@ class Bills(MethodView):
         if '_id' in bill:
             return ('Should have PUT', 400)
         bill['user_id'] = user_id
+        bill['due'] = parser.parse(bill['due'])
         mongo.db.bills.save(bill, True)
         bill['_id'] = str(bill['_id'])
+        bill['due'] = str(bill['due'])
         return make_json_response(bill)
 
     def put(self, id):
@@ -67,9 +69,11 @@ class Bills(MethodView):
             return ('Bill not found', 400)
         logging.debug('Found')
         bill['user_id'] = user_id
+        bill['due'] = parser.parse(bill['due'])
         bill['_id'] = ObjectId(id)
         mongo.db.bills.save(bill, True)
         bill['_id'] = str(id)
+        bill['due'] = str(bill['due'])
         return make_json_response(bill)
 
     def delete(self, id):

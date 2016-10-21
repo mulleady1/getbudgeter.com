@@ -1,5 +1,6 @@
 import hashlib
 import logging
+from datetime import datetime
 from flask import redirect, render_template, request, session, url_for
 from flask.views import MethodView
 from budgeter import app, mongo
@@ -32,6 +33,8 @@ class Login(MethodView):
         logging.debug('initializing session for %s', user['username'])
         session['user_id'] = str(user['_id'])
         session.permanent = True
+        user['last_login'] = datetime.utcnow()
+        mongo.db.users.save(user)
         return redirect(url_for('index'))
 
 app.add_url_rule('/login', view_func=Login.as_view('login'))

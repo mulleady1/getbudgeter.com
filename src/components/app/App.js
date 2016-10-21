@@ -4,7 +4,7 @@ import BillActions from '../../actions/BillActions';
 import Header from '../header/Header';
 import Sidebar from '../sidebar/Sidebar';
 import Content from '../content/Content';
-import './App.scss';
+import styles from './App.scss';
 
 export class App extends React.Component {
 
@@ -25,9 +25,14 @@ export class App extends React.Component {
   }
 
   render() {
+    const { message } = this.props;
     return (
       <div className="flex-col main">
         <Header />
+        { message ? (
+          <div className={styles.message}>{message}</div>
+        ) : null
+        }
         <div className="flex-row main">
           <Sidebar />
           <Content />
@@ -43,7 +48,8 @@ App.childContextTypes = {
 
 const setProps = (state) => {
   return {
-    user: state.app.user
+    user: state.app.user,
+    message: state.app.message
   };
 };
 

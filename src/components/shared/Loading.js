@@ -7,20 +7,13 @@ export default class Loading extends React.Component {
     super(props);
 
     this.state = {
-      label: '.'
+      i: 0
     };
   }
 
   componentDidMount() {
     this.timer = setInterval(() => {
-      let label = this.state.label;
-      if (this.state.label.indexOf('...') > -1) {
-        label = '';
-      } else {
-        label += '.';
-      }
-
-      this.setState({ label });
+      this.setState({ i: this.state.i + 1 });
     }, 250);
   }
   
@@ -29,8 +22,37 @@ export default class Loading extends React.Component {
   }
   
   render() {
+    const wrapperClassName = `${styles.wrapper} flex-row ai-center`;
+    switch(this.state.i % 5) {
+      case 0:
+        return (
+          <div className={wrapperClassName}>
+            <span className={styles.big}>•</span><span>•</span><span>•</span>
+          </div>
+        );
+      case 1:
+        return (
+          <div className={wrapperClassName}>
+            <span>•</span><span className={styles.big}>•</span><span>•</span>
+          </div>
+        );
+      case 2:
+        return (
+          <div className={wrapperClassName}>
+            <span>•</span><span>•</span><span className={styles.big}>•</span>
+          </div>
+        );
+      case 3:
+      case 4:
+        return (
+          <div className={wrapperClassName}>
+            <span>•</span><span>•</span><span>•</span>
+          </div>
+        );
+    }
+
     return (
-      <div className={styles.wrapper}>{this.state.label}</div>
+      <div></div>
     );
   }
 

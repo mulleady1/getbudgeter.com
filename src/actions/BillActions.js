@@ -1,10 +1,13 @@
 import store from '../store';
 import axios from 'axios';
+import AppActions from './AppActions';
 import {
   SET_BILLS,
   ADD_BILL,
   UPDATE_BILL,
-  DELETE_BILL
+  DELETE_BILL,
+  SAVING,
+  SAVED
 } from '../constants';
 
 const debug = require('debug')('budgeter:actions:BillActions');
@@ -42,6 +45,7 @@ export default class BillActions {
   }
 
   static post(bill) {
+    AppActions.setMessage(SAVING);
     return axios.post('/bills', bill)
       .then((res) => {
         store.dispatch({
@@ -49,6 +53,7 @@ export default class BillActions {
           bill: res.data
         });
 
+        AppActions.setMessage(SAVED);
         return res.data;
       })
       .catch((res) => {
@@ -60,6 +65,7 @@ export default class BillActions {
   }
 
   static put(bill) {
+    AppActions.setMessage(SAVING);
     return axios.put(`/bills/${bill._id}`, bill)
       .then((res) => {
         store.dispatch({
@@ -67,6 +73,7 @@ export default class BillActions {
           bill: res.data
         });
 
+        AppActions.setMessage(SAVED);
         return res.data;
       })
       .catch((res) => {
@@ -78,6 +85,7 @@ export default class BillActions {
   }
 
   static delete(bill) {
+    AppActions.setMessage(SAVING);
     return axios.delete(`/bills/${bill._id}`, bill)
       .then((res) => {
         store.dispatch({
@@ -85,6 +93,7 @@ export default class BillActions {
           bill
         });
 
+        AppActions.setMessage(SAVED);
         return res.data;
       })
       .catch((res) => {

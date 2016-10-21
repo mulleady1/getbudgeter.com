@@ -1,5 +1,6 @@
 import logging
 import hashlib
+from datetime import datetime
 from flask import redirect, render_template, request, session, url_for
 from flask.views import MethodView
 from budgeter.forms import RegistrationForm
@@ -34,7 +35,8 @@ class Register(MethodView):
             user_id = mongo.db.users.save({
                 'username': form.username.data,
                 'email': form.email.data,
-                'password': hashlib.md5(form.password.data).hexdigest()
+                'password': hashlib.md5(form.password.data).hexdigest(),
+                'created': datetime.utcnow()
             })
             session['user_id'] = str(user_id)
             session.permanent = True

@@ -64,10 +64,10 @@ export default class BillList extends React.Component {
   }
 
   onAddClick() {
-    const { year, month } = this.props;
+    const { date } = this.props;
 
     this.setState({
-      bill: new Bill(year, month + 1)
+      bill: new Bill(date.format())
     });
   }
 
