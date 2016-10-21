@@ -12,8 +12,11 @@ const debug = require('debug')('budgeter:actions:BillActions');
 export default class BillActions {
 
   static get() {
-    const { year, month } = store.getState().app;
-    return axios.get(`/bills/${year}/${month + 1}`)
+    const { date, interval } = store.getState().app;
+    const { value, unit } = interval;
+    const start = date.format();
+    const end = date.clone().add(value, unit).format();
+    return axios.get(`/bills?start=${start}&end=${end}`)
       .then((res) => {
         store.dispatch({
           type: SET_BILLS,

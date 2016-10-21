@@ -4,7 +4,7 @@ import BillActions from './BillActions';
 import { 
   LOGOUT,
   SET_ACTIVE_TAB,
-  SET_YEAR_AND_MONTH,
+  SET_DATE,
   SET_IS_LOADING
 } from '../constants';
 
@@ -46,11 +46,10 @@ export default class AppActions {
     });
   }
   
-  static setYearAndMonth(year, month) {
+  static setDate(date) {
     store.dispatch({
-      type: SET_YEAR_AND_MONTH,
-      year,
-      month
+      type: SET_DATE,
+      date
     });
 
     AppActions.setIsLoading(true);
@@ -60,7 +59,7 @@ export default class AppActions {
     }
 
     _timer = setTimeout(() => {
-      BillActions.get(year, month);
+      BillActions.get();
       AppActions.setIsLoading(false);
       _timer = null;
     }, 400);

@@ -1,5 +1,7 @@
 import logging
 from bson.objectid import ObjectId
+from datetime import datetime
+from dateutil import parser
 from flask import abort, request, session
 from flask.views import MethodView
 from budgeter import app, mongo, make_json_response
@@ -7,22 +9,29 @@ from budgeter import app, mongo, make_json_response
 
 class Bills(MethodView):
 
-    def get(self, year, month):
+    def get(self):
         logging.debug('%s /bills', request.method)
         if 'user_id' not in session:
             abort(401)
+
+        start = parser.parse(request.args['start'])
+        end = parser.parse(request.args['end'])
         user_id = session['user_id']
         data = []
         try:
-            params = {'user_id': user_id}
-            if year:
-                params['year'] = year
-            if month:
-                params['month'] = month
+            params = {
+                'user_id': user_id,
+                'due': {
+                    '$gte': start,
+                    '$lt': end
+                }
+            }
+
             cursor = mongo.db.bills.find(params)
             bill = cursor.next()
             while bill is not None:
                 bill['_id'] = str(bill['_id'])
+                bill['due'] = str(bill['due'])
                 data.append(bill)
                 bill = cursor.next()
         except StopIteration as e:
@@ -73,6 +82,5 @@ class Bills(MethodView):
         mongo.db.bills.remove(ObjectId(id))
         return ('', 204)
 
-app.add_url_rule('/bills', view_func=Bills.as_view('post_bills'))
-app.add_url_rule('/bills/<id>', view_func=Bills.as_view('put_bills'))
-app.add_url_rule('/bills/<int:year>/<int:month>', view_func=Bills.as_view('get_bills'))
+app.add_url_rule('/bills', view_func=Bills.as_view('bills_1'))
+app.add_url_rule('/bills/<id>', view_func=Bills.as_view('bills_2'))

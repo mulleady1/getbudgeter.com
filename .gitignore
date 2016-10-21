@@ -1,6 +1,6 @@
 *.pyc
 data/
-dump/
+dump.*
 *.log
 config.py
 bin/

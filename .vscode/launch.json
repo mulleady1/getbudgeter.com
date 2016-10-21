@@ -5,7 +5,6 @@
       "name": "Python",
       "type": "python",
       "request": "launch",
-      "stopOnEntry": true,
       "pythonPath": "${config.python.pythonPath}",
       "program": "${file}",
       "debugOptions": [
@@ -18,10 +17,8 @@
       "name": "Test",
       "type": "python",
       "request": "launch",
-      "stopOnEntry": true,
       "pythonPath": "${workspaceRoot}/bin/python",
       "program": "${file}",
-      "externalConsole": true,
       "debugOptions": [
         "WaitOnAbnormalExit",
         "WaitOnNormalExit"

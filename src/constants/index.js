@@ -5,16 +5,19 @@ export const SET_BILLS = 'SET_BILLS';
 export const ADD_BILL = 'ADD_BILL';
 export const UPDATE_BILL = 'UPDATE_BILL';
 export const DELETE_BILL = 'DELETE_BILL';
-export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
 export const SET_ACTIVE_TAB = 'SET_ACTIVE_TAB';
-export const SET_YEAR = 'SET_YEAR';
-export const SET_MONTH = 'SET_MONTH';
-export const SET_YEAR_AND_MONTH = 'SET_YEAR_AND_MONTH';
+export const SET_DATE = 'SET_DATE';
+export const SET_INTERVAL = 'SET_INTERVAL';
 export const SET_IS_LOADING = 'SET_IS_LOADING';
 
 export const Tab = {
   MONTH: 1,
   WEEK: 2,
   SEARCH: 3
+};
+
+export const Inteval = {
+  MONTH: 'month',
+  WEEK: 'week',
 };

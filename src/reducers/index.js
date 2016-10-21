@@ -2,34 +2,42 @@ import { combineReducers } from 'redux';
 import moment from 'moment';
 import _ from 'lodash';
 import {
-  LOGIN,
   LOGOUT,
   SET_BILLS,
   ADD_BILL,
   UPDATE_BILL,
   DELETE_BILL,
+  SET_DATE,
+  SET_INTERVAL,
   SET_ACTIVE_TAB,
-  SET_YEAR,
-  SET_MONTH,
-  SET_YEAR_AND_MONTH,
   SET_IS_LOADING,
-  Tab
+  Tab,
+  Inteval
 } from '../constants';
 
-const year = moment().year();
-const month = moment().month();
+const interval = {
+  value: 1,
+  unit: Inteval.MONTH
+};
 
-function app(state = { user: {}, activeTab: Tab.MONTH, year, month }, action) {
+const date = moment().startOf(interval.unit);
+
+function app(state = { user: {}, activeTab: Tab.MONTH, date, interval }, action) {
   switch (action.type) {
-    case LOGIN:
-      return {
-        ...state,
-        user: action.user
-      };
     case LOGOUT:
       return {
         ...state,
         user: null
+      };
+    case SET_DATE:
+      return {
+        ...state,
+        date: action.date
+      };
+    case SET_INTERVAL:
+      return {
+        ...state,
+        interval: action.interval
       };
     case SET_ACTIVE_TAB:
       return {
@@ -40,22 +48,6 @@ function app(state = { user: {}, activeTab: Tab.MONTH, year, month }, action) {
       return {
         ...state,
         isLoading: action.isLoading
-      };
-    case SET_YEAR:
-      return {
-        ...state,
-        year: action.year
-      };
-    case SET_MONTH:
-      return {
-        ...state,
-        month: action.month
-      };
-    case SET_YEAR_AND_MONTH:
-      return {
-        ...state,
-        year: action.year,
-        month: action.month
       };
     default:
       return state;
