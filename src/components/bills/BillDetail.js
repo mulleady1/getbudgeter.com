@@ -56,8 +56,8 @@ export default class BillDetail extends React.Component {
         </div>
         <div className={styles.paid}>
           <label className="flex-row ai-center">
-            <span>Autopay?</span>
             <input type="checkbox" checked={!!autopay} onChange={() => this.onChange('autopay', !autopay)} />
+            <span className={styles.autopay}>Autopay</span>
           </label>
         </div>
         <div className={styles.link}>
@@ -111,7 +111,9 @@ export default class BillDetail extends React.Component {
           ) : null
           }
         </div>
-        <div className={styles.link}>{link}</div>
+        <div className={styles.link}>
+          <a href={link} target="_blank">{link}</a>
+        </div>
         <div className={styles.buttons}>
           <button className="btn btn-sm btn-default" onClick={() => this.setState({ editing: true })}>
             <span className="glyphicon glyphicon-pencil"></span>

@@ -10,7 +10,9 @@ import {
   SET_INTERVAL,
   SET_ACTIVE_TAB,
   SET_IS_LOADING,
+  SET_IS_MOBILE,
   SET_MESSAGE,
+  MOBILE_WIDTH,
   Tab,
   Inteval
 } from '../constants';
@@ -26,7 +28,8 @@ const initialState = {
   activeTab: Tab.MONTH,
   message: '', 
   date, 
-  interval
+  interval,
+  isMobile: window.innerWidth < MOBILE_WIDTH
 };
 
 function app(state = initialState, action) {
@@ -50,6 +53,11 @@ function app(state = initialState, action) {
       return {
         ...state,
         isLoading: action.isLoading
+      };
+    case SET_IS_MOBILE:
+      return {
+        ...state,
+        isMobile: action.isMobile
       };
     case SET_MESSAGE:
       return {

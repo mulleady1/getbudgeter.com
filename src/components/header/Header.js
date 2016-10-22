@@ -33,8 +33,16 @@ export class Header extends React.Component {
     };
 
     return (
-      <div className={`${styles.nav} flex-row`}>
-        <a href="/">Budgeter</a>
+      <div className={`${styles.nav} flex-row jc-sb`}>
+        <div className="flex-row ai-center">
+          <a href="/" className={styles.logo}>
+            <span className={styles.circle}>
+              <span className={styles.dollar}>$</span>
+              <span className={styles.b}>B</span>
+            </span>
+          </a>
+          <h1 className="hidden-xs hidden-sm">Budgeter Dashboard</h1>
+        </div>
         <Menu {...props} />
       </div>
     );

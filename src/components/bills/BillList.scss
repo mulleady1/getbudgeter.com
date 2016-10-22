@@ -1,6 +1,25 @@
-.wrapper {
+.wrapper, .stats, .footer {
   padding: 20px;
 }
-.footer {
-  padding: 20px;
+.stats {
+  flex-wrap: wrap;
+}
+.paid {
+  margin-right: 10px;
+}
+.remaining {
+  color: #aaa;
+  text-align: right;
+  font-size: 13px;
+}
+:global(.mobile) {
+  .wrapper {
+    padding: 0;
+  }
+  .stats, .footer {
+    padding: 10px;
+  }
+  .footer {
+    padding-top: 0;
+  }
 }

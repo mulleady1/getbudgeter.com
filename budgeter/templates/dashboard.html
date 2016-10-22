@@ -26,7 +26,7 @@
         text-align: center;
         font-size: 20px;
         margin-top: 50px;
-        color: #ccc;
+        color: #c5e1e8;
       }
       #dialog {
         height: 0;
@@ -41,16 +41,16 @@
   </head>
 
   <body>
-    <div id="loading">...</div>
+    <div id="loading">•</div>
     <div id="app"></div>
     <div id="dialog"></div>
     <script>
       var node = document.querySelector('#loading');
       window._loadTimer = setInterval(function() {
-        if (node.innerHTML.indexOf('...') > -1) {
+        if (node.innerHTML.indexOf('•••') > -1) {
           node.innerHTML = '';
         } else {
-          node.innerHTML += '.';
+          node.innerHTML += '•';
         }
       }, 400);
     </script>

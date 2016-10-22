@@ -6,11 +6,11 @@
     background: #fff;
     padding: 5px 18px;
     &:hover {
-      background: #f5f5f5;
+      background: #dbf8ff;
       border: 1px solid #eee;
     }
     &:active {
-      background: #f0f0f0;
+      background: #d7f3fa;
     }
     &:focus {
       outline: none;
@@ -36,6 +36,7 @@
     background: #fff;
     box-shadow: 0px 0px 3px 1px #eee;
     width: 100%;
+    z-index: 100;
   }
   a {
     display: block;
@@ -45,11 +46,27 @@
     color: #555;
     &:hover {
       text-decoration: none;
-      background: #eee;
+      background: #dbf8ff;
       color: #555;
     }
     &.active {
-      background: #f5f5f5;
+      background: #d7f3fa;
+    }
+  }
+}
+
+:global(.mobile) {
+  .wrapper {
+    display: block;
+    ul {
+      box-shadow: 0px 1px 4px 1px #eee;
+    }
+    button {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    button:nth-child(2) {
+      flex: 1 1 50%;
     }
   }
 }

@@ -18,7 +18,7 @@
     font-weight: normal;
   }
   span {
-    margin-right: 5px;
+    margin: 0 5px;
   }
   input {
     margin: 0;
@@ -40,15 +40,20 @@
   button:nth-child(2) {
     margin: 0 10px;
   }
-  :global .btn-default {
-    background-color: #fff;
-    border-color: #ddd;
-    color: #aaa;
-    &:hover {
-      background-color: #f5f5f5;
+  :global {
+    .btn-default {
+      background-color: #fff;
+      border-color: #ddd;
+      color: #aaa;
+      &:hover {
+        background-color: #dbf8ff;
+      }
+      &:active {
+        background-color: #d7f3fa;
+      }
     }
-    &:active {
-      background-color: #f0f0f0;
+    .glyphicon-repeat {
+      transform: scale(-1, 1);
     }
   }
 }
@@ -62,4 +67,72 @@
 }
 .form {
 
+}
+
+
+:global(.mobile) {
+  .wrapper {
+    display: block;
+    position: relative;
+    height: 100px;
+    & > div {
+      padding: 0;
+      position: absolute;
+    }
+  }
+  .name {
+    font-size: 17px;
+    top: 10px;
+    left: 10px;
+    max-width: 63%;
+  }
+  .amount {
+    font-size: 24px;
+    top: 6px;
+    right: 10px;
+    max-width: 38%;
+  }
+  .paid {
+    top: 65px;
+    left: 10px;
+    span:not(.autopay) {
+      margin-left: 0;
+    }
+  }
+  .link {
+    top: 42px;
+    right: 10px;
+  }
+  .buttons {
+    top: 70px;
+    right: 10px;
+    button {
+      visibility: visible;
+      padding: 1px 4px;
+    }
+  }
+  
+  .form {
+    height: 130px;
+    .buttons {
+      top: 100px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      button {
+        padding: 2px 7px;
+      }
+    }
+    .amount {
+      top: 10px;
+    }
+    .link {
+      top: 50px;
+    }
+    .autopay {
+      color: #000;
+      margin-left: 5px;
+    }
+  }
 }

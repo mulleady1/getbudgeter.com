@@ -22,6 +22,11 @@ export class Sidebar extends React.Component {
   }
 
   render() {
+    const { isMobile } = this.props;
+    if (isMobile) {
+      return null;
+    }
+    
     const tab = this.props.activeTab;
 
     return (

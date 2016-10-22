@@ -1,7 +1,7 @@
 .wrapper {
   padding: 20px;
   font-size: 22px;
-  color: #ddd;
+  color: #c5e1e8;
   span {
     line-height: 45px;
     width: 11px;
@@ -9,4 +9,6 @@
 }
 .big {
   font-size: 1.3em;
+  position: relative;
+  top: -1px;
 }

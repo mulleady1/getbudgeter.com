@@ -5,6 +5,7 @@ import {
   SET_ACTIVE_TAB,
   SET_DATE,
   SET_IS_LOADING,
+  SET_IS_MOBILE,
   SET_MESSAGE
 } from '../constants';
 
@@ -39,6 +40,13 @@ export default class AppActions {
     store.dispatch({
       type: SET_IS_LOADING,
       isLoading
+    });
+  }
+  
+  static setIsMobile(isMobile) {
+    store.dispatch({
+      type: SET_IS_MOBILE,
+      isMobile
     });
   }
   

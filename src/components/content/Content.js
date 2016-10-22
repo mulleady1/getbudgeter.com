@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import AppActions from '../../actions/AppActions';
 import BillList from '../bills/BillList';
 import Timeframe from '../timeframe/Timeframe';
 import {Loading} from '../shared';
@@ -21,7 +20,7 @@ export class Content extends React.Component {
     } = this.props;
 
     return (
-      <div className="main">
+      <div className={`main ${styles.wrapper}`}>
         <div className={styles.header}>
           <Timeframe date={date} interval={interval} />
         </div>

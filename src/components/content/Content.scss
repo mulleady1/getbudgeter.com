@@ -1,3 +1,14 @@
+.wrapper {
+  overflow-y: auto;
+}
 .header {
   padding: 20px;
+}
+:global(.mobile) {
+  .wrapper {
+    overflow-y: initial;
+  }
+  .header {
+    padding: 0;
+  } 
 }

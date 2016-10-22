@@ -6,6 +6,12 @@ import {Bill} from '../../models';
 import {confirm} from '../shared';
 import styles from './BillList.scss';
 
+const format = (n) => {
+  return n.toFixed(2).replace(/./g, (c, i, a) => {
+    return i && c !== "." && ((a.length - i) % 3 === 0) ? ',' + c : c;
+  });
+};
+
 export default class BillList extends React.Component {
 
   constructor(props) {
@@ -26,7 +32,7 @@ export default class BillList extends React.Component {
     const { bills } = this.props;
     const { bill } = this.state;
 
-    const items = _.sortBy(bills, 'name').map((bill) => {
+    const items = _.sortBy(bills, 'name').map(bill => {
       const key = bill._id || bill.id;
       const props = {
         key,
@@ -38,6 +44,18 @@ export default class BillList extends React.Component {
       return (
         <BillDetail {...props} />
       );
+    });
+
+    let total = 0, 
+      totalPaid = 0;
+
+    bills.forEach(bill => {
+      let amount = parseFloat(bill.amount);
+      if (isNaN(amount)) {
+        amount = 0;
+      }
+      total += amount;
+      totalPaid += (bill.paid ? amount : 0);
     });
 
     return (
@@ -53,6 +71,12 @@ export default class BillList extends React.Component {
           ) : null
           }
         </ul>
+        <div className={`flex-row jc-sb ${styles.stats}`}>
+          <div className={styles.paid}>Paid ${format(totalPaid)} of ${format(total)}</div>
+          <div className={styles.remaining}>
+            (${format(total - totalPaid)} remaining)
+          </div>
+        </div>
         <div className={styles.footer}>
           <button className="btn btn-sm btn-primary" disabled={bill} onClick={this.onAddClick}>
             <span className="glyphicon glyphicon-plus"></span>

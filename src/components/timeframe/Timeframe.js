@@ -76,7 +76,7 @@ export class Timeframe extends React.Component {
     
     return (
       <div className={styles.wrapper}>
-        <div className="flex-row">
+        <div className={`flex-row ${styles.buttons}`}>
           <button className="flex-row ai-center jc-center" onClick={this.prev}>
             <span className="glyphicon glyphicon-menu-left"></span>
           </button>
