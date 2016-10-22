@@ -13,6 +13,14 @@ import {
 
 export class App extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: true
+    };
+  }
+
   getChildContext() {
     return {
       user: this.props.user
@@ -24,9 +32,17 @@ export class App extends React.Component {
   }
 
   componentDidMount() {
-    const node = document.querySelector('#loading');
-    node.parentNode.removeChild(node);
-    clearInterval(window._loadTimer);
+    setTimeout(() => {
+      if (window.requestAnimationFrame) {
+        window.cancelAnimationFrame(window._loadTimer);
+      } else {
+        window.clearInterval(window._loadTimer);
+      }
+      
+      const node = document.querySelector('#loading');
+      node.parentNode.removeChild(node);
+      this.setState({ loading: false });
+    }, 1000);
 
     const onResize = () => {
       AppActions.setIsMobile(window.innerWidth < MOBILE_WIDTH);
@@ -45,7 +61,10 @@ export class App extends React.Component {
     const cssClass = classNames(
       'flex-col',
       'main',
-      { mobile: isMobile }
+      { 
+        mobile: isMobile,
+        [styles.loading]: this.state.loading 
+      }
     );
 
     return (

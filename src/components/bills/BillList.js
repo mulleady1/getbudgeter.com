@@ -1,4 +1,5 @@
 import React from 'react';
+import {findDOMNode} from 'react-dom';
 import _ from 'lodash';
 import BillActions from '../../actions/BillActions';
 import BillDetail from './BillDetail';
@@ -26,6 +27,12 @@ export default class BillList extends React.Component {
     this.onSaveNewClick = this.onSaveNewClick.bind(this);
     this.onDeleteExistingClick = this.onDeleteExistingClick.bind(this);
     this.onDeleteNewClick = this.onDeleteNewClick.bind(this);
+  }
+
+  componentDidUpdate() {
+    if (this.state.bill) {
+      findDOMNode(this.refs.newBill).querySelector('input').focus();
+    }
   }
 
   render() {
@@ -64,6 +71,7 @@ export default class BillList extends React.Component {
           {items}
           { bill ? (
             <BillDetail 
+              ref="newBill"
               key={bill.id} 
               bill={bill}
               onDeleteClick={this.onDeleteNewClick}

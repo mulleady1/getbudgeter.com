@@ -1,5 +1,8 @@
-.wrapper, .stats, .footer {
+.wrapper {
   padding: 20px;
+}
+.stats, .footer {
+  padding: 0 20px 15px;
 }
 .stats {
   flex-wrap: wrap;

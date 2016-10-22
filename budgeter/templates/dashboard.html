@@ -41,18 +41,40 @@
   </head>
 
   <body>
-    <div id="loading">•</div>
+    <div id="loading"></div>
     <div id="app"></div>
     <div id="dialog"></div>
     <script>
-      var node = document.querySelector('#loading');
-      window._loadTimer = setInterval(function() {
-        if (node.innerHTML.indexOf('•••') > -1) {
-          node.innerHTML = '';
+      (function() {
+        if (window.requestAnimationFrame) {
+          var i = 0;
+          var node = document.querySelector('#loading');
+          function f() {
+            i++;
+            if (i > 80) {
+              i = 0;
+              node.innerHTML = '';
+            } else if (i > 50) {
+              node.innerHTML = '•••';
+            } else if (i > 30) {
+              node.innerHTML = '••';
+            } else if (i > 10) {
+              node.innerHTML = '•';
+            }
+
+            window._loadTimer = requestAnimationFrame(f);  
+          }
+          f();
         } else {
-          node.innerHTML += '•';
-        }
-      }, 400);
+          window._loadTimer = setInterval(function() {
+            if (node.innerHTML.indexOf('•••') > -1) {
+              node.innerHTML = '';
+            } else {
+              node.innerHTML += '•';
+            }
+          }, 400);
+        }          
+      }());
     </script>
     <script src="/static/js/bundle.js"></script>
   </body>

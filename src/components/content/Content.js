@@ -27,7 +27,15 @@ export class Content extends React.Component {
         { isLoading ? (
           <Loading />
         ) : (
-          <BillList bills={bills} date={date} interval={interval} />
+          <div>
+            <BillList bills={bills} date={date} interval={interval} />
+            <div className={styles.footer}>
+              <a className="btn btn-default btn-xs" href="mailto:info@getbudgeter.com?subject=Budgeter%20Feedback">
+                <span className="glyphicon glyphicon-envelope"></span> 
+                <span>Send Feedback</span>
+              </a>
+            </div>
+          </div>
         )}
       </div>
     );

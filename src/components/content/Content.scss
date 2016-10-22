@@ -4,11 +4,25 @@
 .header {
   padding: 20px;
 }
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 5px 20px 20px;
+  span {
+    color: #aaa;
+  }
+  :global(.glyphicon) {
+    margin-right: 5px;
+  }
+}
 :global(.mobile) {
   .wrapper {
     overflow-y: initial;
   }
   .header {
     padding: 0;
+  }
+  .footer {
+    padding: 5px 10px 10px;
   } 
 }
