@@ -9,9 +9,6 @@
       background: #dbf8ff;
       border: 1px solid #eee;
     }
-    &:active {
-      background: #d7f3fa;
-    }
     &:focus {
       outline: none;
     }
@@ -23,7 +20,8 @@
   button:nth-child(2) {
     border-left-color: #f6f6f6;
     border-right-color: #f6f6f6;
-    min-width: 175px;
+    min-width: 250px;
+    font-size: 24px;
   }
   button:nth-child(3) {
     border-left: none;
@@ -64,6 +62,9 @@
     button {
       padding-top: 10px;
       padding-bottom: 10px;
+      &:hover {
+        background: #fff;
+      }
     }
     button:nth-child(2) {
       flex: 1 1 50%;

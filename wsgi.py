@@ -4,5 +4,5 @@ from budgeter import app
 from budgeter.config import DEBUG
 
 if __name__ == '__main__':
-    app.run(debug=DEBUG, port=5040)
+    app.run(debug=DEBUG, host='0.0.0.0', port=5040)
     

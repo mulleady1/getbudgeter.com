@@ -1,8 +1,10 @@
 import React from 'react';
+import {findDOMNode} from 'react-dom';
 import classNames from 'classnames';
 import moment from 'moment';
 import _ from 'lodash';
 import AppActions from '../../actions/AppActions';
+import {Button} from '../shared';
 import styles from './Timeframe.scss';
 
 const PARSE_FORMAT = 'YYYY-MM';
@@ -23,7 +25,7 @@ export class Timeframe extends React.Component {
 
   componentDidMount() {
     document.addEventListener('click', (e) => {
-      if (e.target !== this.refs.mainButton && this.state.show) {
+      if (e.target !== findDOMNode(this.refs.mainButton) && this.state.show) {
         this.setState({ show: false });
       }
     });
@@ -76,16 +78,16 @@ export class Timeframe extends React.Component {
     
     return (
       <div className={styles.wrapper}>
-        <div className={`flex-row ${styles.buttons}`}>
-          <button className="flex-row ai-center jc-center" onClick={this.prev}>
+        <div className="flex-row">
+          <Button className="flex-row ai-center jc-center" onClick={this.prev}>
             <span className="glyphicon glyphicon-menu-left"></span>
-          </button>
-          <button ref="mainButton" onClick={() => this.setState({ show: !show })}>
+          </Button>
+          <Button ref="mainButton" onClick={() => this.setState({ show: !show })}>
             {label}
-          </button>
-          <button className="flex-row ai-center jc-center" onClick={this.next}>
+          </Button>
+          <Button className="flex-row ai-center jc-center" onClick={this.next}>
             <span className="glyphicon glyphicon-menu-right"></span>
-          </button>
+          </Button>
         </div>
         { show ? (
           <ul ref="list">
