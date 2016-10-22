@@ -22,8 +22,8 @@ export class Sidebar extends React.Component {
   }
 
   render() {
-    const { isMobile } = this.props;
-    if (isMobile) {
+    const { isMobile, isTablet } = this.props;
+    if (isMobile || isTablet) {
       return null;
     }
     
@@ -40,6 +40,11 @@ export class Sidebar extends React.Component {
           <a 
             className={classNames({ [styles.active]: tab === WEEK })}
             onClick={() => this.onClick(WEEK)}>Week</a>
+        </li>
+        <li>
+          <a 
+            className={classNames({ [styles.active]: tab === SEARCH })}
+            onClick={() => this.onClick(SEARCH)}>Search</a>
         </li>
       </ul>
     );

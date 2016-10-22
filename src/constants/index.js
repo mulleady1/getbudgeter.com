@@ -11,6 +11,7 @@ export const SET_INTERVAL = 'SET_INTERVAL';
 export const SET_IS_LOADING = 'SET_IS_LOADING';
 export const SET_IS_MOBILE = 'SET_IS_MOBILE';
 export const SET_MESSAGE = 'SET_MESSAGE';
+export const SET_SHOW_CALCULATOR = 'SET_SHOW_CALCULATOR';
 
 export const Tab = {
   MONTH: 1,
@@ -26,3 +27,4 @@ export const Inteval = {
 export const SAVING = 'Saving...';
 export const SAVED = 'Saved.';
 export const MOBILE_WIDTH = 600;
+export const TABLET_WIDTH = 1000;

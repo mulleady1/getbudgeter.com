@@ -6,7 +6,8 @@ import {
   SET_DATE,
   SET_IS_LOADING,
   SET_IS_MOBILE,
-  SET_MESSAGE
+  SET_MESSAGE,
+  SET_SHOW_CALCULATOR
 } from '../constants';
 
 const debug = require('debug')('budgeter:actions:AppActions');
@@ -43,10 +44,11 @@ export default class AppActions {
     });
   }
   
-  static setIsMobile(isMobile) {
+  static setIsMobile(isMobile, isTablet) {
     store.dispatch({
       type: SET_IS_MOBILE,
-      isMobile
+      isMobile,
+      isTablet
     });
   }
   
@@ -84,6 +86,13 @@ export default class AppActions {
     store.dispatch({
       type: SET_MESSAGE,
       message
+    });
+  }
+
+  static setShowCalculator(showCalculator) {
+    store.dispatch({
+      type: SET_SHOW_CALCULATOR,
+      showCalculator
     });
   }
 }

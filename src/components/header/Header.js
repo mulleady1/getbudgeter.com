@@ -1,11 +1,19 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import AppActions from '../../actions/AppActions';
-import NavLink from '../shared/NavLink';
 import Menu from '../menu/Menu';
 import styles from './Header.scss';
 
-export class Header extends React.Component {
+import {
+  Tab
+} from '../../constants';
+
+const {
+  WEEK,
+  MONTH,
+  SEARCH
+} = Tab;
+
+export default class Header extends React.Component {
 
   constructor(props) {
     super(props);
@@ -19,12 +27,16 @@ export class Header extends React.Component {
   render() {
     const { 
       user,
-      activeTab 
+      activeTab,
+      isMobile,
+      isTablet
     } = this.props;
 
     const props = {
       username: user.username,
       activeTab,
+      isMobile,
+      isTablet,
       onCalculatorClick: this.onCalculatorClick,
       onMonthViewClick: this.onMonthViewClick,
       onWeekViewClick: this.onWeekViewClick,
@@ -49,19 +61,19 @@ export class Header extends React.Component {
   }
 
   onCalculatorClick() {
-    
+    AppActions.setShowCalculator(true);
   }
 
   onMonthViewClick() {
-    
+    AppActions.setActiveTab(MONTH);
   }
 
   onWeekViewClick() {
-    
+    AppActions.setActiveTab(WEEK);
   }
 
   onSearchClick() {
-    
+    AppActions.setActiveTab(SEARCH);
   }
 
   onLogoutClick() {
@@ -69,12 +81,3 @@ export class Header extends React.Component {
   }
 
 }
-
-const setProps = (state) => {
-  return {
-    user: state.app.user,
-    activeTab: state.app.activeTab    
-  };
-};
-
-export default connect(setProps)(Header);

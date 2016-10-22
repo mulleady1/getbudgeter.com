@@ -2,54 +2,53 @@ import React from 'react';
 import { OverlayTrigger, Popover, Button } from 'react-bootstrap';
 import styles from './Menu.scss';
 
-import {
-  Tab
-} from '../../constants';
-
-const {
-  WEEK,
-  MONTH,
-  SEARCH
-} = Tab;
-
 export default class Menu extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.onClick = this.onClick.bind(this);
+  }
 
   render() {
     const {
       username,
-      activeTab
+      isMobile,
+      isTablet
     } = this.props;
 
+    const showSidbarButtons = isMobile || isTablet;
+    
     const popover = (
       <Popover id="Menu">
         <ul className={styles.wrapper}>
           <li>
-            <a onClick={this.props.onCalculatorClick}>
+            <a onClick={() => this.onClick(this.props.onCalculatorClick)}>
               <span className="glyphicon glyphicon-piggy-bank"></span>
               <span>CALCULATOR</span>
             </a>
           </li>
-          { activeTab !== MONTH ? (
+          { showSidbarButtons ? (
             <li>
-              <a onClick={this.props.onMonthViewClick}>
+              <a onClick={() => this.onClick(this.props.onMonthViewClick)}>
                 <span className="glyphicon glyphicon-calendar"></span>
                 <span>MONTH VIEW</span>
               </a>
             </li>
           ) : null
           }
-          { activeTab !== WEEK ? (
+          { showSidbarButtons ? (
             <li>
-              <a onClick={this.props.onWeekViewClick}>
+              <a onClick={() => this.onClick(this.props.onWeekViewClick)}>
                 <span className="glyphicon glyphicon-calendar"></span>
                 <span>WEEK VIEW</span>
               </a>
             </li>
           ) : null
           }
-          { activeTab !== SEARCH ? (
+          { showSidbarButtons ? (
             <li>
-              <a onClick={this.props.onSearchClick}>
+              <a onClick={() => this.onClick(this.props.onSearchClick)}>
                 <span className="glyphicon glyphicon-search"></span>
                 <span>SEARCH</span>
               </a>
@@ -57,7 +56,7 @@ export default class Menu extends React.Component {
           ) : null
           }
           <li>
-            <a onClick={this.props.onLogoutClick}>
+            <a onClick={() => this.onClick(this.props.onLogoutClick)}>
               <span className="glyphicon glyphicon-log-out"></span>
               <span>LOGOUT {username}</span>
             </a>
@@ -71,6 +70,11 @@ export default class Menu extends React.Component {
         <Button bsStyle="link"><span className="glyphicon glyphicon-option-vertical"></span></Button>
       </OverlayTrigger>
     );
+  }
+
+  onClick(cb) {
+    this.refs.trigger.hide();
+    cb();
   }
 
 }

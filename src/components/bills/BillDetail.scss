@@ -1,5 +1,6 @@
 .wrapper {
   border-bottom: 1px solid #eee;
+  max-width: 1000px;
   & > div {
     padding: 4px 7px;
     display: flex;
@@ -7,13 +8,13 @@
   }
 }
 .name {
-  flex: 1 1 25%;
+  flex: 0 0 25%;
 }
 .amount {
-  flex: 1 1 100px;
+  flex: 0 0 100px;
 }
 .paid {
-  flex: 1 1 130px;
+  flex: 0 0 130px;
   label {
     font-weight: normal;
   }
@@ -29,10 +30,10 @@
   margin: 0 0 0 5px;
 }
 .link {
-  flex: 1 1 30%;
+  flex: 0 0 30%;
 }
 .buttons {
-  flex: 1 1 10%;
+  flex: 0 0 10%;
   justify-content: flex-end;
   button {
     padding: 3px 7px;

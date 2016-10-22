@@ -1,0 +1,21 @@
+.field {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  label {
+    flex: 1 1 40%;
+    padding-right: 20px;
+    margin: 0; 
+    text-align: right;
+  }
+  input {
+    flex: 1 1 50%;
+  }
+}
+.results {
+  text-align: center;
+  border-top: 1px solid #eee;
+  margin-bottom: 15px;
+  padding: 10px;
+}

@@ -1,10 +1,15 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {findDOMNode} from 'react-dom';
 import _ from 'lodash';
+import AppActions from '../../actions/AppActions';
 import BillActions from '../../actions/BillActions';
 import BillDetail from './BillDetail';
 import {Bill} from '../../models';
-import {confirm} from '../shared';
+import {
+  confirm,
+  Calculator
+} from '../shared';
 import styles from './BillList.scss';
 
 const format = (n) => {
@@ -13,7 +18,7 @@ const format = (n) => {
   });
 };
 
-export default class BillList extends React.Component {
+export class BillList extends React.Component {
 
   constructor(props) {
     super(props);
@@ -36,7 +41,12 @@ export default class BillList extends React.Component {
   }
 
   render() {
-    const { bills } = this.props;
+    const { 
+      bills,
+      date, 
+      showCalculator 
+    } = this.props;
+
     const { bill } = this.state;
 
     const items = _.sortBy(bills, 'name').map(bill => {
@@ -91,6 +101,12 @@ export default class BillList extends React.Component {
             <span>Add Bill</span>
           </button>
         </div>
+        <Calculator
+          show={showCalculator}
+          total={total.toFixed(2)}
+          month={date.format('MMMM')}
+          format={format}
+          onHide={this.onCalculatorClose} />
       </div>
     );
   }
@@ -127,4 +143,16 @@ export default class BillList extends React.Component {
     this.setState({ bill: null });
   }
 
+  onCalculatorClose() {
+    AppActions.setShowCalculator(false);
+  }
+
 }
+
+const setProps = (state) => {
+  return {
+    showCalculator: state.app.showCalculator
+  };
+};
+
+export default connect(setProps)(BillList);

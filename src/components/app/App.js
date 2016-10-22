@@ -8,7 +8,8 @@ import Sidebar from '../sidebar/Sidebar';
 import Content from '../content/Content';
 import styles from './App.scss';
 import {
-  MOBILE_WIDTH
+  MOBILE_WIDTH,
+  TABLET_WIDTH
 } from '../../constants';
 
 export class App extends React.Component {
@@ -45,7 +46,10 @@ export class App extends React.Component {
     }, 1000);
 
     const onResize = () => {
-      AppActions.setIsMobile(window.innerWidth < MOBILE_WIDTH);
+      AppActions.setIsMobile(
+        window.innerWidth < MOBILE_WIDTH,
+        window.innerWidth >= MOBILE_WIDTH && window.innerWidth < TABLET_WIDTH
+      );
     };
 
     window.addEventListener('orientationchange', onResize);
@@ -54,8 +58,11 @@ export class App extends React.Component {
 
   render() {
     const { 
+      user,
       message, 
-      isMobile 
+      isMobile,
+      isTablet,
+      activeTab,
     } = this.props;
 
     const cssClass = classNames(
@@ -63,19 +70,27 @@ export class App extends React.Component {
       'main',
       { 
         mobile: isMobile,
+        tablet: isTablet,
         [styles.loading]: this.state.loading 
       }
     );
 
+    const headerProps = {
+      user,
+      isMobile,
+      isTablet,
+      activeTab
+    };
+
     return (
       <div className={cssClass}>
-        <Header />
+        <Header {...headerProps} />
         { message ? (
           <div className={styles.message}>{message}</div>
         ) : null
         }
         <div className="flex-row main">
-        <Sidebar isMobile={isMobile} />
+        <Sidebar isMobile={isMobile} isTablet={isTablet} />
           <Content />
         </div>
       </div>
@@ -91,7 +106,9 @@ const setProps = (state) => {
   return {
     user: state.app.user,
     message: state.app.message,
-    isMobile: state.app.isMobile
+    isMobile: state.app.isMobile,    
+    isTablet: state.app.isTablet,
+    activeTab: state.app.activeTab 
   };
 };
 

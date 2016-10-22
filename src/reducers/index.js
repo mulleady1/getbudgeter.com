@@ -12,7 +12,9 @@ import {
   SET_IS_LOADING,
   SET_IS_MOBILE,
   SET_MESSAGE,
+  SET_SHOW_CALCULATOR,
   MOBILE_WIDTH,
+  TABLET_WIDTH,
   Tab,
   Inteval
 } from '../constants';
@@ -29,7 +31,9 @@ const initialState = {
   message: '', 
   date, 
   interval,
-  isMobile: window.innerWidth < MOBILE_WIDTH
+  showCalculator: false,
+  isMobile: window.innerWidth < MOBILE_WIDTH,
+  isTablet: window.innerWidth < TABLET_WIDTH
 };
 
 function app(state = initialState, action) {
@@ -57,12 +61,18 @@ function app(state = initialState, action) {
     case SET_IS_MOBILE:
       return {
         ...state,
+        isTablet: action.isTablet,
         isMobile: action.isMobile
       };
     case SET_MESSAGE:
       return {
         ...state,
         message: action.message
+      };
+    case SET_SHOW_CALCULATOR:
+      return {
+        ...state,
+        showCalculator: action.showCalculator
       };
     default:
       return state;
