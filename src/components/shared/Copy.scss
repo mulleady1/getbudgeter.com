@@ -1,0 +1,16 @@
+.sourceDate {
+  margin-top: 10px;
+  position: relative;
+  :global(input.form-control) {
+    margin-bottom: 30px;
+  }
+  p {
+    position: absolute;
+    top: 45px;
+    left: 13px;
+  }
+}
+.warning {
+  margin: 20px 0;
+  text-align: center;
+}

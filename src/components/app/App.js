@@ -106,6 +106,7 @@ export class App extends React.Component {
   onCopyClose() {
     AppActions.setShowCopy(false);
   }
+
 }
 
 App.childContextTypes = {

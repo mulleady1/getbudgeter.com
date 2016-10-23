@@ -7,6 +7,7 @@ import {
   UPDATE_BILL,
   DELETE_BILL,
   SAVING,
+  PROCESSING,
   SAVED
 } from '../constants';
 
@@ -98,6 +99,38 @@ export default class BillActions {
       })
       .catch((res) => {
         const msg = 'Error deleting bill.';
+        debug(msg);
+        debug('res:', res);
+        return Promise.reject(new Error(msg));
+      });
+  }
+
+  static copy(srcStartDate) {
+    const { date, interval } = store.getState().app;
+
+    const src = {
+      start: srcStartDate,
+      end: srcStartDate.clone().add(interval.value, interval.unit)
+    };
+
+    const dst = {
+      start: date,
+      end: date.clone().add(interval.value, interval.unit)
+    };
+
+    AppActions.setMessage(PROCESSING);
+    return axios.post('/copy', { src, dst })
+      .then((res) => {
+        store.dispatch({
+          type: SET_BILLS,
+          bills: res.data
+        });
+
+        AppActions.setMessage(SAVED);
+        return res.data;
+      })
+      .catch((res) => {
+        const msg = 'Error saving bill.';
         debug(msg);
         debug('res:', res);
         return Promise.reject(new Error(msg));

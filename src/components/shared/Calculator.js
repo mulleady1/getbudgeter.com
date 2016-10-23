@@ -54,15 +54,15 @@ export default class Calculator extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <form>
-            <div className={styles.field}>
+            <div className="form-field">
               <label>Income</label>
               <input type="text" className="form-control" value={income} onChange={(e) => this.setState({ income: e.target.value })} />
             </div>
-            <div className={styles.field}>
+            <div className="form-field">
               <label>- Other expenses</label>
               <input type="text" className="form-control" value={expenses} onChange={(e) => this.setState({ expenses: e.target.value })} />
             </div>
-            <div className={styles.field}>
+            <div className="form-field">
               <label>- Bills</label>
               <input type="text" className="form-control" value={total} readOnly />
             </div>

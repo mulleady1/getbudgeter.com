@@ -25,6 +25,13 @@ export const Inteval = {
   WEEK: 'week',
 };
 
+export const CopySource = {
+  LAST_MONTH: 0,
+  LAST_WEEKS: 1,
+  SPECIFIC_DATE: 2
+};
+
+export const PROCESSING = 'Processing...';
 export const SAVING = 'Saving...';
 export const SAVED = 'Saved.';
 export const MOBILE_WIDTH = 600;

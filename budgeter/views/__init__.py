@@ -1,5 +1,6 @@
 import logging
 from bson.objectid import ObjectId
+from dateutil import parser
 from flask import abort, render_template, request, session
 from budgeter import app, mongo, make_json_response
 
@@ -32,50 +33,56 @@ def copy():
     if 'user_id' not in session:
         abort(401)
     user_id = session['user_id']
-    data = []
-    try:
-        idata = request.get_json()
-        if not ('month' in idata and 'year' in idata):
-            return ('month and year required', 400)
-        month = idata['month']
-        year = idata['year']
-        # Delete any existing bills for the selected month
-        params = {
-            'user_id': user_id,
-            'month': month,
-            'year': year
-        }
-        mongo.db.bills.remove(params)
+    idata = request.get_json()
 
-        # Get the previous month's bills
-        params = {
-            'user_id': user_id,
-            'month': month - 1 if month > 1 else 12,
-            'year': year if month > 1 else year - 1
-        }
+    src = idata['src']
+    src_start = parser.parse(src['start'])
+    src_end = parser.parse(src['end'])
+    dst = idata['dst']
 
-        cursor = mongo.db.bills.find(params)
-        bill = cursor.next()
-        # Iterate over the previous month's bills. Delete ids, set attrs, do
-        # inserts.
-        try:
-            while bill is not None:
-                del bill['_id']
-                if 'paid' in bill:
-                    del bill['paid']
-                bill['month'] = month
-                bill['year'] = year
-                mongo.db.bills.save(bill)
-                data.append(bill)
-                bill = cursor.next()
-        except StopIteration:
-            pass
+    dst_start = parser.parse(dst['start'])
+    dst_end = parser.parse(dst['end'])
+
+    # Delete any existing bills for the target
+    params = {
+        'user_id': user_id,
+        'due': {
+            '$gte': dst_start,
+            '$lt': dst_end
+        }
+    }
+
+    logging.debug('Deleting bills with params: %s', params)
+    result = mongo.db.bills.remove(params)
+    logging.debug('Delete result: %s', result)
+
+    # Get the source bills
+    params = {
+        'user_id': user_id,
+        'due': {
+            '$gte': src_start,
+            '$lt': src_end
+        }
+    }
+
+    # Iterate over the source bills. Delete ids, set attrs,
+    # do inserts.
+    logging.debug('Finding bills with params: %s', params)
+    bills = list(mongo.db.bills.find(params))
+    logging.debug('Found %d bills', len(bills))
+
+    if len(bills) > 0:
+        for bill in bills:
+            del bill['_id']
+            bill['paid'] = False
+            bill['due'] = dst_start
+
+        logging.debug('Inserting target bills: %s', bills)
+        mongo.db.bills.insert(bills)
 
         # Convert ids to strings.
-        for bill in data:
+        for bill in bills:
             bill['_id'] = str(bill['_id'])
+            bill['due'] = str(bill['due'])
 
-    except Exception as ex:
-        data = {'msg': ex.message}
-
-    return make_json_response(data)
+    return make_json_response(bills)
