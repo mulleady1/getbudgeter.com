@@ -61,6 +61,7 @@ export default class Menu extends React.Component {
             </li>
           ) : null
           }
+          <li role="separator" className={styles.divider}></li>
           <li>
             <a onClick={() => this.onClick(this.props.onLogoutClick)}>
               <span className="glyphicon glyphicon-log-out"></span>

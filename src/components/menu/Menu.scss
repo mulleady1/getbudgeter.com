@@ -15,6 +15,12 @@
     margin-right: 15px;
   }
 }
+.divider {
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
 :global .popover-content {
   padding-left: 0;
   padding-right: 0;
