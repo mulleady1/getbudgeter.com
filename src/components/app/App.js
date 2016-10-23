@@ -6,11 +6,12 @@ import BillActions from '../../actions/BillActions';
 import Header from '../header/Header';
 import Sidebar from '../sidebar/Sidebar';
 import Content from '../content/Content';
-import {Copy} from '../shared';
+import {Copy, alert} from '../shared';
 import styles from './App.scss';
 import {
   MOBILE_WIDTH,
-  TABLET_WIDTH
+  TABLET_WIDTH,
+  NEW_VERSION_MESSAGE
 } from '../../constants';
 
 export class App extends React.Component {
@@ -57,6 +58,11 @@ export class App extends React.Component {
 
     window.addEventListener('orientationchange', onResize);
     window.addEventListener('resize', onResize);
+
+    if (!localStorage.newVersionNotification) {
+      alert(NEW_VERSION_MESSAGE);
+      localStorage.newVersionNotification = true;
+    }
   }
 
   render() {

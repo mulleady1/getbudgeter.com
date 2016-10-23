@@ -1,3 +1,11 @@
+.form {
+  input[type="radio"] {
+    flex: 0 0 13px;
+  }
+  label {
+    align-items: baseline;
+  }
+}
 .sourceDate {
   margin-top: 10px;
   position: relative;

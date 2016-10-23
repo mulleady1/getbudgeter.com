@@ -1,54 +1,45 @@
 import React from 'react';
 import {Modal} from 'react-bootstrap';
-import lang from 'hocs/language';
+import styles from './AlertBox.scss';
 
-const AlertBox = React.createClass({
+export default class AlertBox extends React.Component {
 
-  getInitialState() {
+  constructor(props) {
+    super(props);
+    this.state = {
+      show: true
+    };
 
-    return { show: true };
-  },
-
-  componentWillReceiveProps(nextProps) {
-    this.setState({ show: nextProps.showModal });
-  },
-
-  onCancelClick() {
-    this.setState({show: false});
-    this.props.onCancelClick();
-  },
-
-  onContinueClick() {
-    this.setState({show: false});
-    this.props.onContinueClick();
-  },
+    this.onYesClick = this.onYesClick.bind(this); 
+  }
 
   render() {
-    const { i18n, title, message } = this.props;
-    const  icon = this.props.icon + " text-info";
+    const { title, message } = this.props;
 
     return (
-      <div  data-cmp="AlertBox">
-        <Modal backdrop="static" show={this.state.show} onHide={this.onCancelClick}>
-          <Modal.Header bsClass="notificationHeader" >
-            <Modal.Title>{i18n(title)}</Modal.Title>
+        <Modal backdrop="static" bsSize="small" show={this.state.show} onHide={this.onYesClick}>
+          <Modal.Header>
+            <Modal.Title>{title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <div className="dialog">
-              <span className={`${icon} notificationIconStyles pull-left`} ></span>
-              <span className="notificationTextStyles" >{ i18n(message) }</span>
+            <div className={styles.body}>
+              <span className="pull-left glyphicon glyphicon-info-sign"></span>
+              <p>{message}</p>
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <button className="btn btn-primary continueClick"
-              onClick={this.onContinueClick}>
-              { i18n('notification.alert.button.ok') }
-            </button>
+            <button className="btn btn-primary" onClick={this.onYesClick}>Close</button>
           </Modal.Footer>
         </Modal>
-      </div>
     );
   }
-});
 
-export default lang(AlertBox);
+  onYesClick() {
+    this.setState({ show: false });
+    setTimeout(() => {
+      this.props.onYesClick();
+    }, 200);
+  }
+
+}
+

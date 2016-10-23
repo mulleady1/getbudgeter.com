@@ -107,9 +107,10 @@ export class Timeframe extends React.Component {
   }
 
   render() {
-    const { date } = this.props;
+    const { date, interval } = this.props;
     const { show } = this.state;
     const label = this.getLabel(date);
+    const cssClass = interval.unit === Interval.WEEK ? styles.week : '';
     
     return (
       <div className={styles.wrapper}>
@@ -117,7 +118,7 @@ export class Timeframe extends React.Component {
           <Button className="flex-row ai-center jc-center" onClick={this.prev}>
             <span className="glyphicon glyphicon-menu-left"></span>
           </Button>
-          <Button ref="mainButton" onClick={() => this.setState({ show: !show })}>
+          <Button ref="mainButton" className={cssClass} onClick={() => this.setState({ show: !show })}>
             {label}
           </Button>
           <Button className="flex-row ai-center jc-center" onClick={this.next}>

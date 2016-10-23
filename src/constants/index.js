@@ -36,3 +36,8 @@ export const SAVING = 'Saving...';
 export const SAVED = 'Saved.';
 export const MOBILE_WIDTH = 600;
 export const TABLET_WIDTH = 1000;
+export const NEW_VERSION_MESSAGE = [
+  'Thanks for using Budgeter! Enjoy the new interface. ',
+  'It\'s still in Beta, so feel free to let us know of any ',
+  'issues via the Send Feedback button at the bottom.'
+].join('');

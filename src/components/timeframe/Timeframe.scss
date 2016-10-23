@@ -68,6 +68,7 @@
     button {
       padding-top: 10px;
       padding-bottom: 10px;
+      letter-spacing: initial;
       &:hover {
         background: #fff;
       }
@@ -75,6 +76,9 @@
     button:nth-child(2) {
       flex: 1 1 50%;
       min-width: auto;
+    }
+    .week {
+      font-size: 20px;
     }
   }
 }

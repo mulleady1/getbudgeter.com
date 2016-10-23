@@ -59,7 +59,7 @@ export default class Copy extends React.Component {
             <b>Warning:</b> This will overwrite any existing
             bills for {date.format('MMMM')}.
           </p>
-          <form>
+          <form className={styles.form}>
             <div className="form-field ai-baseline">
               <label>Copy from</label>
               <ul>
