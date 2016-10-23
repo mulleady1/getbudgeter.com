@@ -3,6 +3,11 @@ import {Modal} from 'react-bootstrap';
 import CalcActions from '../../actions/CalcActions';
 import styles from './Calculator.scss';
 
+const parse = (n) => {
+  let m = parseFloat(n);
+  return isNaN(m) ? 0 : m;
+};
+
 export default class Calculator extends React.Component {
 
   constructor(props) {
@@ -42,8 +47,8 @@ export default class Calculator extends React.Component {
     } = this.state;
 
     const remaining = format(
-      parseFloat(income) - 
-      parseFloat(expenses) -
+      parse(income) - 
+      parse(expenses) -
       total
     );
     
