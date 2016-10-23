@@ -52,7 +52,7 @@ export default class Menu extends React.Component {
             </li>
           ) : null
           }
-          { showSidbarButtons ? (
+          {/* showSidbarButtons ? (
             <li>
               <a onClick={() => this.onClick(this.props.onSearchClick)}>
                 <span className="glyphicon glyphicon-search"></span>
@@ -60,7 +60,7 @@ export default class Menu extends React.Component {
               </a>
             </li>
           ) : null
-          }
+          */}
           <li role="separator" className={styles.divider}></li>
           <li>
             <a onClick={() => this.onClick(this.props.onLogoutClick)}>

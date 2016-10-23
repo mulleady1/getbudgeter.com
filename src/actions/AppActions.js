@@ -8,7 +8,9 @@ import {
   SET_IS_MOBILE,
   SET_MESSAGE,
   SET_SHOW_CALCULATOR,
-  SET_SHOW_COPY
+  SET_SHOW_COPY,
+  Tab,
+  Interval
 } from '../constants';
 
 const debug = require('debug')('budgeter:actions:AppActions');
@@ -32,10 +34,26 @@ export default class AppActions {
   }
 
   static setActiveTab(tab) {
+    let interval;
+    if (tab === Tab.MONTH) {
+      interval = {
+        value: 1,
+        unit: Interval.MONTH
+      };
+    } else if (tab === Tab.WEEK) {
+      interval = {
+        value: 2,
+        unit: Interval.WEEK
+      };
+    }
+
     store.dispatch({
       type: SET_ACTIVE_TAB,
-      tab
+      tab,
+      interval
     });
+
+    AppActions.setFetchTimer();
   }
   
   static setIsLoading(isLoading) {
@@ -59,6 +77,10 @@ export default class AppActions {
       date
     });
 
+    AppActions.setFetchTimer();
+  }
+
+  static setFetchTimer() {
     AppActions.setIsLoading(true);
 
     if (_fetchTimer) {

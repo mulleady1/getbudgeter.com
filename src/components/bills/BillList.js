@@ -48,6 +48,7 @@ export class BillList extends React.Component {
     const { 
       bills,
       date, 
+      interval,
       showCalculator 
     } = this.props;
 
@@ -58,6 +59,8 @@ export class BillList extends React.Component {
       const props = {
         key,
         bill,
+        date,
+        interval,
         onDeleteClick: this.onDeleteExistingClick,
         onSaveClick: this.onSaveExistingClick
       };
@@ -88,6 +91,8 @@ export class BillList extends React.Component {
               ref="newBill"
               key={bill.id} 
               bill={bill}
+              date={date}
+              interval={interval}
               onDeleteClick={this.onDeleteNewClick}
               onSaveClick={this.onSaveNewClick} />
           ) : null

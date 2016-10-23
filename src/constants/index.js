@@ -20,7 +20,7 @@ export const Tab = {
   SEARCH: 3
 };
 
-export const Inteval = {
+export const Interval = {
   MONTH: 'month',
   WEEK: 'week',
 };

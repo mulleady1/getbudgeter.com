@@ -10,7 +10,7 @@ import {
 const {
   WEEK,
   MONTH,
-  SEARCH
+  // SEARCH
 } = Tab;
 
 export class Sidebar extends React.Component {
@@ -41,11 +41,11 @@ export class Sidebar extends React.Component {
             className={classNames({ [styles.active]: tab === WEEK })}
             onClick={() => this.onClick(WEEK)}>Week</a>
         </li>
-        <li>
+        {/*<li>
           <a 
             className={classNames({ [styles.active]: tab === SEARCH })}
             onClick={() => this.onClick(SEARCH)}>Search</a>
-        </li>
+        </li>*/}
       </ul>
     );
   }

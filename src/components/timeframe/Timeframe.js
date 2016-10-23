@@ -1,14 +1,17 @@
 import React from 'react';
 import {findDOMNode} from 'react-dom';
 import classNames from 'classnames';
-import moment from 'moment';
-import _ from 'lodash';
 import AppActions from '../../actions/AppActions';
 import {Button} from '../shared';
 import styles from './Timeframe.scss';
+import {
+  Interval
+} from '../../constants';
 
-const PARSE_FORMAT = 'YYYY-MM';
-const DISPLAY_FORMAT = 'MMMM YYYY';
+const DisplayFormat = {
+  MONTH: 'MMMM YYYY',
+  WEEK: 'M/D/YY'
+};
 
 export class Timeframe extends React.Component {
 
@@ -37,7 +40,7 @@ export class Timeframe extends React.Component {
       return;
     }
 
-    const key = this.props.date.format(DISPLAY_FORMAT);
+    const key = this.getLabel(this.props.date);
     const item = list.querySelector(`[data-key="${key}"]`);
     if (item) {
       const listTop = list.getBoundingClientRect().top;
@@ -46,35 +49,67 @@ export class Timeframe extends React.Component {
     }
   }
 
-  renderMonths() {
-    const { date } = this.props;
-    const years = [
-      date.year() - 1,
-      date.year(),
-      date.year() + 1
-    ];
+  getDisplayFormat() {
+    const { unit } = this.props.interval;
+    return DisplayFormat[unit.toUpperCase()]; 
+  }
 
-    return years.map(year => {
-      return _.range(12).map(month => {
-        const date = moment(`${year}-${month + 1}`, PARSE_FORMAT);
-        const label = date.format(DISPLAY_FORMAT);
-        const key = label;
-        const cssClass = classNames({ [styles.active]: key === this.props.date.format(DISPLAY_FORMAT) });
-        return (
-          <li key={key} data-key={key}>
-            <a className={cssClass} onClick={() => this.onClick(date)}>
-              {label}
-            </a>
-          </li>
-        );
-      });
-    });
+  getLabel(date) {
+    const { value, unit } = this.props.interval;
+    const fmt = this.getDisplayFormat();
+    if (unit === Interval.MONTH) {
+      return date.format(fmt);
+    } else if (unit === Interval.WEEK) {
+      let label = date.format(fmt);
+      const endDate = date.clone().add(value, unit).add(-1, 'day');
+      label += ` - ${endDate.format(fmt)}`;
+      return label;
+    }
+  }
+
+  renderList() {
+    const { date, interval } = this.props;
+    let start = date.clone().add(-1, 'year').startOf('year');
+    
+    if (interval.unit === Interval.WEEK) {
+      // Make sure there's no offset in two-week intervals.
+      let start2 = date.clone();
+      while (start2 > start) {
+        start2.add(-interval.value, interval.unit);
+      }
+
+      start = start2;
+    }
+
+    const end = date.clone().add(1, 'year').endOf('year');
+    
+    let currentDate = start.clone();
+    let items = [];
+    while (currentDate <= end) {
+      const date = currentDate.clone();
+      const label = this.getLabel(date);
+      const key = label;
+      const cssClass = classNames({ [styles.active]: key === this.props.date.format(this.getDisplayFormat()) });
+
+      const item = (
+        <li key={key} data-key={key}>
+          <a className={cssClass} onClick={() => this.onClick(date)}>
+            {label}
+          </a>
+        </li>
+      );
+
+      items.push(item);
+      currentDate.add(interval.value, interval.unit);
+    }
+    
+    return items;
   }
 
   render() {
     const { date } = this.props;
     const { show } = this.state;
-    const label = date.format(DISPLAY_FORMAT);
+    const label = this.getLabel(date);
     
     return (
       <div className={styles.wrapper}>
@@ -91,7 +126,7 @@ export class Timeframe extends React.Component {
         </div>
         { show ? (
           <ul ref="list">
-            {this.renderMonths()}
+            {this.renderList()}
           </ul>
         ) : null
         }  

@@ -10,6 +10,9 @@
 .name {
   flex: 0 0 25%;
 }
+.due {
+  flex: 0 0 60px;
+}
 .amount {
   flex: 0 0 100px;
 }
@@ -69,6 +72,9 @@
 .form {
   .autopay {
     color: #000;
+  }
+  .due {
+    flex: 0 0 90px;
   }
 }
 

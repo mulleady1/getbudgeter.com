@@ -17,12 +17,12 @@ import {
   MOBILE_WIDTH,
   TABLET_WIDTH,
   Tab,
-  Inteval
+  Interval
 } from '../constants';
 
 const interval = {
   value: 1,
-  unit: Inteval.MONTH
+  unit: Interval.MONTH
 };
 
 const date = moment().startOf(interval.unit);
@@ -53,7 +53,8 @@ function app(state = initialState, action) {
     case SET_ACTIVE_TAB:
       return {
         ...state,
-        activeTab: action.tab
+        activeTab: action.tab,
+        interval: action.interval
       };
     case SET_IS_LOADING:
       return {
