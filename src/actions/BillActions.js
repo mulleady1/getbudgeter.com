@@ -109,13 +109,13 @@ export default class BillActions {
     const { date, interval } = store.getState().app;
 
     const src = {
-      start: srcStartDate,
-      end: srcStartDate.clone().add(interval.value, interval.unit)
+      start: srcStartDate.format(),
+      end: srcStartDate.clone().add(interval.value, interval.unit).format()
     };
 
     const dst = {
-      start: date,
-      end: date.clone().add(interval.value, interval.unit)
+      start: date.format(),
+      end: date.clone().add(interval.value, interval.unit).format()
     };
 
     AppActions.setMessage(PROCESSING);
