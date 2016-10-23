@@ -12,6 +12,7 @@ export const SET_IS_LOADING = 'SET_IS_LOADING';
 export const SET_IS_MOBILE = 'SET_IS_MOBILE';
 export const SET_MESSAGE = 'SET_MESSAGE';
 export const SET_SHOW_CALCULATOR = 'SET_SHOW_CALCULATOR';
+export const SET_SHOW_COPY = 'SET_SHOW_COPY';
 
 export const Tab = {
   MONTH: 1,

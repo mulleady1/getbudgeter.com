@@ -13,6 +13,7 @@ import {
   SET_IS_MOBILE,
   SET_MESSAGE,
   SET_SHOW_CALCULATOR,
+  SET_SHOW_COPY,
   MOBILE_WIDTH,
   TABLET_WIDTH,
   Tab,
@@ -32,6 +33,7 @@ const initialState = {
   date, 
   interval,
   showCalculator: false,
+  showCopy: false,
   isMobile: window.innerWidth < MOBILE_WIDTH,
   isTablet: window.innerWidth < TABLET_WIDTH
 };
@@ -73,6 +75,11 @@ function app(state = initialState, action) {
       return {
         ...state,
         showCalculator: action.showCalculator
+      };
+    case SET_SHOW_COPY:
+      return {
+        ...state,
+        showCopy: action.showCopy
       };
     default:
       return state;

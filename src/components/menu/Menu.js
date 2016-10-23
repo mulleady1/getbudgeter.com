@@ -28,6 +28,12 @@ export default class Menu extends React.Component {
               <span>CALCULATOR</span>
             </a>
           </li>
+          <li>
+            <a onClick={() => this.onClick(this.props.onCopyClick)}>
+              <span className="glyphicon glyphicon-copy"></span>
+              <span>COPY</span>
+            </a>
+          </li>
           { showSidbarButtons ? (
             <li>
               <a onClick={() => this.onClick(this.props.onMonthViewClick)}>

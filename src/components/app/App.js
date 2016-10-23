@@ -6,6 +6,7 @@ import BillActions from '../../actions/BillActions';
 import Header from '../header/Header';
 import Sidebar from '../sidebar/Sidebar';
 import Content from '../content/Content';
+import {Copy} from '../shared';
 import styles from './App.scss';
 import {
   MOBILE_WIDTH,
@@ -20,6 +21,8 @@ export class App extends React.Component {
     this.state = {
       loading: true
     };
+
+    this.onCopyClose = this.onCopyClose.bind(this);
   }
 
   getChildContext() {
@@ -59,10 +62,12 @@ export class App extends React.Component {
   render() {
     const { 
       user,
+      date,
       message, 
       isMobile,
       isTablet,
       activeTab,
+      showCopy
     } = this.props;
 
     const cssClass = classNames(
@@ -93,8 +98,13 @@ export class App extends React.Component {
         <Sidebar isMobile={isMobile} isTablet={isTablet} />
           <Content />
         </div>
+        <Copy show={showCopy} date={date} onHide={this.onCopyClose} />
       </div>
     );
+  }
+
+  onCopyClose() {
+    AppActions.setShowCopy(false);
   }
 }
 
@@ -105,10 +115,12 @@ App.childContextTypes = {
 const setProps = (state) => {
   return {
     user: state.app.user,
+    date: state.app.date,
     message: state.app.message,
     isMobile: state.app.isMobile,    
     isTablet: state.app.isTablet,
-    activeTab: state.app.activeTab 
+    activeTab: state.app.activeTab,
+    showCopy: state.app.showCopy
   };
 };
 

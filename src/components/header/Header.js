@@ -38,6 +38,7 @@ export default class Header extends React.Component {
       isMobile,
       isTablet,
       onCalculatorClick: this.onCalculatorClick,
+      onCopyClick: this.onCopyClick,
       onMonthViewClick: this.onMonthViewClick,
       onWeekViewClick: this.onWeekViewClick,
       onSearchClick: this.onSearchClick,
@@ -62,6 +63,10 @@ export default class Header extends React.Component {
 
   onCalculatorClick() {
     AppActions.setShowCalculator(true);
+  }
+
+  onCopyClick() {
+    AppActions.setShowCopy(true);
   }
 
   onMonthViewClick() {

@@ -7,7 +7,8 @@ import {
   SET_IS_LOADING,
   SET_IS_MOBILE,
   SET_MESSAGE,
-  SET_SHOW_CALCULATOR
+  SET_SHOW_CALCULATOR,
+  SET_SHOW_COPY
 } from '../constants';
 
 const debug = require('debug')('budgeter:actions:AppActions');
@@ -95,4 +96,12 @@ export default class AppActions {
       showCalculator
     });
   }
+
+  static setShowCopy(showCopy) {
+    store.dispatch({
+      type: SET_SHOW_COPY,
+      showCopy
+    });
+  }
+
 }
