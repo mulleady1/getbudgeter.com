@@ -5,6 +5,7 @@
     border: 1px solid #eee;
     background: #fff;
     padding: 5px 18px;
+    color: #337ab7;
     &:hover {
       background: #dbf8ff;
       border: 1px solid #eee;
@@ -15,7 +16,6 @@
   }
   button:nth-child(1) {
     border-right: none;
-    width: 25px;
   }
   button:nth-child(2) {
     border-left-color: #f6f6f6;
@@ -25,7 +25,13 @@
   }
   button:nth-child(3) {
     border-left: none;
-    width: 25px;
+  }
+  button:nth-child(1), button:nth-child(3) {
+    padding-left: 14px;
+    padding-right: 14px;
+    flex: 0 0 45px;
+    min-width: 45px;
+    max-width: 45px;
   }
   ul {
     position: absolute;
@@ -68,6 +74,7 @@
     }
     button:nth-child(2) {
       flex: 1 1 50%;
+      min-width: auto;
     }
   }
 }
