@@ -34,8 +34,10 @@ export default class AppActions {
   }
 
   static setActiveTab(tab) {
+    let date = store.getState().app.date.clone();
     let interval;
     if (tab === Tab.MONTH) {
+      date.startOf('month');
       interval = {
         value: 1,
         unit: Interval.MONTH
@@ -50,7 +52,8 @@ export default class AppActions {
     store.dispatch({
       type: SET_ACTIVE_TAB,
       tab,
-      interval
+      interval,
+      date
     });
 
     AppActions.setFetchTimer();

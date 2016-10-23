@@ -54,7 +54,8 @@ function app(state = initialState, action) {
       return {
         ...state,
         activeTab: action.tab,
-        interval: action.interval
+        date: action.date,
+        interval: action.interval,
       };
     case SET_IS_LOADING:
       return {

@@ -34,12 +34,18 @@ export class Sidebar extends React.Component {
         <li>
           <a 
             className={classNames({ [styles.active]: tab === MONTH })}
-            onClick={() => this.onClick(MONTH)}>Month</a>
+            onClick={() => this.onClick(MONTH)}>
+              <span className="glyphicon glyphicon-calendar"></span>
+              <span>MONTH VIEW</span>
+          </a>
         </li>
         <li>
           <a 
             className={classNames({ [styles.active]: tab === WEEK })}
-            onClick={() => this.onClick(WEEK)}>Week</a>
+            onClick={() => this.onClick(WEEK)}>
+              <span className="glyphicon glyphicon-calendar"></span>
+              <span>WEEK VIEW</span>  
+          </a>
         </li>
         {/*<li>
           <a 

@@ -8,6 +8,9 @@
     display: block;
     padding: 10px;
     cursor: pointer;
+    span:nth-child(1) {
+      margin-right: 15px;
+    }
   }
   a:hover {
     text-decoration: none;

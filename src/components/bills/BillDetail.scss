@@ -112,6 +112,10 @@
     top: 42px;
     right: 10px;
   }
+  .due {
+    top: 42px;
+    left: 10px;
+  }
   .buttons {
     top: 70px;
     right: 10px;
@@ -122,9 +126,9 @@
   }
   
   .form {
-    height: 130px;
+    height: 150px;
     .buttons {
-      top: 100px;
+      top: 120px;
       left: 0;
       right: 0;
       display: flex;
@@ -136,8 +140,11 @@
     .amount {
       top: 10px;
     }
-    .link {
+    .link, .due {
       top: 50px;
+    }
+    .paid {
+      top: 90px;
     }
     .autopay {
       margin-left: 5px;

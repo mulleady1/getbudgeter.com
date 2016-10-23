@@ -2,6 +2,10 @@ import React from 'react';
 import { OverlayTrigger, Popover, Button } from 'react-bootstrap';
 import styles from './Menu.scss';
 
+import {
+  Tab
+} from '../../constants';
+
 export default class Menu extends React.Component {
 
   constructor(props) {
@@ -14,10 +18,12 @@ export default class Menu extends React.Component {
     const {
       username,
       isMobile,
-      isTablet
+      isTablet,
+      activeTab
     } = this.props;
 
-    const showSidbarButtons = isMobile || isTablet;
+    const showMonth = (isMobile || isTablet) && activeTab !== Tab.MONTH;
+    const showWeek = (isMobile || isTablet) && activeTab !== Tab.WEEK;
     
     const popover = (
       <Popover id="Menu">
@@ -34,7 +40,7 @@ export default class Menu extends React.Component {
               <span>COPY</span>
             </a>
           </li>
-          { showSidbarButtons ? (
+          { showMonth ? (
             <li>
               <a onClick={() => this.onClick(this.props.onMonthViewClick)}>
                 <span className="glyphicon glyphicon-calendar"></span>
@@ -43,7 +49,7 @@ export default class Menu extends React.Component {
             </li>
           ) : null
           }
-          { showSidbarButtons ? (
+          { showWeek ? (
             <li>
               <a onClick={() => this.onClick(this.props.onWeekViewClick)}>
                 <span className="glyphicon glyphicon-calendar"></span>
