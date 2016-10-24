@@ -30,8 +30,6 @@
     padding-left: 14px;
     padding-right: 14px;
     flex: 0 0 45px;
-    min-width: 45px;
-    max-width: 45px;
   }
   ul {
     position: absolute;
@@ -66,17 +64,28 @@
       box-shadow: 0px 1px 4px 1px #eee;
     }
     button {
-      padding-top: 10px;
-      padding-bottom: 10px;
+      padding-top: 3px;
+      padding-bottom: 3px;
       letter-spacing: initial;
       &:hover {
         background: #fff;
       }
     }
     button:nth-child(2) {
-      flex: 1 1 50%;
+      flex: 1 1 80%;
       min-width: auto;
+      font-size: 21px;
     }
+    button:nth-child(1), button:nth-child(3) {
+      padding: 0;
+      flex: 0 0 10%;
+      max-width: 45px;
+      font-size: 14px;
+      span {
+        display: block;
+        width: 100%;
+      }
+    } 
     .week {
       font-size: 20px;
     }

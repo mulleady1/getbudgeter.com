@@ -111,7 +111,6 @@
   .link {
     top: 42px;
     right: 10px;
-    max-width: 63%;
   }
   .due {
     top: 42px;
@@ -144,6 +143,7 @@
     }
     .link, .due {
       top: 50px;
+      max-width: 63%;
     }
     .paid {
       top: 90px;
