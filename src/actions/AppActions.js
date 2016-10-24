@@ -26,10 +26,11 @@ export default class AppActions {
         window.location = '/';
       })
       .catch((res) => {
+        window.location = '/';
         const msg = 'Error logging out.';
         debug(msg);
         debug('res:', res);
-        return Promise.reject(new Error(msg));
+        // return Promise.reject(new Error(msg));
       });
   }
 
