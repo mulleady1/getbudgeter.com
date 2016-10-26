@@ -10,7 +10,7 @@ import {
 
 const DisplayFormat = {
   MONTH: 'MMMM YYYY',
-  WEEK: 'M/D/YY'
+  WEEK: 'MMM D'
 };
 
 export class Timeframe extends React.Component {
@@ -62,7 +62,12 @@ export class Timeframe extends React.Component {
     } else if (unit === Interval.WEEK) {
       let label = date.format(fmt);
       const endDate = date.clone().add(value, unit).add(-1, 'day');
-      label += ` - ${endDate.format(fmt)}`;
+      if (endDate.month() === date.month()) {
+        label += `-${endDate.format('D, YYYY')}`;
+      } else {
+        label += `-${endDate.format('MMM D, YYYY')}`;
+      }
+      
       return label;
     }
   }

@@ -44,6 +44,10 @@ export default class AppActions {
         unit: Interval.MONTH
       };
     } else if (tab === Tab.WEEK) {
+      if (date.day() > 0) {
+        date.startOf('week');
+      }
+
       interval = {
         value: 2,
         unit: Interval.WEEK
