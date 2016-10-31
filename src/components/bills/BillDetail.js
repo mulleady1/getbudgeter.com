@@ -123,7 +123,7 @@ export default class BillDetail extends React.Component {
           }
         </div>
         <div className={styles.link}>
-          <a href={link} target="_blank">{link}</a>
+          <a href={`http://${link}`} target="_blank">{link}</a>
         </div>
         <div className={styles.buttons}>
           <button className="btn btn-sm btn-default" onClick={this.onEditClick}>
