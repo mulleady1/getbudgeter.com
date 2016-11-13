@@ -1,5 +1,6 @@
 import store from '../store';
 import axios from 'axios';
+import moment from 'moment';
 import BillActions from './BillActions';
 import { 
   SET_ACTIVE_TAB,
@@ -37,6 +38,11 @@ export default class AppActions {
   static setActiveTab(tab) {
     let date = store.getState().app.date.clone();
     let interval;
+
+    if (store.getState().app.activeTab === Tab.GRAPH) {
+      date = moment().startOf('month');
+    }
+
     if (tab === Tab.MONTH) {
       date.startOf('month');
       interval = {
