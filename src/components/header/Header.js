@@ -10,7 +10,8 @@ import {
 const {
   WEEK,
   MONTH,
-  SEARCH
+  SEARCH,
+  GRAPH
 } = Tab;
 
 export default class Header extends React.Component {
@@ -21,6 +22,7 @@ export default class Header extends React.Component {
     this.onCalculatorClick = this.onCalculatorClick.bind(this);
     this.onMonthViewClick = this.onMonthViewClick.bind(this);
     this.onWeekViewClick = this.onWeekViewClick.bind(this);
+    this.onGraphViewClick = this.onGraphViewClick.bind(this);
     this.onSearchClick = this.onSearchClick.bind(this);
   }
 
@@ -41,6 +43,7 @@ export default class Header extends React.Component {
       onCopyClick: this.onCopyClick,
       onMonthViewClick: this.onMonthViewClick,
       onWeekViewClick: this.onWeekViewClick,
+      onGraphViewClick: this.onGraphViewClick,
       onSearchClick: this.onSearchClick,
       onLogoutClick: this.onLogoutClick
     };
@@ -75,6 +78,10 @@ export default class Header extends React.Component {
 
   onWeekViewClick() {
     AppActions.setActiveTab(WEEK);
+  }
+
+  onGraphViewClick() {
+    AppActions.setActiveTab(GRAPH);
   }
 
   onSearchClick() {

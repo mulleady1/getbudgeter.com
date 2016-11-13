@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {
   BarChart,
   XAxis,
@@ -10,7 +11,7 @@ import {
 import moment from 'moment';
 import styles from './GraphDetail.scss';
 
-export default class GraphDetail extends React.Component {
+export class GraphDetail extends React.Component {
 
   constructor(props) {
     super(props);
@@ -18,7 +19,8 @@ export default class GraphDetail extends React.Component {
 
   render() {
     const {
-      bills
+      bills,
+      isMobile
     } = this.props;
 
     const data = bills.map(b => {
@@ -27,11 +29,13 @@ export default class GraphDetail extends React.Component {
         value: parseFloat(b.amount)
       };
     });
+
+    const width = isMobile ? window.innerWidth - 40 : 500;
     
     return (
       <div className={styles.wrapper}>
         <h5>{bills[0].name}</h5>
-        <BarChart width={500} height={300} data={data}>
+        <BarChart width={width} height={300} data={data}>
           <XAxis dataKey="label" />
           <YAxis />
           <CartesianGrid strokeDasharray="3 3" />
@@ -43,3 +47,11 @@ export default class GraphDetail extends React.Component {
   }
 
 }
+
+const setProps = (state) => {
+  return {
+    isMobile: state.app.isMobile
+  };
+};
+
+export default connect(setProps)(GraphDetail);
