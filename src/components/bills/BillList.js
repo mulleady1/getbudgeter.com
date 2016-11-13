@@ -4,11 +4,13 @@ import {findDOMNode} from 'react-dom';
 import _ from 'lodash';
 import AppActions from '../../actions/AppActions';
 import BillActions from '../../actions/BillActions';
+import Timeframe from '../timeframe/Timeframe';
 import BillDetail from './BillDetail';
 import {Bill} from '../../models';
 import {
   confirm,
-  Calculator
+  Calculator,
+  Loading
 } from '../shared';
 import styles from './BillList.scss';
 
@@ -49,7 +51,8 @@ export class BillList extends React.Component {
       bills,
       date, 
       interval,
-      showCalculator 
+      showCalculator,
+      isLoading
     } = this.props;
 
     const { bill } = this.state;
@@ -84,32 +87,41 @@ export class BillList extends React.Component {
 
     return (
       <div>
-        <ul className={styles.wrapper}>
-          {items}
-          { bill ? (
-            <BillDetail 
-              ref="newBill"
-              key={bill.id} 
-              bill={bill}
-              date={date}
-              interval={interval}
-              onDeleteClick={this.onDeleteNewClick}
-              onSaveClick={this.onSaveNewClick} />
-          ) : null
-          }
-        </ul>
-        <div className={`flex-row jc-sb ${styles.stats}`}>
-          <div className={styles.paid}>Paid ${format(totalPaid)} of ${format(total)}</div>
-          <div className={styles.remaining}>
-            (${format(total - totalPaid)} remaining)
+        <div className={styles.header}>
+          <Timeframe date={date} interval={interval} />
+        </div>
+        { isLoading ? (
+          <Loading />
+        ) : (
+          <div>
+            <ul className={styles.wrapper}>
+              {items}
+              { bill ? (
+                <BillDetail 
+                  ref="newBill"
+                  key={bill.id} 
+                  bill={bill}
+                  date={date}
+                  interval={interval}
+                  onDeleteClick={this.onDeleteNewClick}
+                  onSaveClick={this.onSaveNewClick} />
+              ) : null
+              }
+            </ul>
+            <div className={`flex-row jc-sb ${styles.stats}`}>
+              <div className={styles.paid}>Paid ${format(totalPaid)} of ${format(total)}</div>
+              <div className={styles.remaining}>
+                (${format(total - totalPaid)} remaining)
+              </div>
+            </div>
+            <div className={styles.footer}>
+              <button className="btn btn-sm btn-primary" disabled={bill} onClick={this.onAddClick}>
+                <span className="glyphicon glyphicon-plus"></span>
+                <span>Add Bill</span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div className={styles.footer}>
-          <button className="btn btn-sm btn-primary" disabled={bill} onClick={this.onAddClick}>
-            <span className="glyphicon glyphicon-plus"></span>
-            <span>Add Bill</span>
-          </button>
-        </div>
+        )}
         <Calculator
           show={showCalculator}
           total={total.toFixed(2)}

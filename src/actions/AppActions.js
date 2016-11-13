@@ -52,6 +52,12 @@ export default class AppActions {
         value: 2,
         unit: Interval.WEEK
       };
+    } else if (tab === Tab.GRAPH) {
+      date.startOf('year').add(-4, 'years');
+      interval = {
+        value: 5,
+        unit: Interval.YEAR
+      };
     }
 
     store.dispatch({

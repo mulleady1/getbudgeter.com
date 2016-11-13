@@ -17,12 +17,14 @@ export const SET_SHOW_COPY = 'SET_SHOW_COPY';
 export const Tab = {
   MONTH: 1,
   WEEK: 2,
-  SEARCH: 3
+  SEARCH: 3,
+  GRAPH: 4
 };
 
 export const Interval = {
+  YEAR: 'year',
   MONTH: 'month',
-  WEEK: 'week',
+  WEEK: 'week'
 };
 
 export const CopySource = {

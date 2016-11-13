@@ -25,6 +25,7 @@
     "react-dom": "^15.2.0",
     "react-redux": "^4.4.5",
     "react-router": "^2.5.2",
+    "recharts": "^0.17.1",
     "redux": "^3.5.2",
     "redux-logger": "^2.6.1"
   },

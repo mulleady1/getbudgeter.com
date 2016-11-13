@@ -101,8 +101,8 @@ export class App extends React.Component {
         ) : null
         }
         <div className="flex-row main">
-        <Sidebar isMobile={isMobile} isTablet={isTablet} />
-          <Content />
+          <Sidebar isMobile={isMobile} isTablet={isTablet} />
+          <Content activeTab={activeTab} />
         </div>
         <Copy show={showCopy} date={date} onHide={this.onCopyClose} />
       </div>

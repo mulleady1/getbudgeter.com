@@ -1,9 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import BillList from '../bills/BillList';
-import Timeframe from '../timeframe/Timeframe';
+import GraphList from '../graphs/GraphList';
 import {Loading} from '../shared';
 import styles from './Content.scss';
+import {
+  Tab
+} from '../../constants';
 
 export class Content extends React.Component {
 
@@ -12,31 +15,42 @@ export class Content extends React.Component {
   }
 
   render() {
-    const { 
+    const {
       bills,
       date,
       interval,
-      isLoading
+      isLoading,
+      activeTab
     } = this.props;
 
+    let children = null;
+    if (activeTab === Tab.GRAPH) {
+      children = isLoading ? (
+        <Loading />
+      ) : (
+        <GraphList bills={bills} />
+      );
+    } else {
+      children = (
+        <BillList 
+          bills={bills} 
+          date={date} 
+          interval={interval}
+          isLoading={isLoading} />
+      );
+    }
+    
     return (
       <div className={`main ${styles.wrapper}`}>
-        <div className={styles.header}>
-          <Timeframe date={date} interval={interval} />
-        </div>
-        { isLoading ? (
-          <Loading />
-        ) : (
-          <div>
-            <BillList bills={bills} date={date} interval={interval} />
-            <div className={styles.footer}>
-              <a className="btn btn-default btn-xs" href="mailto:info@getbudgeter.com?subject=Budgeter%20Feedback">
-                <span className="glyphicon glyphicon-envelope"></span> 
-                <span>Send Feedback</span>
-              </a>
-            </div>
+        <div>
+          { children }
+          <div className={styles.footer}>
+            <a className="btn btn-default btn-xs" href="mailto:info@getbudgeter.com?subject=Budgeter%20Feedback">
+              <span className="glyphicon glyphicon-envelope"></span> 
+              <span>Send Feedback</span>
+            </a>
           </div>
-        )}
+        </div>
       </div>
     );
   }

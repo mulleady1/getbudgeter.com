@@ -10,7 +10,7 @@ import {
 const {
   WEEK,
   MONTH,
-  // SEARCH
+  GRAPH
 } = Tab;
 
 export class Sidebar extends React.Component {
@@ -47,11 +47,14 @@ export class Sidebar extends React.Component {
               <span>WEEK VIEW</span>  
           </a>
         </li>
-        {/*<li>
+        <li>
           <a 
-            className={classNames({ [styles.active]: tab === SEARCH })}
-            onClick={() => this.onClick(SEARCH)}>Search</a>
-        </li>*/}
+            className={classNames({ [styles.active]: tab === GRAPH })}
+            onClick={() => this.onClick(GRAPH)}>
+              <span className="glyphicon glyphicon-picture"></span>
+              <span>GRAPH VIEW</span>    
+          </a>
+        </li>
       </ul>
     );
   }
