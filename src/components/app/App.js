@@ -58,11 +58,6 @@ export class App extends React.Component {
 
     window.addEventListener('orientationchange', onResize);
     window.addEventListener('resize', onResize);
-
-    if (!localStorage.newVersionNotification) {
-      alert(NEW_VERSION_MESSAGE);
-      localStorage.newVersionNotification = true;
-    }
   }
 
   render() {
