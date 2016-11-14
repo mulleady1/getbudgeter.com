@@ -14,12 +14,9 @@ export class GraphList extends React.Component {
       bills 
     } = this.props;
 
-    const groups = _.groupBy(
-      _.sortBy(bills, 'due'), 
-      b => b.name
-    );
+    const groups = _.groupBy(bills, b => b.name);
 
-    const graphs = Object.keys(groups).map((key, i) => {
+    const graphs = Object.keys(groups).sort().map((key, i) => {
       const bills = groups[key];
 
       if (bills.length < 2) {

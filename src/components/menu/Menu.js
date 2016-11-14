@@ -22,6 +22,7 @@ export default class Menu extends React.Component {
       activeTab
     } = this.props;
 
+    const showCalc = activeTab !== Tab.GRAPH;
     const showMonth = (isMobile || isTablet) && activeTab !== Tab.MONTH;
     const showWeek = (isMobile || isTablet) && activeTab !== Tab.WEEK;
     const showGraph = (isMobile || isTablet) && activeTab !== Tab.GRAPH;
@@ -29,18 +30,24 @@ export default class Menu extends React.Component {
     const popover = (
       <Popover id="Menu">
         <ul className={styles.wrapper}>
-          <li>
-            <a onClick={() => this.onClick(this.props.onCalculatorClick)}>
-              <span className="glyphicon glyphicon-piggy-bank"></span>
-              <span>CALCULATOR</span>
-            </a>
-          </li>
-          <li>
-            <a onClick={() => this.onClick(this.props.onCopyClick)}>
-              <span className="glyphicon glyphicon-copy"></span>
-              <span>COPY</span>
-            </a>
-          </li>
+          { showCalc ? (
+            <li>
+              <a onClick={() => this.onClick(this.props.onCalculatorClick)}>
+                <span className="glyphicon glyphicon-piggy-bank"></span>
+                <span>CALCULATOR</span>
+              </a>
+            </li>
+          ) : null
+          }
+          { showCalc ? (
+            <li>
+              <a onClick={() => this.onClick(this.props.onCopyClick)}>
+                <span className="glyphicon glyphicon-copy"></span>
+                <span>COPY</span>
+              </a>
+            </li>
+          ) : null
+          }
           { showMonth ? (
             <li>
               <a onClick={() => this.onClick(this.props.onMonthViewClick)}>
@@ -77,7 +84,10 @@ export default class Menu extends React.Component {
             </li>
           ) : null
           */}
-          <li role="separator" className={styles.divider}></li>
+          { showCalc ? (
+            <li role="separator" className={styles.divider}></li>
+          ) : null
+          }
           <li>
             <a onClick={() => this.onClick(this.props.onLogoutClick)}>
               <span className="glyphicon glyphicon-log-out"></span>
