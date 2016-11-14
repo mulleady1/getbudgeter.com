@@ -21,20 +21,6 @@ let _fetchTimer,
 
 export default class AppActions {
 
-  static logout() {
-    return axios.post('/logout')
-      .then(() => {
-        window.location = '/';
-      })
-      .catch((res) => {
-        window.location = '/';
-        const msg = 'Error logging out.';
-        debug(msg);
-        debug('res:', res);
-        // return Promise.reject(new Error(msg));
-      });
-  }
-
   static setActiveTab(tab) {
     let date = store.getState().app.date.clone();
     let interval;

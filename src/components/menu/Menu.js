@@ -89,10 +89,12 @@ export default class Menu extends React.Component {
           ) : null
           }
           <li>
-            <a onClick={() => this.onClick(this.props.onLogoutClick)}>
-              <span className="glyphicon glyphicon-log-out"></span>
-              <span>LOGOUT {username}</span>
-            </a>
+            <form action="/logout" method="post">
+              <button type="submit" className="btn btn-link">
+                <span className="glyphicon glyphicon-log-out"></span>
+                <span>LOGOUT {username}</span>
+              </button>
+            </form>
           </li>
         </ul>
       </Popover>

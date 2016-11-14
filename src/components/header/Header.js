@@ -44,8 +44,7 @@ export default class Header extends React.Component {
       onMonthViewClick: this.onMonthViewClick,
       onWeekViewClick: this.onWeekViewClick,
       onGraphViewClick: this.onGraphViewClick,
-      onSearchClick: this.onSearchClick,
-      onLogoutClick: this.onLogoutClick
+      onSearchClick: this.onSearchClick
     };
 
     return (
@@ -86,10 +85,6 @@ export default class Header extends React.Component {
 
   onSearchClick() {
     AppActions.setActiveTab(SEARCH);
-  }
-
-  onLogoutClick() {
-    AppActions.logout();
   }
 
 }

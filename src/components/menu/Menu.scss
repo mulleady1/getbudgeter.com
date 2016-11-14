@@ -1,16 +1,23 @@
 .wrapper {
-  a {
+  a, button[type="submit"] {
     cursor: pointer;
     padding: 7px 30px;
     display: block;
   }
-  a:hover {
+  button[type="submit"] {
+    width: 100%;
+    text-align: left;
+  }
+  a:hover, button[type="submit"]:hover {
     background: #dbf8ff;
     text-decoration: none;
   }
-  a:active {
+  a:active, button[type="submit"]:active {
     background: #d7f3fa;
   }
+  form button span {
+    margin-left: 0;
+  } 
   :global .glyphicon {
     margin-right: 15px;
   }
