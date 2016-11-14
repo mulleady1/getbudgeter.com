@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import {
   BarChart,
   XAxis,
@@ -23,7 +24,7 @@ export class GraphDetail extends React.Component {
       isMobile
     } = this.props;
 
-    const data = bills.map(b => {
+    const data = _.sortBy(bills, 'due').map(b => {
       return {
         label: moment(b.due).format('MMM Y'),
         value: parseFloat(b.amount)
