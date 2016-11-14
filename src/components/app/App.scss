@@ -97,7 +97,7 @@ section {
     }
   }
   .main {
-    flex-grow: 1;
+    flex: 1 1 100%;
   }
   .flex-row {
     display: flex;
