@@ -1,0 +1,15 @@
+.wrapper {
+  max-width: 1000px;
+  & > div {
+    margin: auto;
+  }
+  svg:global(.recharts-surface) {
+    width: 110%;
+  }
+}
+
+:global(.mobile) {
+  svg:global(.recharts-surface) {
+    width: auto;
+  }
+}

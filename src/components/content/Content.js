@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import BillList from '../bills/BillList';
+import Bills from '../bills/Bills';
 import GraphList from '../graphs/GraphList';
 import {Loading} from '../shared';
 import styles from './Content.scss';
@@ -32,7 +32,7 @@ export class Content extends React.Component {
       );
     } else {
       children = (
-        <BillList 
+        <Bills 
           bills={bills} 
           date={date} 
           interval={interval}

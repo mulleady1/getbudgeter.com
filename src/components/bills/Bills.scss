@@ -1,0 +1,31 @@
+.wrapper {
+  padding: 20px;
+}
+.header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1000px;
+  :global(.btn.active):focus, 
+  :global(.btn):active:focus, 
+  :global(.btn):focus {
+    outline: none;
+  }
+}
+:global(.mobile) {
+  .wrapper {
+    padding: 0;
+  }
+  .header {
+    padding: 0;
+    display: initial;
+    max-width: initial;
+    :global(.btn-group) {
+      margin: 15px auto;
+      display: block;
+      height: 34px;
+      width: 113px;
+    }
+  }
+}
