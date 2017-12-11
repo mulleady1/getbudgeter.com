@@ -11,5 +11,3 @@ include/
 runtests
 mongodump.tar.gz
 node_modules
-budgeter/static/js
-budgeter/static/css
