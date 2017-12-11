@@ -1,5 +1,5 @@
 {
-  "name": "Budgeter",
+  "name": "budgeter",
   "version": "1.0.0",
   "description": "",
   "main": " ",
@@ -13,7 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.12.0",
-    "babel-preset-stage-0": "^6.5.0",
     "classnames": "^2.2.5",
     "debug": "^2.2.0",
     "lodash": "^4.13.1",
@@ -33,8 +32,9 @@
     "autoprefixer": "^6.3.7",
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",
-    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-1": "^6.24.1",
     "chai": "^3.5.0",
     "css-loader": "^0.23.1",
     "enzyme": "^2.3.0",

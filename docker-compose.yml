@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - mynet
+  web:
+    image: mulleady1/budgeter:latest
+    command: python wsgi.py
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      - mynet
+    deploy:
+      replicas: 5
+      restart_policy:
+        condition: on-failure
+networks:
+  mynet:
