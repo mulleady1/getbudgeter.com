@@ -3,8 +3,9 @@ version: '3'
 services:
   db:
     image: mongo
-    ports:
-      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+      - ./backups:/backups
     networks:
       - mynet
   web:
@@ -17,10 +18,25 @@ services:
     ports:
       - "8000:8000"
     networks:
+      - pnet
       - mynet
     deploy:
-      replicas: 5
+      replicas: 3
       restart_policy:
         condition: on-failure
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - mynet
 networks:
-  mynet:
+  mynet: {}
+  pnet:
+    external:
+      name: pnet

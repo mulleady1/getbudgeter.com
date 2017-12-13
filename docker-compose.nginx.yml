@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx
+    volumes:
+      - ./conf.d/budgeter.conf:/etc/nginx/conf.d/budgeter.conf
+    ports:
+      - "80:80"
+    networks:
+      - pnet
+networks:
+  pnet:
+    external:
+      name: pnet
