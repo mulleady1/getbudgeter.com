@@ -5,6 +5,12 @@ export const SET_BILLS = 'SET_BILLS';
 export const ADD_BILL = 'ADD_BILL';
 export const UPDATE_BILL = 'UPDATE_BILL';
 export const DELETE_BILL = 'DELETE_BILL';
+
+export const SET_UPLOADS = 'SET_UPLOADS';
+export const ADD_UPLOAD = 'ADD_UPLOAD';
+export const UPDATE_UPLOAD = 'UPDATE_UPLOAD';
+export const DELETE_UPLOAD = 'DELETE_UPLOAD';
+
 export const SET_ACTIVE_TAB = 'SET_ACTIVE_TAB';
 export const SET_DATE = 'SET_DATE';
 export const SET_INTERVAL = 'SET_INTERVAL';
@@ -18,7 +24,8 @@ export const Tab = {
   MONTH: 1,
   WEEK: 2,
   SEARCH: 3,
-  GRAPH: 4
+  GRAPH: 4,
+  VIZ: 5
 };
 
 export const Interval = {

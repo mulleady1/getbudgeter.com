@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import AppActions from '../../actions/AppActions';
 import BillActions from '../../actions/BillActions';
+import UploadActions from '../../actions/UploadActions';
 import Header from '../header/Header';
 import Sidebar from '../sidebar/Sidebar';
 import Content from '../content/Content';
@@ -34,6 +35,7 @@ export class App extends React.Component {
 
   componentWillMount() {
     BillActions.get();
+    UploadActions.get();
   }
 
   componentDidMount() {
@@ -43,7 +45,7 @@ export class App extends React.Component {
       } else {
         window.clearInterval(window._loadTimer);
       }
-      
+
       const node = document.querySelector('#loading');
       node.parentNode.removeChild(node);
       this.setState({ loading: false });
@@ -61,10 +63,10 @@ export class App extends React.Component {
   }
 
   render() {
-    const { 
+    const {
       user,
       date,
-      message, 
+      message,
       isMobile,
       isTablet,
       activeTab,
@@ -74,10 +76,10 @@ export class App extends React.Component {
     const cssClass = classNames(
       'flex-col',
       'main',
-      { 
+      {
         mobile: isMobile,
         tablet: isTablet,
-        [styles.loading]: this.state.loading 
+        [styles.loading]: this.state.loading
       }
     );
 
@@ -119,7 +121,7 @@ const setProps = (state) => {
     user: state.app.user,
     date: state.app.date,
     message: state.app.message,
-    isMobile: state.app.isMobile,    
+    isMobile: state.app.isMobile,
     isTablet: state.app.isTablet,
     activeTab: state.app.activeTab,
     showCopy: state.app.showCopy

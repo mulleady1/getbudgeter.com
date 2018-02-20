@@ -11,7 +11,8 @@ __all__ = [
     'login',
     'logout',
     'password_reset',
-    'register'
+    'register',
+    'uploads',
 ]
 
 @app.route('/')

@@ -2,7 +2,8 @@ import store from '../store';
 import axios from 'axios';
 import moment from 'moment';
 import BillActions from './BillActions';
-import { 
+import UploadActions from './UploadActions';
+import {
   SET_ACTIVE_TAB,
   SET_DATE,
   SET_IS_LOADING,
@@ -29,7 +30,7 @@ export default class AppActions {
       date = moment().startOf('month');
     }
 
-    if (tab === Tab.MONTH) {
+    if (tab === Tab.MONTH || tab === Tab.VIZ) {
       date.startOf('month');
       interval = {
         value: 1,
@@ -60,15 +61,17 @@ export default class AppActions {
     });
 
     AppActions.setFetchTimer();
+
+    localStorage.setItem('activeTab', tab);
   }
-  
+
   static setIsLoading(isLoading) {
     store.dispatch({
       type: SET_IS_LOADING,
       isLoading
     });
   }
-  
+
   static setIsMobile(isMobile, isTablet) {
     store.dispatch({
       type: SET_IS_MOBILE,
@@ -76,7 +79,7 @@ export default class AppActions {
       isTablet
     });
   }
-  
+
   static setDate(date) {
     store.dispatch({
       type: SET_DATE,
@@ -95,11 +98,14 @@ export default class AppActions {
 
     _fetchTimer = setTimeout(() => {
       _fetchTimer = null;
-      BillActions.get()
-        .then(() => AppActions.setIsLoading(false));
+      const fn = store.getState().app.activeTab === Tab.VIZ ?
+        UploadActions.get :
+        BillActions.get;
+
+      fn().then(() => AppActions.setIsLoading(false));
     }, 400);
   }
-  
+
   static setMessage(message) {
     if (_messageTimer) {
       clearTimeout(_messageTimer);

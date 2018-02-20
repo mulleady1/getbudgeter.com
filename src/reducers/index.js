@@ -6,6 +6,12 @@ import {
   ADD_BILL,
   UPDATE_BILL,
   DELETE_BILL,
+
+  SET_UPLOADS,
+  ADD_UPLOAD,
+  UPDATE_UPLOAD,
+  DELETE_UPLOAD,
+
   SET_DATE,
   SET_INTERVAL,
   SET_ACTIVE_TAB,
@@ -26,11 +32,13 @@ const interval = {
 };
 
 const date = moment().startOf(interval.unit);
+const storedTab = localStorage.getItem('activeTab');
+const activeTab = storedTab ? parseInt(storedTab, 10) : Tab.MONTH;
 const initialState = {
-  user: {}, 
-  activeTab: Tab.MONTH,
-  message: '', 
-  date, 
+  user: {},
+  activeTab,
+  message: '',
+  date,
   interval,
   showCalculator: false,
   showCopy: false,
@@ -111,9 +119,33 @@ function bills(state = [], action) {
   }
 }
 
+function uploads(state = [], action) {
+  switch (action.type) {
+    case SET_UPLOADS:
+      return action.uploads;
+    case ADD_UPLOAD:
+      return state.concat(action.upload);
+    case UPDATE_UPLOAD:
+      const upload = _.find(state, { _id: action.upload._id });
+      const newUpload = {
+        ...upload,
+        ...action.upload
+      };
+
+      return state
+        .filter(b => b._id !== newUpload._id)
+        .concat(newUpload);
+    case DELETE_UPLOAD:
+      return state.filter(b => b._id !== action.upload._id);
+    default:
+      return state;
+  }
+}
+
 const reducers = combineReducers({
   app,
-  bills
+  bills,
+  uploads
 });
 
 export default reducers;

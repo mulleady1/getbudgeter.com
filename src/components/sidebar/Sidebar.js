@@ -10,7 +10,8 @@ import {
 const {
   WEEK,
   MONTH,
-  GRAPH
+  GRAPH,
+  VIZ
 } = Tab;
 
 export class Sidebar extends React.Component {
@@ -26,13 +27,13 @@ export class Sidebar extends React.Component {
     if (isMobile || isTablet) {
       return null;
     }
-    
+
     const tab = this.props.activeTab;
 
     return (
       <ul className={`${styles.wrapper} flex-col`}>
         <li>
-          <a 
+          <a
             className={classNames({ [styles.active]: tab === MONTH })}
             onClick={() => this.onClick(MONTH)}>
               <span className="glyphicon glyphicon-calendar"></span>
@@ -40,19 +41,27 @@ export class Sidebar extends React.Component {
           </a>
         </li>
         <li>
-          <a 
+          <a
             className={classNames({ [styles.active]: tab === WEEK })}
             onClick={() => this.onClick(WEEK)}>
               <span className="glyphicon glyphicon-calendar"></span>
-              <span>WEEK VIEW</span>  
+              <span>WEEK VIEW</span>
           </a>
         </li>
         <li>
-          <a 
+          <a
             className={classNames({ [styles.active]: tab === GRAPH })}
             onClick={() => this.onClick(GRAPH)}>
               <span className="glyphicon glyphicon-picture"></span>
-              <span>GRAPH VIEW</span>    
+              <span>GRAPH VIEW</span>
+          </a>
+        </li>
+        <li>
+          <a
+            className={classNames({ [styles.active]: tab === VIZ })}
+            onClick={() => this.onClick(VIZ)}>
+              <span className="glyphicon glyphicon-picture"></span>
+              <span>DATA VISUALIZER</span>
           </a>
         </li>
       </ul>

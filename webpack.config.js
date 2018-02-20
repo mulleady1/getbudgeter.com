@@ -1,11 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
-const autoprefixer = require('autoprefixer');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+// const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   devtool: 'eval',
   entry: [
+    'react-hot-loader/patch',
     './src/index'
   ],
   output: {
@@ -14,23 +14,56 @@ module.exports = {
     libraryTarget: 'umd'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loaders: ['babel']
+        use: ['babel-loader']
       },
       {
         test: /\.(css|scss)$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader!sass-loader?outputStyle=expanded')
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: 1,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]___[hash:base64:5]'
+            }
+          },
+          'postcss-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              outputStyle: 'expanded'
+            }
+          }
+        ]
       }
     ]
   },
   plugins: [
-    new ExtractTextPlugin('css/styles.css'),
+    // new ExtractTextPlugin('css/styles.css'),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': '"development"'
     })
   ],
-  postcss: [autoprefixer({ browsers: ['last 2 versions'] })]
+  // devServer: {
+  //   host: '0.0.0.0',
+  //   port: 8001,
+  //   historyApiFallback: true,
+  //   hot: true,
+  //   publicPath: '/budgeter/static/',
+  //   proxy: [
+  //     {
+  //       context: ['/webclient', '/review'],
+  //       target: 'http://localhost:8873',
+  //       changeOrigin: true
+  //     }
+  //   ],
+  //   setup: function(app) {
+  //     app.get('/', (req, res) => res.redirect('/dist'));
+  //   }
+  // }
 };
