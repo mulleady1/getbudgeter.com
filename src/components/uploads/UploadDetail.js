@@ -18,7 +18,8 @@ export class UploadDetail extends React.Component {
   render() {
     const {
       upload,
-      back
+      back,
+      isMobile
     } = this.props;
 
     const data = upload.data.map(u => ({
@@ -26,12 +27,16 @@ export class UploadDetail extends React.Component {
       value: u.amt
     }));
 
+    const size = isMobile ?
+      Math.min(window.innerWidth, window.innerHeight) - 20 :
+      800;
+
     return (
       <div className={styles.wrapper}>
         <h5>{upload.filename}</h5>
         <button className={styles.back} onClick={back}>Back</button>
         <div className={styles.chartWrapper}>
-          <PieChart width={800} height={800}>
+          <PieChart width={size} height={size}>
             <Pie
               data={data}
               isAnimationActive={false}
