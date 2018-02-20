@@ -15,7 +15,7 @@ app.secret_key = BUDGETER_SECRET
 if not DEBUG:
     app.config['SESSION_COOKIE_DOMAIN'] = SESSION_COOKIE_DOMAIN
 
-app.config['MONGO_HOST'] = environ.get('MONGO_HOST', 'localhost:27017')
+# app.config['MONGO_HOST'] = environ.get('MONGO_HOST', 'localhost:27017')
 mongo = PyMongo(app)
 
 app.config['UPLOAD_FOLDER'] = join(dirname(abspath(__file__)), 'uploads')
