@@ -26,7 +26,8 @@ export default class Menu extends React.Component {
     const showMonth = (isMobile || isTablet) && activeTab !== Tab.MONTH;
     const showWeek = (isMobile || isTablet) && activeTab !== Tab.WEEK;
     const showGraph = (isMobile || isTablet) && activeTab !== Tab.GRAPH;
-    
+    const showViz = isMobile || isTablet;
+
     const popover = (
       <Popover id="Menu">
         <ul className={styles.wrapper}>
@@ -71,6 +72,15 @@ export default class Menu extends React.Component {
               <a onClick={() => this.onClick(this.props.onGraphViewClick)}>
                 <span className="glyphicon glyphicon-picture"></span>
                 <span>GRAPH VIEW</span>
+              </a>
+            </li>
+          ) : null
+          }
+          { showViz ? (
+            <li>
+              <a onClick={() => this.onClick(this.props.onVizClick)}>
+                <span className="glyphicon glyphicon-picture"></span>
+                <span>DATA VISUALIZER</span>
               </a>
             </li>
           ) : null

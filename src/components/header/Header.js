@@ -11,7 +11,8 @@ const {
   WEEK,
   MONTH,
   SEARCH,
-  GRAPH
+  GRAPH,
+  VIZ
 } = Tab;
 
 export default class Header extends React.Component {
@@ -24,10 +25,11 @@ export default class Header extends React.Component {
     this.onWeekViewClick = this.onWeekViewClick.bind(this);
     this.onGraphViewClick = this.onGraphViewClick.bind(this);
     this.onSearchClick = this.onSearchClick.bind(this);
+    this.onVizClick = this.onVizClick.bind(this);
   }
 
   render() {
-    const { 
+    const {
       user,
       activeTab,
       isMobile,
@@ -44,7 +46,8 @@ export default class Header extends React.Component {
       onMonthViewClick: this.onMonthViewClick,
       onWeekViewClick: this.onWeekViewClick,
       onGraphViewClick: this.onGraphViewClick,
-      onSearchClick: this.onSearchClick
+      onSearchClick: this.onSearchClick,
+      onVizClick: this.onVizClick
     };
 
     return (
@@ -85,6 +88,10 @@ export default class Header extends React.Component {
 
   onSearchClick() {
     AppActions.setActiveTab(SEARCH);
+  }
+
+  onVizClick() {
+    AppActions.setActiveTab(VIZ);
   }
 
 }
