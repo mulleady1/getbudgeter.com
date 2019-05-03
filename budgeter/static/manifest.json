@@ -1,0 +1,14 @@
+{
+  "name": "Budgeter",
+  "short_name": "Budgeter",
+  "start_url": ".",
+  "display": "standalone",
+  "description": "A simply way to track your bills",
+  "icons": [
+    {
+      "src": "/static/logo.png",
+      "sizes": "119x119",
+      "type": "image/png"
+    }
+  ]
+}
