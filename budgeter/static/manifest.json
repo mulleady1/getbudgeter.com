@@ -1,7 +1,7 @@
 {
   "name": "Budgeter",
   "short_name": "Budgeter",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "description": "A simply way to track your bills",
   "icons": [
