@@ -4,7 +4,7 @@ from os import environ
 from os.path import join, dirname, abspath
 from datetime import timedelta
 from flask import Flask, Response
-from flask.ext.pymongo import PyMongo
+from flask_pymongo import PyMongo
 from budgeter.config import DEBUG, BUDGETER_SECRET, INDENT, LOG_FILE, SESSION_COOKIE_DOMAIN
 
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
@@ -16,6 +16,8 @@ if not DEBUG:
     app.config['SESSION_COOKIE_DOMAIN'] = SESSION_COOKIE_DOMAIN
 
 # app.config['MONGO_HOST'] = environ.get('MONGO_HOST', 'localhost:27017')
+app.config["MONGO_URI"] = "mongodb://localhost:27017/budgeter"
+
 mongo = PyMongo(app)
 
 app.config['UPLOAD_FOLDER'] = join(dirname(abspath(__file__)), 'uploads')
