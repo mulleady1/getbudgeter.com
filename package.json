@@ -13,7 +13,7 @@
   "author": "Kyle Mulleady",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.12.0",
+    "axios": "^0.21.1",
     "classnames": "^2.2.5",
     "debug": "^2.2.0",
     "lodash": "^4.13.1",
