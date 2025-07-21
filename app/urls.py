@@ -14,4 +14,5 @@ urlpatterns = [
         name="edit_delete_bill",
     ),
     path("bills/<int:bill_id>/toggle/", views.toggle_paid, name="toggle_paid"),
+    path("bills/copy/", views.CopyBillsView.as_view(), name="copy"),
 ]

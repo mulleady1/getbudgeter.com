@@ -1,0 +1,26 @@
+<sl-dialog
+  label="Copy Bills"
+  hx-on::load="setTimeout(() => this.show(), 100)"
+  hx-on:sl-after-hide="this.remove()"
+  hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.querySelector('[name=csrfmiddlewaretoken]').value"
+  hx-on::after-request="if (event.detail.successful) this.hide()"
+>
+  <form id="copy-bills-form" hx-post="{% url 'copy' %}" hx-target="#bills-list">
+    {% csrf_token %}
+
+    <sl-input
+      type="month"
+      name="source_month"
+      label="Copy from"
+      value="{{ source_month|date:'Y-m' }}"
+      required
+    ></sl-input>
+
+    <input type="hidden" name="target_month" value="{{ target_month|date:'Y-m' }}" />
+  </form>
+
+  <div slot="footer">
+    <sl-button onclick="this.closest('sl-dialog').hide()">Cancel</sl-button>
+    <sl-button type="submit" variant="primary" form="copy-bills-form">Copy</sl-button>
+  </div>
+</sl-dialog>

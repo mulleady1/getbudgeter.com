@@ -1,4 +1,6 @@
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
+from urllib.parse import urlparse, parse_qs
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -8,6 +10,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from .models import Bill
+
+logger = logging.getLogger(__name__)
 
 
 def home(request):
@@ -172,3 +176,49 @@ def toggle_paid(request, bill_id):
     bill.paid = not bill.paid
     bill.save()
     return render(request, "bills/bill_list_item.html", {"bill": bill})
+
+
+class CopyBillsView(LoginRequiredMixin, View):
+    def get(self, request):
+        parsed_url = urlparse(request.htmx.current_url)
+        query_params = parse_qs(parsed_url.query)
+
+        try:
+            target_month_str = query_params.get("month")[0]  # type: ignore
+            target_month = datetime.strptime(target_month_str, "%Y-%m").date()
+        except:  # pylint: disable=bare-except
+            target_month = datetime.now().replace(day=1)
+
+        source_month = (target_month - timedelta(days=1)).replace(day=1)
+
+        context = {
+            "source_month": source_month,
+            "target_month": target_month,
+        }
+
+        template_name = "bills/copy_bills.html"
+        return render(request, template_name, context)
+
+    def post(self, request):
+        source_month = datetime.strptime(
+            request.POST.get("source_month"), "%Y-%m"
+        ).date()
+        target_month = datetime.strptime(
+            request.POST.get("target_month"), "%Y-%m"
+        ).date()
+
+        bills = Bill.objects.filter(user=request.user, month=source_month)
+        new_bills = []
+        for bill in bills:
+            new_bill = Bill.objects.create(
+                user=request.user,
+                name=bill.name,
+                amount=bill.amount,
+                link=bill.link,
+                month=target_month,
+            )
+            new_bill.save()
+            new_bills.append(new_bill)
+            logger.info("copied bill %s to %s", new_bill.name, new_bill.month)
+
+        return render(request, "bills/bill_list.html", {"bills": new_bills})

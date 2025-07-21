@@ -8,17 +8,31 @@
     style="max-width: 1000px; margin: 0 auto; padding: 1rem;"
     hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.previousElementSibling.value"
   >
-    <div style="width: 200px; margin-bottom: 1rem;">
+    <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
       <sl-input
         type="month"
         id="month"
         name="month"
         value="{{ selected_month|date:'Y-m' }}"
         hx-get="{% url 'bills' %}"
+        hx-push-url="true"
         hx-target="#bills-list"
         hx-trigger="sl-change delay:500ms"
         hx-swap="outerHTML"
+        style="width: 180px;"
       ></sl-input>
+
+      <sl-dropdown>
+        <sl-button slot="trigger" size="small" circle>
+          <sl-icon name="three-dots-vertical"></sl-icon>
+        </sl-button>
+        <sl-menu>
+          <sl-menu-item hx-get="{% url 'copy' %}" hx-target="body" hx-swap="beforeend">
+            Copy
+            <sl-icon slot="prefix" name="copy"></sl-icon>
+          </sl-menu-item>
+        </sl-menu>
+      </sl-dropdown>
     </div>
 
     {% include "bills/bill_list.html" %}
