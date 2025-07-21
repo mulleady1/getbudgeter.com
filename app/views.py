@@ -146,7 +146,6 @@ class BillEditDeleteView(LoginRequiredMixin, View):
         bill = get_object_or_404(Bill, id=bill_id, user=request.user)
         bill.name = data.get("name")
         bill.amount = data.get("amount")
-        bill.paid = data.get("paid") == "on"
         bill.link = data.get("link")
         bill.month = datetime.strptime(str(data.get("month")), "%Y-%m").date()
         bill.save()

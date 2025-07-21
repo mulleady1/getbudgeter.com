@@ -1,3 +1,7 @@
+:not(:defined) {
+  visibility: hidden;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -14,6 +18,34 @@ header h1 {
 header nav {
   display: flex;
   gap: 1rem;
+}
+
+.htmx-progress-bar {
+  position: fixed;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #b5c3ef, #c38bca, #b5c3ef);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+  z-index: 9999;
+  pointer-events: none;
+  transition: opacity 0.1s;
+}
+
+.htmx-progress-bar.htmx-request {
+  opacity: 1;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .bill-list-item {

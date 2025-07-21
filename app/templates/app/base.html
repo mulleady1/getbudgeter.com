@@ -15,7 +15,9 @@
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script src="{% static 'js/app.js' %}"></script>
   </head>
-  <body hx-ext="submit-spinner">
+  <body hx-ext="submit-spinner" hx-indicator=".htmx-progress-bar">
+    <div class="htmx-progress-bar"></div>
+
     {% block header %}
       <header>
         <div style="display: flex; align-items: center; gap: 0.5rem;">
