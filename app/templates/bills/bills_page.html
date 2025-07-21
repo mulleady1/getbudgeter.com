@@ -5,7 +5,7 @@
 
   <div
     id="bills-page"
-    style="max-width: 1000px; margin: 0 auto; paddding: 1rem;"
+    style="max-width: 1000px; margin: 0 auto; padding: 1rem;"
     hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.previousElementSibling.value"
   >
     <div style="width: 200px; margin-bottom: 1rem;">
@@ -16,6 +16,7 @@
         value="{{ selected_month|date:'Y-m' }}"
         hx-get="{% url 'bills' %}"
         hx-target="#bills-list"
+        hx-trigger="sl-change delay:500ms"
         hx-swap="outerHTML"
       ></sl-input>
     </div>
