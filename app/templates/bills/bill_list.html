@@ -6,16 +6,4 @@
       <li>No bills for this month.</li>
     {% endfor %}
   </ul>
-
-  <div>
-    <sl-button
-      variant="primary"
-      hx-get="{% url 'new_bill' %}?month={{ selected_month|date:'Y-m' }}"
-      hx-target="body"
-      hx-swap="beforeend"
-    >
-      <sl-icon slot="prefix" name="plus"></sl-icon>
-      Add Bill
-    </sl-button>
-  </div>
 </div>

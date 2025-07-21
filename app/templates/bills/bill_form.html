@@ -1,5 +1,9 @@
 <sl-drawer
-  label="Add New Bill"
+  {% if bill.id %}
+    label="Edit Bill"
+  {% else %}
+    label="Add Bill"
+  {% endif %}
   hx-on::load="setTimeout(() => this.show(), 100)"
   hx-on:sl-after-hide="this.remove()"
   hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.querySelector('[name=csrfmiddlewaretoken]').value"
@@ -43,7 +47,7 @@
 
   <div slot="footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
     <sl-button onclick="this.closest('sl-drawer').hide()" style="margin-top: 1rem; width: 100%;">Cancel</sl-button>
-    <sl-button type="submit" variant="primary" form="bill-form" style="margin-top: 1rem; width: 100%;" app-spinner
+    <sl-button type="submit" variant="primary" form="bill-form" style="margin-top: 1rem; width: 100%;"
       >Add Bill</sl-button
     >
   </div>

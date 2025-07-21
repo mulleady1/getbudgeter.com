@@ -1,11 +1,10 @@
 from datetime import datetime
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse, QueryDict
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from .models import Bill
@@ -139,12 +138,13 @@ class BillEditDeleteView(LoginRequiredMixin, View):
         return render(request, "bills/bill_form.html", {"bill": bill})
 
     def put(self, request, bill_id):
+        data = QueryDict(request.body)
         bill = get_object_or_404(Bill, id=bill_id, user=request.user)
-        bill.name = request.POST.get("name")
-        bill.amount = request.POST.get("amount")
-        bill.paid = request.POST.get("paid") == "on"
-        bill.link = request.POST.get("link")
-        bill.month = datetime.strptime(request.POST.get("month"), "%Y-%m").date()
+        bill.name = data.get("name")
+        bill.amount = data.get("amount")
+        bill.paid = data.get("paid") == "on"
+        bill.link = data.get("link")
+        bill.month = datetime.strptime(data.get("month"), "%Y-%m").date()
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
         return render(request, "bills/bill_list.html", {"bills": bills})
