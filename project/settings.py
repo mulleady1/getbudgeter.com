@@ -13,7 +13,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(module)s.%(funcName)s] %(message)s",
+)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

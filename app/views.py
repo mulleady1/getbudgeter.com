@@ -148,7 +148,7 @@ class BillEditDeleteView(LoginRequiredMixin, View):
         bill.amount = data.get("amount")
         bill.paid = data.get("paid") == "on"
         bill.link = data.get("link")
-        bill.month = datetime.strptime(data.get("month"), "%Y-%m").date()
+        bill.month = datetime.strptime(str(data.get("month")), "%Y-%m").date()
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
         return render(request, "bills/bill_list.html", {"bills": bills})
@@ -203,22 +203,26 @@ class CopyBillsView(LoginRequiredMixin, View):
         source_month = datetime.strptime(
             request.POST.get("source_month"), "%Y-%m"
         ).date()
+
         target_month = datetime.strptime(
             request.POST.get("target_month"), "%Y-%m"
         ).date()
 
-        bills = Bill.objects.filter(user=request.user, month=source_month)
+        # Delete all bills for the target month
+        count, _ = Bill.objects.filter(user=request.user, month=target_month).delete()
+        logger.info("deleted %s bills for %s", count, target_month)
+
+        old_bills = Bill.objects.filter(user=request.user, month=source_month)
         new_bills = []
-        for bill in bills:
-            new_bill = Bill.objects.create(
+        for old_bill in old_bills:
+            bill = Bill.objects.create(
                 user=request.user,
-                name=bill.name,
-                amount=bill.amount,
-                link=bill.link,
+                name=old_bill.name,
+                amount=old_bill.amount,
+                link=old_bill.link,
                 month=target_month,
             )
-            new_bill.save()
-            new_bills.append(new_bill)
-            logger.info("copied bill %s to %s", new_bill.name, new_bill.month)
+            new_bills.append(bill)
 
+        logger.info("copied %s bills for %s", len(new_bills), target_month)
         return render(request, "bills/bill_list.html", {"bills": new_bills})
