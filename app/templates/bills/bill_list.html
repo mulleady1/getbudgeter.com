@@ -1,0 +1,21 @@
+<div id="bills-list">
+  <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0;">
+    {% for bill in bills %}
+      {% include "bills/bill_list_item.html" %}
+      {% empty %}
+      <li>No bills for this month.</li>
+    {% endfor %}
+  </ul>
+
+  <div>
+    <sl-button
+      variant="primary"
+      hx-get="{% url 'new_bill' %}?month={{ selected_month|date:'Y-m' }}"
+      hx-target="body"
+      hx-swap="beforeend"
+    >
+      <sl-icon slot="prefix" name="plus"></sl-icon>
+      Add Bill
+    </sl-button>
+  </div>
+</div>

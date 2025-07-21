@@ -1,0 +1,34 @@
+<li class="bill-list-item">
+  <strong>{{ bill.name }}</strong>${{ bill.amount|floatformat:2 }}
+
+  <sl-checkbox
+    {% if bill.paid %}checked{% endif %}
+    hx-post="{% url 'toggle_paid' bill.id %}"
+    hx-target="closest li"
+    hx-swap="outerHTML"
+    >Paid</sl-checkbox
+  >
+
+  {% if bill.link %}
+    <a href="{{ bill.link }}" target="_blank">Link</a>
+  {% endif %}
+
+  <sl-icon-button
+    label="Edit"
+    name="pencil-fill"
+    hx-get="{% url 'edit_delete_bill' bill.id %}"
+    hx-target="body"
+    hx-swap="beforeend"
+  ></sl-icon-button>
+
+  <sl-icon-button
+    class="delete"
+    label="Delete"
+    name="trash-fill"
+    hx-confirm="Are you sure?"
+    hx-delete="{% url 'edit_delete_bill' bill.id %}"
+    hx-target="closest li"
+    hx-swap="outerHTML"
+    app-spinner
+  ></sl-icon-button>
+</li>

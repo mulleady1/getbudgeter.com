@@ -1,0 +1,6 @@
+asgiref==3.8.1
+Django==5.2.1
+django-htmx==1.15.0
+pytz==2025.2
+sqlparse==0.4.4
+typing_extensions==4.7.1

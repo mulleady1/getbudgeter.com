@@ -1,0 +1,27 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 1rem;
+}
+header h1 {
+  margin: 0;
+}
+header nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.bill-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bill-list-item sl-icon-button.delete::part(base) {
+  color: red;
+}
