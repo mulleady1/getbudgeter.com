@@ -95,14 +95,14 @@ header {
     /* Bill Name */
     grid-area: name;
     justify-self: start;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   .bill-list-item > :nth-child(2) {
     /* Bill Amount */
     grid-area: amount;
     justify-self: end;
     text-align: right;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   .bill-list-item > :nth-child(3) {
     /* Paid Checkbox */
