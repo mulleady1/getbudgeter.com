@@ -3,7 +3,7 @@
 }
 
 body {
-  font-family: var(--sl-font-sans)
+  font-family: var(--sl-font-sans);
   margin: 0;
 }
 header {
