@@ -107,9 +107,7 @@ class BillListCreateView(LoginRequiredMixin, View):
             selected_month = datetime.now().replace(day=1).date()
 
         # Filter bills for the selected month
-        bills = Bill.objects.filter(user=request.user, month=selected_month).order_by(
-            "name"
-        )
+        bills = Bill.objects.filter(user=request.user, month=selected_month)
 
         context = {
             "bills": bills,
