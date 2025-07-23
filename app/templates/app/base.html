@@ -20,11 +20,10 @@
 
     {% block header %}
       <header>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="logo" style="display: flex; align-items: center; gap: 0.5rem;">
           <img src="/static/logo.png" alt="Budgeter Logo" style="height: 32px; width: auto;" />
           <span style="font-size: 1.25rem; font-weight: 600;">Budgeter</span>
         </div>
-        <nav></nav>
       </header>
     {% endblock %}
     <main>{% block content %}{% endblock %}</main>

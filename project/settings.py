@@ -32,7 +32,7 @@ SECRET_KEY = "django-insecure-(p3$nbwve@z+wf!&y@0pjhbq7f!d^)id78jac*shkv%_35ns9o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "getbudgeter.com"]
 
 
 # Application definition
@@ -136,3 +136,5 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "login"
+
+CSRF_TRUSTED_ORIGINS = ["https://getbudgeter.com"]

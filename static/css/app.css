@@ -11,13 +11,11 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 10px 1rem;
-}
-header h1 {
-  margin: 0;
-}
-header nav {
-  display: flex;
-  gap: 1rem;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 100;
 }
 
 .htmx-progress-bar {
@@ -71,6 +69,18 @@ header nav {
 }
 
 @media (max-width: 799px) {
+  header {
+    justify-content: center;
+  }
+  #bills-page > div:first-child {
+    justify-content: center;
+    position: relative;
+  }
+  #bills-page > div:first-child sl-dropdown {
+    position: absolute;
+    right: 0;
+    top: 5px;
+  }
   .bill-list-item {
     padding: 15px 0 10px;
     display: grid;
@@ -85,12 +95,14 @@ header nav {
     /* Bill Name */
     grid-area: name;
     justify-self: start;
+    font-size: 1.1rem;
   }
   .bill-list-item > :nth-child(2) {
     /* Bill Amount */
     grid-area: amount;
     justify-self: end;
     text-align: right;
+    font-size: 1.1rem;
   }
   .bill-list-item > :nth-child(3) {
     /* Paid Checkbox */
