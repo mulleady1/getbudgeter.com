@@ -1,3 +1,5 @@
+{% load currency %}
+
 <li class="bill-list-item">
   <div>
     {% if bill.link %}
@@ -8,7 +10,7 @@
   </div>
 
   <div>
-    <span>${{ bill.amount|floatformat:2 }}</span>
+    <span>{{ bill.amount|currency }}</span>
   </div>
 
   <div>
