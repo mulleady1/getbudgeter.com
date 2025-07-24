@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import logging
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,7 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-(p3$nbwve@z+wf!&y@0pjhbq7f!d^)id78jac*shkv%_35ns9o"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "") == "1"
 
 ALLOWED_HOSTS = ["localhost", "getbudgeter.com"]
 
@@ -138,3 +143,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"
 
 CSRF_TRUSTED_ORIGINS = ["https://getbudgeter.com"]
+
+TRAILING_SLASH = False

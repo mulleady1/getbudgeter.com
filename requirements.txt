@@ -2,5 +2,6 @@ asgiref==3.8.1
 Django==5.2.1
 django-htmx==1.15.0
 gunicorn==23.0.0
+python-dotenv==1.1.1
 pytz==2025.2
 sqlparse==0.4.4
