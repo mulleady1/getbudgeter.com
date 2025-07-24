@@ -172,10 +172,7 @@ class BillEditDeleteView(LoginRequiredMixin, View):
 @login_required
 @require_http_methods(["GET"])
 def new_bill(request):
-    bill = Bill(
-        user=request.user,
-        month=datetime.strptime(request.GET.get("month"), "%Y-%m").date(),
-    )
+    bill = Bill(user=request.user)
     return render(request, "bills/bill_form.html", {"bill": bill})
 
 
