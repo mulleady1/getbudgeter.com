@@ -14,6 +14,17 @@ from .models import Bill
 logger = logging.getLogger(__name__)
 
 
+def get_month_from_url(url):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    try:
+        month_str = query_params.get("month")[0]  # type: ignore
+        month = datetime.strptime(month_str, "%Y-%m").date()
+    except:  # pylint: disable=bare-except
+        month = datetime.now().replace(day=1)
+    return month
+
+
 def home(request):
     if request.user.is_authenticated:
         return redirect("bills")
@@ -125,7 +136,7 @@ class BillListCreateView(LoginRequiredMixin, View):
         name = request.POST.get("name")
         amount = request.POST.get("amount")
         link = request.POST.get("link")
-        month = datetime.strptime(request.POST.get("month"), "%Y-%m").date()
+        month = get_month_from_url(request.htmx.current_url)
 
         bill = Bill.objects.create(
             user=request.user, name=name, amount=amount, link=link, month=month
@@ -179,15 +190,7 @@ def toggle_paid(request, bill_id):
 
 class CopyBillsView(LoginRequiredMixin, View):
     def get(self, request):
-        parsed_url = urlparse(request.htmx.current_url)
-        query_params = parse_qs(parsed_url.query)
-
-        try:
-            target_month_str = query_params.get("month")[0]  # type: ignore
-            target_month = datetime.strptime(target_month_str, "%Y-%m").date()
-        except:  # pylint: disable=bare-except
-            target_month = datetime.now().replace(day=1)
-
+        target_month = get_month_from_url(request.htmx.current_url)
         source_month = (target_month - timedelta(days=1)).replace(day=1)
 
         context = {

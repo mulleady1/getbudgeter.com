@@ -40,7 +40,7 @@
     <div>
       <sl-button
         variant="primary"
-        hx-get="{% url 'new_bill' %}?month={{ selected_month|date:'Y-m' }}"
+        hx-get="{% url 'new_bill' %}"
         hx-target="body"
         hx-swap="beforeend"
       >
