@@ -158,7 +158,6 @@ class BillEditDeleteView(LoginRequiredMixin, View):
         bill.name = data.get("name")
         bill.amount = data.get("amount")
         bill.link = data.get("link")
-        bill.month = datetime.strptime(str(data.get("month")), "%Y-%m").date()
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
         return render(request, "bills/bill_list.html", {"bills": bills})
