@@ -33,9 +33,9 @@ function customConfirm(options) {
     div.innerHTML = `
   <wa-dialog label="${title}" class="dialog-overview">
     ${text}
-    <div slot="footer">
+    <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
       <wa-button class="cancel" appearance="outlined">${cancelButtonText}</wa-button>
-      <wa-button class="confirm" variant="primary">${confirmButtonText}</wa-button>
+      <wa-button class="confirm">${confirmButtonText}</wa-button>
     </div>
   </wa-dialog>
     `
