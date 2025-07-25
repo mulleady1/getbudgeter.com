@@ -31,7 +31,7 @@ function customConfirm(options) {
     let yes = false
     const div = document.createElement("div")
     div.innerHTML = `
-  <wa-dialog label="${title}" class="dialog-overview">
+  <wa-dialog label="${title}" class="dialog-overview" style="--width: 300px">
     ${text}
     <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
       <wa-button class="cancel" appearance="outlined">${cancelButtonText}</wa-button>
