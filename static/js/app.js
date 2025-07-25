@@ -34,7 +34,7 @@ function customConfirm(options) {
   <wa-dialog label="${title}" class="dialog-overview">
     ${text}
     <div slot="footer">
-      <wa-button class="cancel">${cancelButtonText}</wa-button>
+      <wa-button class="cancel" appearance="outlined">${cancelButtonText}</wa-button>
       <wa-button class="confirm" variant="primary">${confirmButtonText}</wa-button>
     </div>
   </wa-dialog>
