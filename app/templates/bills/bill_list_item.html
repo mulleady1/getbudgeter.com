@@ -14,28 +14,30 @@
   </div>
 
   <div>
-    <sl-checkbox
+    <wa-checkbox
       {% if bill.paid %}checked{% endif %}
       hx-post="{% url 'toggle_paid' bill.id %}"
       hx-target="closest li"
       hx-swap="outerHTML"
-      >Paid</sl-checkbox
+      >Paid</wa-checkbox
     >
   </div>
 
   <div style="display: flex; gap: 0.5rem;">
-    <sl-icon-button
-      label="Edit"
-      name="pencil-fill"
+    <wa-button
+      size="small"
+      appearance="plain"
       hx-get="{% url 'edit_delete_bill' bill.id %}"
       hx-target="body"
       hx-swap="beforeend"
-    ></sl-icon-button>
+    >
+      <wa-icon name="pencil" label="Edit"></wa-icon>
+    </wa-button>
 
-    <sl-icon-button
-      class="delete"
-      label="Delete"
-      name="trash-fill"
+    <wa-button
+      size="small"
+      appearance="plain"
+      variant="danger"
       hx-delete="{% url 'edit_delete_bill' bill.id %}"
       hx-trigger="confirmed"
       hx-target="closest li"
@@ -45,6 +47,8 @@
         htmx.trigger(this, 'confirmed');  
       } 
     })"
-    ></sl-icon-button>
+    >
+      <wa-icon name="trash" label="Delete"></wa-icon>
+    </wa-button>
   </div>
 </li>

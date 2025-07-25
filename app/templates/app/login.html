@@ -7,7 +7,7 @@
   <style>
     body {
       background: #f7f8fa;
-      font-family: var(--sl-font-sans);
+      font-family: var(--wa-font-sans);
     }
     .login-container {
       max-width: 350px;
@@ -57,33 +57,33 @@
     </div>
     {% if error %}
       <div style="margin-bottom: 1rem;">
-        <sl-alert variant="warning" open>
-          <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+        <wa-callout variant="warning" open>
+          <wa-icon slot="icon" name="exclamation-triangle"></wa-icon>
           {{ error }}
-        </sl-alert>
+        </wa-callout>
       </div>
     {% endif %}
     <form method="post">
       {% csrf_token %}
-      <sl-input
+      <wa-input
         type="text"
         id="email"
         name="email"
         label="Email"
         value="{{ email }}"
         required
-      ></sl-input>
-      <sl-input
+      ></wa-input>
+      <wa-input
         type="password"
         id="password"
         name="password"
         label="Password"
         value="{{ password }}"
         required
-      ></sl-input>
+      ></wa-input>
       <div style="padding-top: 0.5rem;">
-        <sl-button variant="primary" type="submit" style="width: 100%;"
-          >Login</sl-button
+        <wa-button type="submit" style="width: 100%;"
+          >Login</wa-button
         >
       </div>
       <div style="padding-top: 0.5rem;">

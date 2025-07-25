@@ -3,7 +3,7 @@
 }
 
 body {
-  font-family: var(--sl-font-sans);
+  font-family: var(--wa-font-sans);
   margin: 0;
   opacity: 0;
   animation: fadeIn 0.3s ease-in-out forwards;
@@ -90,7 +90,7 @@ header {
   text-decoration: underline;
 }
 
-.bill-list-item sl-icon-button.delete::part(base) {
+.bill-list-item wa-icon-button.delete::part(base) {
   color: red;
 }
 
@@ -98,10 +98,10 @@ header {
   #bills-page .header {
     justify-content: center;
   }
-  #bills-page sl-dropdown {
+  #bills-page .dropdown {
     position: absolute;
     right: 1rem;
-    top: 12px;
+    top: 8px;
     z-index: 200;
   }
   .bill-list-item {

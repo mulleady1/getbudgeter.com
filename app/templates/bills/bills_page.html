@@ -31,19 +31,16 @@
         monthInput.value = newValue
 
         // Trigger the change event to fire the HTMX request
-        monthInput.dispatchEvent(new Event('sl-change', { bubbles: true }));
+        monthInput.dispatchEvent(new Event("change", { bubbles: true }))
       }
     </script>
     <div class="header">
       <div class="month-selector">
-        <sl-icon-button
-          name="chevron-left"
-          size="small"
-          onclick="changeMonth(-1)"
-          title="Previous month"
-        ></sl-icon-button>
+        <wa-button size="small" onclick="changeMonth(-1)" appearance="plain">
+          <wa-icon name="chevron-left" label="Previous month"></wa-icon>
+        </wa-button>
 
-        <sl-input
+        <wa-input
           type="month"
           id="month"
           name="month"
@@ -51,34 +48,36 @@
           hx-get="{% url 'bills' %}"
           hx-push-url="true"
           hx-target="#bills-list"
-          hx-trigger="sl-change delay:500ms"
+          hx-trigger="change delay:500ms"
           hx-swap="outerHTML"
           style="width: 200px;"
-        ></sl-input>
+        ></wa-input>
 
-        <sl-icon-button name="chevron-right" size="small" onclick="changeMonth(1)" title="Next month"></sl-icon-button>
+        <wa-button size="small" onclick="changeMonth(1)" appearance="plain">
+          <wa-icon name="chevron-right" label="Next month"></wa-icon>
+        </wa-button>
       </div>
 
-      <sl-dropdown>
-        <sl-button slot="trigger" size="small" circle>
-          <sl-icon name="three-dots-vertical"></sl-icon>
-        </sl-button>
-        <sl-menu>
-          <sl-menu-item hx-get="{% url 'copy' %}" hx-target="body" hx-swap="beforeend">
+      <div class="dropdown">
+        <wa-dropdown>
+          <wa-button slot="trigger" size="small" appearance="plain">
+            <wa-icon name="ellipsis-vertical"></wa-icon>
+          </wa-button>
+          <wa-dropdown-item hx-get="{% url 'copy' %}" hx-target="body" hx-swap="beforeend">
+            <wa-icon slot="icon" name="copy"></wa-icon>
             Copy
-            <sl-icon slot="prefix" name="copy"></sl-icon>
-          </sl-menu-item>
-        </sl-menu>
-      </sl-dropdown>
+          </wa-dropdown-item>
+        </wa-dropdown>
+      </div>
     </div>
 
     {% include "bills/bill_list.html" %}
 
     <div>
-      <sl-button variant="primary" hx-get="{% url 'new_bill' %}" hx-target="body" hx-swap="beforeend">
-        <sl-icon slot="prefix" name="plus"></sl-icon>
+      <wa-button hx-get="{% url 'new_bill' %}" hx-target="body" hx-swap="beforeend">
+        <wa-icon slot="start" name="plus"></wa-icon>
         Add Bill
-      </sl-button>
+      </wa-button>
     </div>
   </div>
 {% endblock %}

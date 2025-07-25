@@ -1,13 +1,13 @@
-<sl-drawer
+<wa-drawer
   {% if bill.id %}
     label="Edit Bill"
   {% else %}
     label="Add Bill"
   {% endif %}
-  hx-on::load="setTimeout(() => this.show(), 100)"
-  hx-on:sl-after-hide="this.remove()"
+  hx-on::load="setTimeout(() => this.open = true, 100)"
+  hx-on:wa-after-hide="this.remove()"
   hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.querySelector('[name=csrfmiddlewaretoken]').value"
-  hx-on::after-request="if (event.detail.successful) this.hide()"
+  hx-on::after-request="if (event.detail.successful) this.open = false"
 >
   <form
     id="bill-form"
@@ -22,9 +22,9 @@
   >
     {% csrf_token %}
 
-    <sl-input name="name" label="Bill name" value="{{ bill.name }}" required style="width: 100%;"></sl-input>
+    <wa-input name="name" label="Bill name" value="{{ bill.name }}" required style="width: 100%;"></wa-input>
 
-    <sl-input
+    <wa-input
       type="number"
       name="amount"
       label="Amount"
@@ -32,20 +32,20 @@
       value="{{ bill.amount }}"
       required
       style="width: 100%;"
-    ></sl-input>
+    ></wa-input>
 
-    <sl-input
+    <wa-input
       type="url"
       name="link"
       label="Link (optional)"
       value="{{ bill.link|default:'' }}"
       style="width: 100%;"
-    ></sl-input>
+    ></wa-input>
 
   </form>
 
   <div slot="footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-    <sl-button onclick="this.closest('sl-drawer').hide()" style="margin-top: 1rem; width: 100%;">Cancel</sl-button>
-    <sl-button type="submit" variant="primary" form="bill-form" style="margin-top: 1rem; width: 100%;">Save</sl-button>
+    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false" style="margin-top: 1rem; width: 100%;">Cancel</wa-button>
+    <wa-button type="submit" form="bill-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>
   </div>
-</sl-drawer>
+</wa-drawer>
