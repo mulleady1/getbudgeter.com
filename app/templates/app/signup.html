@@ -9,15 +9,24 @@
       background: #f7f8fa;
       font-family: var(--wa-font-sans);
     }
+    main {
+      padding-top: 10vh;
+    }
     .signup-container {
       max-width: 350px;
-      margin: 60px auto;
+      margin: 0 auto;
       background: #fff;
       padding: 2.5rem 2rem 2rem 2rem;
       border-radius: 8px;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
       display: flex;
       flex-direction: column;
+    }
+    @media (max-width: 799px) {
+      .signup-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
     }
     .signup-logo {
       margin-bottom: 1.2rem;
@@ -63,7 +72,7 @@
         </wa-callout>
       </div>
     {% endif %}
-    <form method="post">
+    <form id="signup-form" method="post">
       {% csrf_token %}
       <wa-input
         type="text"
@@ -99,4 +108,13 @@
       </div>
     </form>
   </div>
+
+  <script type="module">
+    const form = document.getElementById("signup-form")
+    const submitButton = form.querySelector("wa-button[type='submit']")
+    form.addEventListener("submit", (event) => {
+      submitButton.loading = true
+      submitButton.disabled = true
+    })
+  </script>
 {% endblock %}

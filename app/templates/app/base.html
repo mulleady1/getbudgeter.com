@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Budgeter</title>
     <link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/styles/webawesome.css" />
-    <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?v=0.0.1" />
     <script type="module" src="https://early.webawesome.com/webawesome@3.0.0-beta.3/dist/webawesome.loader.js"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <script src="{% static 'js/app.js' %}?v=2"></script>
+    <script src="{% static 'js/app.js' %}?v=0.0.1"></script>
   </head>
-  <body hx-ext="submit-spinner" hx-indicator=".htmx-progress-bar">
+  <body hx-ext="button-spinner" hx-indicator=".htmx-progress-bar">
     <div class="htmx-progress-bar"></div>
 
     {% block header %}

@@ -1,20 +1,45 @@
-htmx.defineExtension("submit-spinner", {
+htmx.defineExtension("button-spinner", {
   onEvent: function (name, event) {
     if (name === "htmx:load") {
       const parent = event.target
+
+      // Process form submit buttons.
+
       const elts = parent.querySelectorAll('button[type="submit"], wa-button[type="submit"]')
-      if (elts.length > 0) {
-        parent.addEventListener("htmx:beforeRequest", (event) => {
-          elts.forEach((elt) => {
-            elt.disabled = true
-            elt.loading = true
-          })
+
+      const enableSubmitButtons = () => {
+        elts.forEach((elt) => {
+          elt.disabled = false
+          elt.loading = false
         })
-        parent.addEventListener("htmx:afterRequest", (event) => {
-          elts.forEach((elt) => {
-            elt.disabled = false
-            elt.loading = false
-          })
+      }
+
+      const disableSubmitButtons = (event) => {
+        elts.forEach((elt) => {
+          elt.disabled = true
+          elt.loading = true
+        })
+      }
+
+      if (elts.length > 0) {
+        parent.addEventListener("htmx:beforeRequest", disableSubmitButtons)
+        parent.addEventListener("htmx:afterRequest", enableSubmitButtons)
+      }
+
+      // Process hx-[verb] elements.
+
+      const eltTypes = ["button", "wa-button", "wa-dropdown-item"]
+      const hxVerbs = ["get", "post", "put", "patch", "delete"]
+      const selector = eltTypes.map((eltType) => hxVerbs.map((verb) => `${eltType}[hx-${verb}]`).join(", ")).join(", ")
+      const elts2 = parent.querySelectorAll(selector)
+      for (const elt of elts2) {
+        elt.addEventListener("htmx:beforeRequest", () => {
+          elt.disabled = true
+          elt.loading = true
+        })
+        elt.addEventListener("htmx:afterRequest", () => {
+          elt.disabled = false
+          elt.loading = false
         })
       }
     }
