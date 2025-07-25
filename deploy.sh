@@ -9,7 +9,7 @@ if [ "$1" = "--init" ]; then
     ssh wwa "cd /var/www/getbudgeter.com.2 && python3 -m venv env && source env/bin/activate && pip install -r requirements.txt"
     echo "[deploy.sh] initializing... done"
     echo "[deploy.sh] starting..."
-    ssh wwa "sudo service getbudgeter.com start"
+    ssh wwa "sudo service getbudgeter.com restart"
     echo "[deploy.sh] starting... done"
 else
     echo "[deploy.sh] restarting..."
