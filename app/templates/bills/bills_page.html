@@ -45,7 +45,7 @@
           id="month"
           name="month"
           value="{{ selected_month|date:'Y-m' }}"
-          hx-get="{% url 'bills' %}"
+          hx-get="/"
           hx-push-url="true"
           hx-target="#bills-list"
           hx-trigger="change delay:500ms"

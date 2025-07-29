@@ -25,10 +25,35 @@ def get_month_from_url(url):
     return month
 
 
+def get_bills(request):
+    # Get the selected month from the request, default to current month
+    selected_month = request.GET.get("month")
+    if selected_month:
+        selected_month = datetime.strptime(selected_month, "%Y-%m").date()
+    else:
+        selected_month = datetime.now().replace(day=1).date()
+
+    # Filter bills for the selected month
+    bills = Bill.objects.filter(user=request.user, month=selected_month)
+
+    context = {
+        "bills": bills,
+        "selected_month": selected_month,
+    }
+
+    if request.htmx:
+        template_name = "bills/bill_list.html"
+    else:
+        template_name = "bills/bills_page.html"
+
+    return render(request, template_name, context)
+
+
 def home(request):
-    if request.user.is_authenticated:
-        return redirect("bills")
-    return redirect("login")
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    return get_bills(request)
 
 
 def signup_view(request):
@@ -77,7 +102,7 @@ def signup_view(request):
         # Create user
         user = User.objects.create_user(username=email, email=email, password=password)
         login(request, user)
-        return redirect("bills")
+        return redirect("/")
 
     return render(request, "app/signup.html")
 
@@ -89,7 +114,7 @@ def login_view(request):
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
-            return redirect("bills")
+            return redirect("/")
         else:
             return render(
                 request,
@@ -110,27 +135,7 @@ def logout_view(request):
 
 class BillListCreateView(LoginRequiredMixin, View):
     def get(self, request):
-        # Get the selected month from the request, default to current month
-        selected_month = request.GET.get("month")
-        if selected_month:
-            selected_month = datetime.strptime(selected_month, "%Y-%m").date()
-        else:
-            selected_month = datetime.now().replace(day=1).date()
-
-        # Filter bills for the selected month
-        bills = Bill.objects.filter(user=request.user, month=selected_month)
-
-        context = {
-            "bills": bills,
-            "selected_month": selected_month,
-        }
-
-        if request.htmx:
-            template_name = "bills/bill_list.html"
-        else:
-            template_name = "bills/bills_page.html"
-
-        return render(request, template_name, context)
+        return get_bills(request)
 
     def post(self, request):
         name = request.POST.get("name")
