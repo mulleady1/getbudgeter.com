@@ -91,8 +91,8 @@ header {
   text-decoration: underline;
 }
 
-.bill-list-item wa-icon-button.delete::part(base) {
-  color: red;
+.bill-list-item wa-button::part(base) {
+  height: 30px;
 }
 
 @media (max-width: 799px) {
