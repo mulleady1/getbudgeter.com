@@ -43,10 +43,10 @@ header {
   z-index: 9999;
   pointer-events: none;
   transition: opacity 0.1s;
-}
 
-.htmx-progress-bar.htmx-request {
-  opacity: 1;
+  &.htmx-request {
+    opacity: 1;
+  }
 }
 
 @keyframes shimmer {
@@ -58,17 +58,32 @@ header {
   }
 }
 
-#bills-page .header {
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
+#bills-page {
+  .header {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
 
-#bills-page .month-selector {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  .month-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 799px) {
+    .header {
+      justify-content: center;
+    }
+
+    .dropdown {
+      position: fixed;
+      right: 1rem;
+      top: 8px;
+      z-index: 200;
+    }
+  }
 }
 
 .bill-list-item {
@@ -80,32 +95,21 @@ header {
   margin: 0;
   padding: 5px 0;
   animation: fadeIn 0.4s ease-in-out forwards;
-}
 
-.bill-list-item a {
-  text-decoration: none;
-  color: inherit;
-}
+  a {
+    text-decoration: none;
+    color: inherit;
 
-.bill-list-item a:hover {
-  text-decoration: underline;
-}
-
-.bill-list-item wa-button::part(base) {
-  height: 30px;
-}
-
-@media (max-width: 799px) {
-  #bills-page .header {
-    justify-content: center;
+    &:hover {
+      text-decoration: underline;
+    }
   }
-  #bills-page .dropdown {
-    position: fixed;
-    right: 1rem;
-    top: 8px;
-    z-index: 200;
+
+  wa-button::part(base) {
+    height: 30px;
   }
-  .bill-list-item {
+
+  @media (max-width: 799px) {
     padding: 15px 0 10px;
     display: grid;
     grid-template-areas:
@@ -114,29 +118,33 @@ header {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
     gap: 0.5rem;
-  }
-  .bill-list-item > :nth-child(1) {
-    /* Bill Name */
-    grid-area: name;
-    justify-self: start;
-    font-size: 1.2rem;
-  }
-  .bill-list-item > :nth-child(2) {
-    /* Bill Amount */
-    grid-area: amount;
-    align-self: flex-start;
-    justify-self: end;
-    text-align: right;
-    font-size: 1.2rem;
-  }
-  .bill-list-item > :nth-child(3) {
-    /* Paid Checkbox */
-    grid-area: paid;
-    justify-self: start;
-  }
-  .bill-list-item > :nth-child(4) {
-    /* Actions/Buttons */
-    grid-area: actions;
-    justify-self: end;
+
+    > :nth-child(1) {
+      /* Bill Name */
+      grid-area: name;
+      justify-self: start;
+      font-size: 1.2rem;
+    }
+
+    > :nth-child(2) {
+      /* Bill Amount */
+      grid-area: amount;
+      align-self: flex-start;
+      justify-self: end;
+      text-align: right;
+      font-size: 1.2rem;
+    }
+
+    > :nth-child(3) {
+      /* Paid Checkbox */
+      grid-area: paid;
+      justify-self: start;
+    }
+
+    > :nth-child(4) {
+      /* Actions/Buttons */
+      grid-area: actions;
+      justify-self: end;
+    }
   }
 }
