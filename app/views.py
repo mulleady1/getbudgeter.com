@@ -25,18 +25,16 @@ def get_month_from_url(url):
     return month
 
 
-def get_month_and_bills(request):
+def get_bills(request):
+    # Get the selected month from the request, default to current month
     selected_month = request.GET.get("month")
     if selected_month:
         selected_month = datetime.strptime(selected_month, "%Y-%m").date()
     else:
         selected_month = datetime.now().replace(day=1).date()
+
+    # Filter bills for the selected month
     bills = Bill.objects.filter(user=request.user, month=selected_month)
-    return selected_month, bills
-
-
-def get_bills(request):
-    selected_month, bills = get_month_and_bills(request)
 
     context = {
         "bills": bills,
@@ -246,7 +244,8 @@ class CopyBillsView(LoginRequiredMixin, View):
 @login_required
 @require_http_methods(["GET"])
 def bill_stats(request):
-    _, bills = get_month_and_bills(request)
+    month = get_month_from_url(request.htmx.current_url)
+    bills = Bill.objects.filter(user=request.user, month=month)
     paid = sum(bill.amount for bill in bills if bill.paid)
     total = sum(bill.amount for bill in bills)
     context = {
