@@ -73,13 +73,6 @@
 
     {% include "bills/bill_list.html" %}
 
-    <div
-      class="wa-body-s"
-      style="padding-bottom: 1rem; color: #888;"
-      hx-get="{% url 'bill_stats' %}"
-      hx-trigger="load, bills-changed from:body"
-    ></div>
-
     <div style="padding-bottom: 100px;">
       <wa-button hx-get="{% url 'new_bill' %}" hx-target="body" hx-swap="beforeend">
         <wa-icon slot="start" name="plus"></wa-icon>

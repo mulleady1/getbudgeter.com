@@ -7,3 +7,10 @@
     {% endfor %}
   </ul>
 </div>
+
+<div
+  class="wa-body-s"
+  style="padding-bottom: 1rem; color: #888;"
+  hx-get="{% url 'bill_stats' %}"
+  hx-trigger="load, bills-changed from:body"
+></div>
