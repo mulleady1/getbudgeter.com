@@ -25,16 +25,18 @@ def get_month_from_url(url):
     return month
 
 
-def get_bills(request):
-    # Get the selected month from the request, default to current month
+def get_month_and_bills(request):
     selected_month = request.GET.get("month")
     if selected_month:
         selected_month = datetime.strptime(selected_month, "%Y-%m").date()
     else:
         selected_month = datetime.now().replace(day=1).date()
-
-    # Filter bills for the selected month
     bills = Bill.objects.filter(user=request.user, month=selected_month)
+    return selected_month, bills
+
+
+def get_bills(request):
+    selected_month, bills = get_month_and_bills(request)
 
     context = {
         "bills": bills,
@@ -149,7 +151,9 @@ class BillListCreateView(LoginRequiredMixin, View):
 
         bills = Bill.objects.filter(user=request.user, month=bill.month)
 
-        return render(request, "bills/bill_list.html", {"bills": bills})
+        response = render(request, "bills/bill_list.html", {"bills": bills})
+        response["HX-Trigger"] = "bills-changed"
+        return response
 
 
 class BillEditDeleteView(LoginRequiredMixin, View):
@@ -165,12 +169,16 @@ class BillEditDeleteView(LoginRequiredMixin, View):
         bill.link = data.get("link")
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
-        return render(request, "bills/bill_list.html", {"bills": bills})
+        response = render(request, "bills/bill_list.html", {"bills": bills})
+        response["HX-Trigger"] = "bills-changed"
+        return response
 
     def delete(self, request, bill_id):
         bill = get_object_or_404(Bill, id=bill_id, user=request.user)
         bill.delete()
-        return HttpResponse()
+        response = HttpResponse()
+        response["HX-Trigger"] = "bills-changed"
+        return response
 
 
 @login_required
@@ -186,7 +194,9 @@ def toggle_paid(request, bill_id):
     bill = get_object_or_404(Bill, id=bill_id, user=request.user)
     bill.paid = not bill.paid
     bill.save()
-    return render(request, "bills/bill_list_item.html", {"bill": bill})
+    response = render(request, "bills/bill_list_item.html", {"bill": bill})
+    response["HX-Trigger"] = "bills-changed"
+    return response
 
 
 class CopyBillsView(LoginRequiredMixin, View):
@@ -228,4 +238,20 @@ class CopyBillsView(LoginRequiredMixin, View):
             new_bills.append(bill)
 
         logger.info("copied %s bills for %s", len(new_bills), target_month)
-        return render(request, "bills/bill_list.html", {"bills": new_bills})
+        response = render(request, "bills/bill_list.html", {"bills": new_bills})
+        response["HX-Trigger"] = "bills-changed"
+        return response
+
+
+@login_required
+@require_http_methods(["GET"])
+def bill_stats(request):
+    _, bills = get_month_and_bills(request)
+    paid = sum(bill.amount for bill in bills if bill.paid)
+    total = sum(bill.amount for bill in bills)
+    context = {
+        "paid": paid,
+        "total": total,
+    }
+
+    return render(request, "bills/bill_stats.html", context)

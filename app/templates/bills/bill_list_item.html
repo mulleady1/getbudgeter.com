@@ -13,7 +13,7 @@
     <span>{{ bill.amount|currency }}</span>
   </div>
 
-  <div>
+  <div style="display: flex; align-items: center;">
     <wa-checkbox
       {% if bill.paid %}checked{% endif %}
       hx-post="{% url 'toggle_paid' bill.id %}"
