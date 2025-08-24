@@ -1,5 +1,9 @@
 {
+  "scripts": {
+    "postinstall": "cp -r node_modules/@awesome.me/webawesome/dist static/vendor/webawesome"
+  },
   "dependencies": {
+    "@awesome.me/webawesome": "^3.0.0-beta.4",
     "prettier": "^3.6.2",
     "prettier-plugin-jinja-template": "^2.1.0"
   }
