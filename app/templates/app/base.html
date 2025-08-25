@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'vendor/webawesome/styles/webawesome.css' %}" />
     <link rel="stylesheet" href="{% static 'css/app.css' %}?v=0.0.3" />
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="{% static 'js/webawesome.js' %}?v=0.0.3"></script>
     <script src="{% static 'js/app.js' %}?v=0.0.3"></script>
   </head>
   <body hx-ext="button-spinner" hx-indicator=".htmx-progress-bar">
@@ -27,17 +28,7 @@
 
     <script type="module">
       import { setBasePath } from "{% static 'vendor/webawesome/webawesome.js' %}"
-
       setBasePath("{% static 'vendor/webawesome' %}")
-
-      import "{% static 'vendor/webawesome/components/button/button.js' %}"
-      import "{% static 'vendor/webawesome/components/callout/callout.js' %}"
-      import "{% static 'vendor/webawesome/components/checkbox/checkbox.js' %}"
-      import "{% static 'vendor/webawesome/components/dialog/dialog.js' %}"
-      import "{% static 'vendor/webawesome/components/drawer/drawer.js' %}"
-      import "{% static 'vendor/webawesome/components/dropdown/dropdown.js' %}"
-      import "{% static 'vendor/webawesome/components/icon/icon.js' %}"
-      import "{% static 'vendor/webawesome/components/input/input.js' %}"
     </script>
   </body>
 </html>
