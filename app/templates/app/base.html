@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% static 'vendor/webawesome/styles/webawesome.css' %}" />
     <link rel="stylesheet" href="{% static 'css/app.css' %}?v=0.0.3" />
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <script src="{% static 'js/webawesome.js' %}?v=0.0.3"></script>
+    <script src="{% static 'js/webawesome.js' %}?v=0.0.3" defer></script>
     <script src="{% static 'js/app.js' %}?v=0.0.3"></script>
   </head>
   <body hx-ext="button-spinner" hx-indicator=".htmx-progress-bar">
@@ -25,10 +25,5 @@
       </header>
     {% endblock %}
     <main>{% block content %}{% endblock %}</main>
-
-    <script type="module">
-      import { setBasePath } from "{% static 'vendor/webawesome/webawesome.js' %}"
-      setBasePath("{% static 'vendor/webawesome' %}")
-    </script>
   </body>
 </html>
