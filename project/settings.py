@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
 import logging
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -145,3 +145,4 @@ LOGIN_URL = "login"
 CSRF_TRUSTED_ORIGINS = ["https://getbudgeter.com"]
 
 TRAILING_SLASH = False
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365 * 100
