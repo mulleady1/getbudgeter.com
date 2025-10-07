@@ -1,14 +1,17 @@
 import logging
 from datetime import datetime, timedelta
-from urllib.parse import urlparse, parse_qs
-from django.contrib.auth.decorators import login_required
+from urllib.parse import parse_qs, urlparse
+
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.http import HttpResponse, QueryDict
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
+
 from .models import Bill
 
 logger = logging.getLogger(__name__)
@@ -46,7 +49,16 @@ def get_bills(request):
     else:
         template_name = "bills/bills_page.html"
 
-    return render(request, template_name, context)
+    res = render(request, template_name, context)
+
+    # Check if session will expire within a month and regenerate if needed
+    session_expiry = request.session.get_expiry_date()
+    one_month_from_now = timezone.now() + timedelta(days=30)
+    if session_expiry and session_expiry < one_month_from_now:
+        request.session.set_expiry(60 * 60 * 24 * 365)  # Reset to 1 year
+        logger.info("session close to expire, added 1 year")
+
+    return res
 
 
 def home(request):

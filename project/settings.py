@@ -145,4 +145,4 @@ LOGIN_URL = "login"
 CSRF_TRUSTED_ORIGINS = ["https://getbudgeter.com"]
 
 TRAILING_SLASH = False
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 365 * 100
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
