@@ -9,7 +9,12 @@ def currency(value):
         value = float(value)
     except (TypeError, ValueError):
         return value
-    rv = f"${value:,.2f}"
+
+    if value < 0:
+        rv = f"-${abs(value):,.2f}"
+    else:
+        rv = f"${value:,.2f}"
+
     if rv.endswith(".00"):
         rv = rv[:-3]
     return rv
