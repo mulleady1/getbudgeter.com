@@ -9,7 +9,7 @@
   <form id="income-form" hx-post="{% url 'add_income' %}">
     {% csrf_token %}
 
-    <wa-input name="income" label="Monthly Income" required></wa-input>
+    <wa-input type="number" name="income" label="Monthly Income" required></wa-input>
   </form>
 
   <div slot="footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
