@@ -41,11 +41,16 @@
       value="{{ bill.link|default:'' }}"
       style="width: 100%;"
     ></wa-input>
-
   </form>
 
   <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false" style="margin-top: 1rem; width: 100%;">Cancel</wa-button>
+    <wa-button
+      appearance="outlined"
+      onclick="this.closest('wa-drawer').open = false"
+      style="margin-top: 1rem; width: 100%;"
+      >
+      Cancel
+    </wa-button>
     <wa-button type="submit" form="bill-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>
   </div>
 </wa-drawer>

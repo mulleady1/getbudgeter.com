@@ -23,7 +23,7 @@ def get_month_from_url(url):
     try:
         month_str = query_params.get("month")[0]  # type: ignore
         month = datetime.strptime(month_str, "%Y-%m").date()
-    except:  # pylint: disable=bare-except
+    except:  # noqa
         month = datetime.now().replace(day=1)
     return month
 
@@ -253,6 +253,20 @@ class CopyBillsView(LoginRequiredMixin, View):
         return response
 
 
+class AddIncomeView(LoginRequiredMixin, View):
+    def get(self, request):
+        template_name = "bills/income_form.html"
+        return render(request, template_name)
+
+    def post(self, request):
+        income = int(request.POST.get("income"))
+        request.user.profile.income = income
+        request.user.profile.save()
+        response = HttpResponse(status=200)
+        response["HX-Trigger"] = "bills-changed"
+        return response
+
+
 @login_required
 @require_http_methods(["GET"])
 def bill_stats(request):
@@ -263,6 +277,8 @@ def bill_stats(request):
     context = {
         "paid": paid,
         "total": total,
+        "income": request.user.profile.income,
+        "remaining": request.user.profile.income - total,
     }
 
     return render(request, "bills/bill_stats.html", context)

@@ -30,6 +30,26 @@ header {
   z-index: 100;
 }
 
+a[hx-get] {
+  cursor: pointer;
+}
+
+.labelvalue {
+  display: table-row;
+  > span {
+    display: table-cell;
+    padding: 0 5px;
+  }
+  > span:first-child {
+    color: #888;
+    padding-left: 0;
+  }
+  > span:last-child {
+    text-align: right;
+    padding-right: 0;
+  }
+}
+
 .htmx-progress-bar {
   position: fixed;
   opacity: 0;

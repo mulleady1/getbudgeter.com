@@ -13,6 +13,6 @@ if [ "$1" = "--init" ]; then
     echo "[deploy.sh] starting... done"
 else
     echo "[deploy.sh] restarting..."
-    ssh wwa "sudo service getbudgeter.com restart"
+    ssh wwa "cd /var/www/getbudgeter.com.2 && ./restart.sh"
     echo "[deploy.sh] restarting... done"
 fi
