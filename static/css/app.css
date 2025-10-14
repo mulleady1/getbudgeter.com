@@ -38,12 +38,18 @@ a[hx-get] {
   display: table-row;
   > span {
     display: table-cell;
+    padding: 0 3px;
+  }
+  > span:first-child {
+    color: #888;
+    padding-left: 0;
   }
   > span:not(:last-child) {
     color: #888;
   }
   > span:last-child {
     text-align: right;
+    padding-right: 0;
   }
 }
 
