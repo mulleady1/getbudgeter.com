@@ -256,7 +256,10 @@ class CopyBillsView(LoginRequiredMixin, View):
 class AddIncomeView(LoginRequiredMixin, View):
     def get(self, request):
         template_name = "bills/income_form.html"
-        return render(request, template_name)
+        context = {
+            "income": request.user.profile.income,
+        }
+        return render(request, template_name, context)
 
     def post(self, request):
         income = int(request.POST.get("income"))

@@ -3,21 +3,23 @@
 <div style="color: #888">Paid {{ paid|currency }} of {{ total|currency }}.</div>
 
 {% if income %}
-  <div style="padding-top: 10px">
-    <div class="labelvalue">
-      <span style="color: #0000">–</span>
-      <span>Income</span>
-      <span>{{ income|currency }}</span>
-    </div>
-    <div class="labelvalue">
-      <span>–</span>
-      <span>Expenses</span>
-      <span>{{ total|currency }}</span>
-    </div>
-    <div class="labelvalue">
-      <span style="border-top: 1px solid #888; color: #0000">–</span>
-      <span style="border-top: 1px solid #888">Remaining</span>
-      <span style="border-top: 1px solid #888">{{ remaining|currency }}</span>
+  <div style="padding: 20px 0">
+    <div style="padding: 30px; border: 1px solid #eee; border-radius: 5px; display: inline-block;">
+      <div class="labelvalue">
+        <span style="color: #0000">–</span>
+        <span><a hx-get="{% url 'add_income' %}" hx-target="body" hx-swap="beforeend">Income</a></span>
+        <span>{{ income|currency }}</span>
+      </div>
+      <div class="labelvalue">
+        <span>–</span>
+        <span>Expenses</span>
+        <span>{{ total|currency }}</span>
+      </div>
+      <div class="labelvalue">
+        <span style="border-top: 1px solid #888; color: #0000">–</span>
+        <span style="border-top: 1px solid #888">Remaining</span>
+        <span style="border-top: 1px solid #888">{{ remaining|currency }}</span>
+      </div>
     </div>
   </div>
 {% else %}
