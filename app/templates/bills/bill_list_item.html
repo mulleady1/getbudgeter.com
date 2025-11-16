@@ -22,7 +22,9 @@
       >Paid</wa-checkbox
     >
     {% if bill.autopay %}
-      <wa-badge variant="success">Autopay</wa-badge>
+      <span style="transform: scale(0.95);">
+        <wa-badge variant="brand" appearance="outlined">Autopay</wa-badge>
+      </span>
     {% endif %}
   </div>
 
