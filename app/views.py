@@ -153,10 +153,11 @@ class BillListCreateView(LoginRequiredMixin, View):
         name = request.POST.get("name")
         amount = request.POST.get("amount")
         link = request.POST.get("link")
+        autopay = request.POST.get("autopay") == "on"
         month = get_month_from_url(request.htmx.current_url)
 
         bill = Bill.objects.create(
-            user=request.user, name=name, amount=amount, link=link, month=month
+            user=request.user, name=name, amount=amount, link=link, autopay=autopay, month=month
         )
 
         bills = Bill.objects.filter(user=request.user, month=bill.month)
@@ -177,6 +178,7 @@ class BillEditDeleteView(LoginRequiredMixin, View):
         bill.name = data.get("name")
         bill.amount = data.get("amount")
         bill.link = data.get("link")
+        bill.autopay = data.get("autopay") == "on"
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
         response = render(request, "bills/bill_list.html", {"bills": bills})
@@ -243,6 +245,7 @@ class CopyBillsView(LoginRequiredMixin, View):
                 name=old_bill.name,
                 amount=old_bill.amount,
                 link=old_bill.link,
+                autopay=old_bill.autopay,
                 month=target_month,
             )
             new_bills.append(bill)
