@@ -21,9 +21,9 @@
       hx-swap="outerHTML"
       >Paid</wa-checkbox
     >
-    {% if bill.autopay %}
-      <span style="transform: scale(0.95);">
-        <wa-badge variant="brand" appearance="outlined">Autopay</wa-badge>
+    {% if not bill.autopay %}
+      <span style="opacity: 0.8">
+        <wa-badge appearance="filled" variant="danger">Not Autopay</wa-badge>
       </span>
     {% endif %}
   </div>
