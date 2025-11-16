@@ -41,6 +41,8 @@
       value="{{ bill.link|default:'' }}"
       style="width: 100%;"
     ></wa-input>
+
+    <wa-checkbox name="autopay" {% if bill.autopay %}checked{% endif %}>Autopay</wa-checkbox>
   </form>
 
   <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">

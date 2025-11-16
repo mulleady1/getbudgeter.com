@@ -32,6 +32,7 @@ class Bill(models.Model):
     name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     paid = models.BooleanField(default=False)
+    autopay = models.BooleanField(default=False)
     link = models.URLField(blank=True, null=True)
     month = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
