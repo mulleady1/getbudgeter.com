@@ -171,3 +171,11 @@ a[hx-get] {
     }
   }
 }
+
+@media (min-width: 768px) {
+  #bills-list {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+}

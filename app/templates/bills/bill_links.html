@@ -1,0 +1,19 @@
+<div id="bill-links-container">
+  <h3 style="margin: 0 0 10px 0; font-size: 1rem; color: #888;">Quick Links</h3>
+  {% if links %}
+    <ul style="list-style: none; padding: 0; margin: 0 0 10px 0;">
+      {% for link in links %}
+        <li style="margin: 0 0 8px 0;">
+          <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+            {{ link.label }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">No banking links added yet.</div>
+  {% endif %}
+  <a hx-get="{% url 'new_bill_link' %}" hx-target="body" hx-swap="beforeend">
+    New...
+  </a>
+</div>

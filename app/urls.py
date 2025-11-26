@@ -17,5 +17,12 @@ urlpatterns = [
     path("bills/<int:bill_id>/toggle", views.toggle_paid, name="toggle_paid"),
     path("bills/copy", views.CopyBillsView.as_view(), name="copy"),
     path("bills/stats", views.bill_stats, name="bill_stats"),
+    path("bills/links", views.BillLinksView.as_view(), name="bill_links"),
+    path("bills/links/new", views.new_bill_link, name="new_bill_link"),
+    path(
+        "bills/links/<int:link_id>",
+        views.BillLinkEditDeleteView.as_view(),
+        name="edit_delete_bill_link",
+    ),
     path("bills/income", views.AddIncomeView.as_view(), name="add_income"),
 ]

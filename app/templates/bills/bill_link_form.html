@@ -1,0 +1,47 @@
+<wa-drawer
+  {% if link.id %}
+    label="Edit Link"
+  {% else %}
+    label="Add Quick Link"
+  {% endif %}
+  hx-on::load="setTimeout(() => this.open = true, 100)"
+  hx-on:wa-after-hide="this.remove()"
+  hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.querySelector('[name=csrfmiddlewaretoken]').value"
+  hx-on::after-request="if (event.detail.successful) this.open = false"
+>
+  <form
+    id="link-form"
+    {% if link.id %}
+      hx-put="{% url 'edit_delete_bill_link' link.id %}"
+    {% else %}
+      hx-post="{% url 'bill_links' %}"
+    {% endif %}
+    hx-target="#bill-links-container"
+    hx-swap="outerHTML"
+    style="display: flex; flex-direction: column; gap: 1rem;"
+  >
+    {% csrf_token %}
+
+    <wa-input name="label" label="Link label" value="{{ link.label }}" required style="width: 100%;"></wa-input>
+
+    <wa-input
+      type="url"
+      name="url"
+      label="URL"
+      value="{{ link.url }}"
+      required
+      style="width: 100%;"
+    ></wa-input>
+  </form>
+
+  <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <wa-button
+      appearance="outlined"
+      onclick="this.closest('wa-drawer').open = false"
+      style="margin-top: 1rem; width: 100%;"
+      >
+      Cancel
+    </wa-button>
+    <wa-button type="submit" form="link-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>
+  </div>
+</wa-drawer>

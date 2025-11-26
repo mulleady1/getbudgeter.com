@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 
-from .models import Bill
+from .models import Bill, BillLink
 
 logger = logging.getLogger(__name__)
 
@@ -288,3 +288,48 @@ def bill_stats(request):
     }
 
     return render(request, "bills/bill_stats.html", context)
+
+
+class BillLinksView(LoginRequiredMixin, View):
+    def get(self, request):
+        links = BillLink.objects.filter(user=request.user)
+        context = {
+            "links": links,
+        }
+        return render(request, "bills/bill_links.html", context)
+
+    def post(self, request):
+        label = request.POST.get("label")
+        url = request.POST.get("url")
+
+        BillLink.objects.create(user=request.user, label=label, url=url)
+
+        links = BillLink.objects.filter(user=request.user)
+        return render(request, "bills/bill_links.html", {"links": links})
+
+
+class BillLinkEditDeleteView(LoginRequiredMixin, View):
+    def get(self, request, link_id):
+        link = get_object_or_404(BillLink, id=link_id, user=request.user)
+        return render(request, "bills/bill_link_form.html", {"link": link})
+
+    def put(self, request, link_id):
+        data = QueryDict(request.body)
+        link = get_object_or_404(BillLink, id=link_id, user=request.user)
+        link.label = data.get("label")
+        link.url = data.get("url")
+        link.save()
+        links = BillLink.objects.filter(user=request.user)
+        return render(request, "bills/bill_links.html", {"links": links})
+
+    def delete(self, request, link_id):
+        link = get_object_or_404(BillLink, id=link_id, user=request.user)
+        link.delete()
+        return HttpResponse()
+
+
+@login_required
+@require_http_methods(["GET"])
+def new_bill_link(request):
+    link = BillLink(user=request.user)
+    return render(request, "bills/bill_link_form.html", {"link": link})
