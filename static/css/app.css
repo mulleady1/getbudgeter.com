@@ -179,3 +179,18 @@ a[hx-get] {
     align-items: flex-start;
   }
 }
+
+#bill-links-container {
+  .reorder-buttons {
+    display: none;
+  }
+  &[data-edit-mode="true"] .reorder-buttons {
+    display: flex;
+    padding: 1px 0;
+  }
+
+  wa-dropdown wa-button::part(base) {
+    width: 30px;
+    height: 30px;
+  }
+}

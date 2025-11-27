@@ -48,10 +48,11 @@ class BillLink(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     url = models.URLField()
     label = models.CharField(max_length=255)
+    sort_order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["label"]
+        ordering = ["sort_order", "label"]
 
     def __str__(self):
         return f"{self.label} - {self.user.username}"

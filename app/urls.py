@@ -24,5 +24,10 @@ urlpatterns = [
         views.BillLinkEditDeleteView.as_view(),
         name="edit_delete_bill_link",
     ),
+    path(
+        "bills/links/<int:link_id>/reorder/<str:direction>",
+        views.reorder_bill_link,
+        name="reorder_bill_link",
+    ),
     path("bills/income", views.AddIncomeView.as_view(), name="add_income"),
 ]

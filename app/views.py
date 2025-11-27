@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.db.models import Max
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -157,7 +158,12 @@ class BillListCreateView(LoginRequiredMixin, View):
         month = get_month_from_url(request.htmx.current_url)
 
         bill = Bill.objects.create(
-            user=request.user, name=name, amount=amount, link=link, autopay=autopay, month=month
+            user=request.user,
+            name=name,
+            amount=amount,
+            link=link,
+            autopay=autopay,
+            month=month,
         )
 
         bills = Bill.objects.filter(user=request.user, month=bill.month)
@@ -225,13 +231,9 @@ class CopyBillsView(LoginRequiredMixin, View):
         return render(request, template_name, context)
 
     def post(self, request):
-        source_month = datetime.strptime(
-            request.POST.get("source_month"), "%Y-%m"
-        ).date()
+        source_month = datetime.strptime(request.POST.get("source_month"), "%Y-%m").date()
 
-        target_month = datetime.strptime(
-            request.POST.get("target_month"), "%Y-%m"
-        ).date()
+        target_month = datetime.strptime(request.POST.get("target_month"), "%Y-%m").date()
 
         # Delete all bills for the target month
         count, _ = Bill.objects.filter(user=request.user, month=target_month).delete()
@@ -302,7 +304,11 @@ class BillLinksView(LoginRequiredMixin, View):
         label = request.POST.get("label")
         url = request.POST.get("url")
 
-        BillLink.objects.create(user=request.user, label=label, url=url)
+        # Get the max sort_order for this user and add 1
+        max_order = BillLink.objects.filter(user=request.user).aggregate(Max("sort_order"))["sort_order__max"]
+        next_order = (max_order or 0) + 1
+
+        BillLink.objects.create(user=request.user, label=label, url=url, sort_order=next_order)
 
         links = BillLink.objects.filter(user=request.user)
         return render(request, "bills/bill_links.html", {"links": links})
@@ -332,4 +338,31 @@ class BillLinkEditDeleteView(LoginRequiredMixin, View):
 @require_http_methods(["GET"])
 def new_bill_link(request):
     link = BillLink(user=request.user)
+    link.url = "https://"
     return render(request, "bills/bill_link_form.html", {"link": link})
+
+
+@login_required
+@require_http_methods(["POST"])
+def reorder_bill_link(request, link_id, direction):
+    """Move a bill link up or down in the sort order"""
+    link = get_object_or_404(BillLink, id=link_id, user=request.user)
+    all_links = list(BillLink.objects.filter(user=request.user).order_by("sort_order"))
+
+    current_index = all_links.index(link)
+
+    if direction == "up" and current_index > 0:
+        # Swap with previous link
+        other_link = all_links[current_index - 1]
+        link.sort_order, other_link.sort_order = other_link.sort_order, link.sort_order
+        link.save()
+        other_link.save()
+    elif direction == "down" and current_index < len(all_links) - 1:
+        # Swap with next link
+        other_link = all_links[current_index + 1]
+        link.sort_order, other_link.sort_order = other_link.sort_order, link.sort_order
+        link.save()
+        other_link.save()
+
+    links = BillLink.objects.filter(user=request.user)
+    return render(request, "bills/bill_links.html", {"links": links})

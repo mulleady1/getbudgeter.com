@@ -38,8 +38,11 @@
       type="url"
       name="link"
       label="Link (optional)"
+      placeholder="https://"
       value="{{ bill.link|default:'' }}"
       style="width: 100%;"
+      onfocus="if (this.value === '') this.value = 'https://'"
+      onblur="if (this.value === 'https://') this.value = ''"
     ></wa-input>
 
     <wa-checkbox name="autopay" {% if bill.autopay %}checked{% endif %}>Autopay</wa-checkbox>
