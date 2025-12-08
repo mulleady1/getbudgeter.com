@@ -30,4 +30,21 @@ urlpatterns = [
         name="reorder_bill_link",
     ),
     path("bills/income", views.AddIncomeView.as_view(), name="add_income"),
+    # Transactions
+    path("transactions", views.TransactionListView.as_view(), name="transactions"),
+    path("transactions/upload", views.UploadCSVView.as_view(), name="upload_csv"),
+    path(
+        "transactions/<int:transaction_id>/categorize", views.categorize_transaction, name="categorize_transaction"
+    ),
+    path(
+        "transactions/<int:transaction_id>",
+        views.TransactionEditDeleteView.as_view(),
+        name="edit_delete_transaction",
+    ),
+    # Analytics
+    path("analytics", views.AnalyticsView.as_view(), name="analytics"),
+    # Budgets
+    path("budgets", views.BudgetListView.as_view(), name="budgets"),
+    path("budgets/new", views.new_budget, name="new_budget"),
+    path("budgets/<int:budget_id>", views.BudgetEditDeleteView.as_view(), name="edit_delete_budget"),
 ]

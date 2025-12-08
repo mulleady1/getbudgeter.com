@@ -1,0 +1,29 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+  {% csrf_token %}
+
+  <div
+    id="transactions-page"
+    style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem 100px;"
+    hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.previousElementSibling.value"
+  >
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <h1 style="margin: 0;">Transactions</h1>
+      <wa-button hx-get="{% url 'upload_csv' %}" hx-target="body" hx-swap="beforeend">
+        <wa-icon slot="start" name="upload"></wa-icon>
+        Upload CSV
+      </wa-button>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <wa-button-group>
+        <wa-button href="{% url 'transactions' %}" appearance="plain">Transactions</wa-button>
+        <wa-button href="{% url 'analytics' %}" appearance="plain">Analytics</wa-button>
+        <wa-button href="{% url 'budgets' %}" appearance="plain">Budgets</wa-button>
+      </wa-button-group>
+    </div>
+
+    {% include "transactions/transaction_list.html" %}
+  </div>
+{% endblock %}

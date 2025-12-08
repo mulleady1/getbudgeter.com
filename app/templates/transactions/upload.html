@@ -1,0 +1,45 @@
+{% csrf_token %}
+
+<wa-dialog label="Upload CSV" style="--width: 600px;" open>
+  <form
+    hx-post="{% url 'upload_csv' %}"
+    hx-encoding="multipart/form-data"
+    hx-swap="outerHTML"
+    hx-on::config-request="event.detail.headers['X-CSRFToken'] = document.querySelector('input[name=csrfmiddlewaretoken]').value"
+  >
+    {% if error %}
+      <wa-alert variant="danger" style="margin-bottom: 1rem;">
+        <wa-icon slot="icon" name="exclamation-triangle"></wa-icon>
+        {{ error }}
+      </wa-alert>
+    {% endif %}
+
+    <div style="margin-bottom: 1rem;">
+      <label for="bank_type" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Type</label>
+      <select id="bank_type" name="bank_type" required style="width: 100%;">
+        <option value="">Select a type...</option>
+        <option value="citi">Citi</option>
+        <option value="capital_one">Capital One</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label for="csv_file" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Select CSV File</label>
+      <input type="file" id="csv_file" name="csv_file" accept=".csv" required style="width: 100%;" />
+      <p style="margin-top: 0.5rem; color: #666; font-size: 0.875rem;">
+        Supported formats: Citi, Capital One (max 5MB)
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+      <wa-button type="button" onclick="this.closest('wa-dialog').hide()">Cancel</wa-button>
+      <wa-button type="submit" variant="primary">Upload</wa-button>
+    </div>
+  </form>
+
+  <script>
+    document.querySelector('wa-dialog').addEventListener('wa-hide', function () {
+      this.remove()
+    })
+  </script>
+</wa-dialog>

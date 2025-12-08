@@ -18,10 +18,21 @@
     <div class="htmx-progress-bar"></div>
 
     {% block header %}
-      <header>
-        <div class="logo" style="display: flex; align-items: center; gap: 0.5rem;">
-          <img src="/static/logo.png" alt="Budgeter Logo" style="height: 32px; width: auto;" />
-          <span style="font-size: 1.25rem; font-weight: 600;">Budgeter</span>
+      <header style="border-bottom: 1px solid #e0e0e0;">
+        <div style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+          <a href="/" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit;">
+            <img src="/static/logo.png" alt="Budgeter Logo" style="height: 32px; width: auto;" />
+            <span style="font-size: 1.25rem; font-weight: 600;">Budgeter</span>
+          </a>
+          {% if user.is_authenticated %}
+            <nav style="display: flex; gap: 1.5rem; align-items: center;">
+              <a href="{% url 'home' %}" style="text-decoration: none; color: #333; font-weight: 500;">Bills</a>
+              <a href="{% url 'transactions' %}" style="text-decoration: none; color: #333; font-weight: 500;">Transactions</a>
+              <a href="{% url 'analytics' %}" style="text-decoration: none; color: #333; font-weight: 500;">Analytics</a>
+              <a href="{% url 'budgets' %}" style="text-decoration: none; color: #333; font-weight: 500;">Budgets</a>
+              <a href="{% url 'logout' %}" style="text-decoration: none; color: #666;">Logout</a>
+            </nav>
+          {% endif %}
         </div>
       </header>
     {% endblock %}

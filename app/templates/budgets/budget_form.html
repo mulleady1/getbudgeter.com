@@ -1,0 +1,60 @@
+{% csrf_token %}
+
+<wa-dialog label="{% if budget %}Edit Budget{% else %}Add Budget{% endif %}" style="--width: 500px;" open>
+  <form
+    {% if budget %}
+      hx-put="{% url 'edit_delete_budget' budget.id %}"
+    {% else %}
+      hx-post="{% url 'budgets' %}"
+    {% endif %}
+    hx-swap="outerHTML"
+    hx-on::config-request="event.detail.headers['X-CSRFToken'] = document.querySelector('input[name=csrfmiddlewaretoken]').value"
+  >
+    <div style="margin-bottom: 1rem;">
+      <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Category</label>
+      <select
+        name="category"
+        id="category"
+        required
+        style="width: 100%; padding: 0.5rem;"
+        {% if budget %}disabled{% endif %}
+      >
+        <option value="">Select category...</option>
+        {% for category in categories %}
+          <option
+            value="{{ category.id }}"
+            {% if budget and budget.category_id == category.id %}selected{% endif %}
+          >
+            {{ category.get_name_display }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label for="amount" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Budget Amount</label>
+      <input
+        type="number"
+        name="amount"
+        id="amount"
+        step="0.01"
+        required
+        style="width: 100%; padding: 0.5rem;"
+        {% if budget %}value="{{ budget.amount }}"{% endif %}
+      />
+    </div>
+
+    <input type="hidden" name="month" value="{{ budget.month|date:'Y-m'|default:current_month|date:'Y-m' }}" />
+
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+      <wa-button type="button" onclick="this.closest('wa-dialog').hide()">Cancel</wa-button>
+      <wa-button type="submit" variant="primary">Save</wa-button>
+    </div>
+  </form>
+
+  <script>
+    document.querySelector('wa-dialog').addEventListener('wa-hide', function () {
+      this.remove()
+    })
+  </script>
+</wa-dialog>

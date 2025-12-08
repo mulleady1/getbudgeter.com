@@ -1,0 +1,22 @@
+<div id="transaction-list">
+  {% if transactions %}
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 2px solid #ddd;">
+          <th style="text-align: left; padding: 0.75rem;">Date</th>
+          <th style="text-align: left; padding: 0.75rem;">Merchant</th>
+          <th style="text-align: left; padding: 0.75rem;">Description</th>
+          <th style="text-align: left; padding: 0.75rem;">Category</th>
+          <th style="text-align: right; padding: 0.75rem;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for transaction in transactions %}
+          {% include "transactions/transaction_list_item.html" %}
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
+  {% endif %}
+</div>

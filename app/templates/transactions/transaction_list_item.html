@@ -1,0 +1,19 @@
+{% load currency %}
+
+<tr style="border-bottom: 1px solid #eee;">
+  <td style="padding: 0.75rem;">{{ transaction.date|date:"m/d/Y" }}</td>
+  <td style="padding: 0.75rem;">{{ transaction.merchant|truncatechars:30 }}</td>
+  <td style="padding: 0.75rem;">{{ transaction.description|truncatechars:50 }}</td>
+  <td style="padding: 0.75rem;">
+    {% if transaction.category %}
+      <wa-badge variant="info">{{ transaction.category.get_name_display }}</wa-badge>
+    {% else %}
+      <wa-badge variant="neutral">Uncategorized</wa-badge>
+    {% endif %}
+  </td>
+  <td
+    style="padding: 0.75rem; text-align: right; font-weight: 500; {% if transaction.amount < 0 %}color: #d32f2f;{% else %}color: #388e3c;{% endif %}"
+  >
+    {{ transaction.amount|currency }}
+  </td>
+</tr>

@@ -1,149 +1,18 @@
 import logging
 from datetime import datetime, timedelta
-from urllib.parse import parse_qs, urlparse
 
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.db.models import Max
 from django.http import HttpResponse, QueryDict
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
+from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 
-from .models import Bill, BillLink
+from ..models import Bill, BillLink
+from .utils import get_bills, get_month_from_url
 
 logger = logging.getLogger(__name__)
-
-
-def get_month_from_url(url):
-    parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
-    try:
-        month_str = query_params.get("month")[0]  # type: ignore
-        month = datetime.strptime(month_str, "%Y-%m").date()
-    except:  # noqa
-        month = datetime.now().replace(day=1)
-    return month
-
-
-def get_bills(request):
-    # Get the selected month from the request, default to current month
-    selected_month = request.GET.get("month")
-    if selected_month:
-        selected_month = datetime.strptime(selected_month, "%Y-%m").date()
-    else:
-        selected_month = datetime.now().replace(day=1).date()
-
-    # Filter bills for the selected month
-    bills = Bill.objects.filter(user=request.user, month=selected_month)
-
-    context = {
-        "bills": bills,
-        "selected_month": selected_month,
-    }
-
-    if request.htmx:
-        template_name = "bills/bill_list.html"
-    else:
-        template_name = "bills/bills_page.html"
-
-    res = render(request, template_name, context)
-
-    # Check if session will expire within a month and regenerate if needed
-    session_expiry = request.session.get_expiry_date()
-    one_month_from_now = timezone.now() + timedelta(days=30)
-    if session_expiry and session_expiry < one_month_from_now:
-        request.session.set_expiry(60 * 60 * 24 * 365)  # Reset to 1 year
-        logger.info("session close to expire, added 1 year")
-
-    return res
-
-
-def home(request):
-    if not request.user.is_authenticated:
-        return redirect("login")
-
-    return get_bills(request)
-
-
-def signup_view(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        confirm_password = request.POST.get("confirm_password")
-
-        # Validate input
-        if not email or not password:
-            return render(
-                request,
-                "app/signup.html",
-                {
-                    "error": "All fields are required.",
-                    "email": email,
-                    "password": password,
-                    "confirm_password": confirm_password,
-                },
-            )
-
-        if password != confirm_password:
-            return render(
-                request,
-                "app/signup.html",
-                {
-                    "error": "Passwords do not match.",
-                    "email": email,
-                    "password": password,
-                    "confirm_password": confirm_password,
-                },
-            )
-
-        if User.objects.filter(email=email).exists():
-            return render(
-                request,
-                "app/signup.html",
-                {
-                    "error": "Email already registered.",
-                    "email": email,
-                    "password": password,
-                    "confirm_password": confirm_password,
-                },
-            )
-
-        # Create user
-        user = User.objects.create_user(username=email, email=email, password=password)
-        login(request, user)
-        return redirect("/")
-
-    return render(request, "app/signup.html")
-
-
-def login_view(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect("/")
-        else:
-            return render(
-                request,
-                "app/login.html",
-                {
-                    "email": email,
-                    "password": password,
-                    "error": "Invalid email or password.",
-                },
-            )
-    return render(request, "app/login.html", {"email": "", "password": ""})
-
-
-def logout_view(request):
-    logout(request)
-    return redirect("home")
 
 
 class BillListCreateView(LoginRequiredMixin, View):
