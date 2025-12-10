@@ -15,36 +15,64 @@
     <div id="transaction-list">
       {% if transactions %}
         <!-- Search Bar -->
-        <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-          <div style="max-width: 500px;">
-            <div style="position: relative;">
-              <wa-input
-                type="search"
-                name="q"
-                id="transaction-search"
-                placeholder="Search..."
-                value="{{ search_query|default:'' }}"
+        <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="display: flex; gap: 1rem; align-items: flex-start; flex: 1;">
+            <div style="flex: 1; max-width: 300px;">
+              <div style="position: relative;">
+                <wa-input
+                  type="search"
+                  name="q"
+                  id="transaction-search"
+                  placeholder="Search..."
+                  value="{{ search_query|default:'' }}"
+                  hx-get="{% url 'transactions' %}"
+                  hx-trigger="keyup changed delay:300ms, search, reload-transactions from:body"
+                  hx-target="#transactions-table"
+                  hx-swap="outerHTML"
+                  hx-push-url="true"
+                  hx-include="#category-filter"
+                  hx-on::after-request="if (event.detail.successful) resetTransactionGridForm()"
+                >
+                  <wa-icon slot="end" name="magnifying-glass"></wa-icon>
+                </wa-input>
+                <script>
+                  function resetTransactionGridForm() {
+                    document.querySelectorAll("#transactions-table input[type='checkbox']").forEach(cb => cb.checked = false)
+                    document.getElementById("select-all").checked = false
+                    document.getElementById("bulk-action-bar").style.display = "none"
+                  }
+                </script>
+              </div>
+              {% if search_query %}
+                <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+                  Showing {{ showing_count }} of {{ total_count }} transactions
+                  {% if total_count > showing_count %}(limited to 100){% endif %}
+                </div>
+              {% endif %}
+            </div>
+
+            <div style="min-width: 200px;">
+              <wa-select
+                id="category-filter"
+                name="category"
+                placeholder="All categories"
+                value="{{ selected_category|default:'' }}"
                 hx-get="{% url 'transactions' %}"
-                hx-trigger="keyup changed delay:300ms, search, reload-transactions from:body"
+                hx-trigger="change"
                 hx-target="#transactions-table"
                 hx-swap="outerHTML"
                 hx-push-url="true"
+                hx-include="#transaction-search"
                 hx-on::after-request="if (event.detail.successful) resetTransactionGridForm()"
               >
-                <wa-icon slot="end" name="magnifying-glass"></wa-icon>
-              </wa-input>
-              <script>
-                function resetTransactionGridForm() {
-                  document.querySelectorAll("#transactions-table input[type='checkbox']").forEach(cb => cb.checked = false)
-                }
-              </script>
+                <wa-option value="">All categories</wa-option>
+                <wa-option value="uncategorized">Uncategorized</wa-option>
+                <wa-divider></wa-divider>
+                {% for category in categories %}
+                  <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
+                {% endfor %}
+              </wa-select>
             </div>
-            {% if search_query %}
-              <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
-                Showing {{ showing_count }} of {{ total_count }} transactions
-                {% if total_count > showing_count %}(limited to 100){% endif %}
-              </div>
-            {% endif %}
           </div>
 
           <!-- Bulk Action Bar -->

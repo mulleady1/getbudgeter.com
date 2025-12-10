@@ -138,7 +138,10 @@ class TransactionListView(LoginRequiredMixin, View):
         if end_date:
             transactions = transactions.filter(date__lte=end_date)
         if category_id:
-            transactions = transactions.filter(category_id=category_id)
+            if category_id == "uncategorized":
+                transactions = transactions.filter(category__isnull=True)
+            else:
+                transactions = transactions.filter(category_id=category_id)
 
         # Apply search filter
         if search_query:
