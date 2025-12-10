@@ -1,3 +1,30 @@
+/**
+ * HTMX extension for CSRF token injection.
+ */
+htmx.defineExtension("csrf", {
+  onEvent: function (name, evt) {
+    if (name === "htmx:configRequest") {
+      const target = evt.target
+      const modal = target.closest("wa-dialog, wa-drawer")
+
+      // First try to find CSRF token inside the modal (if we're in one)
+      let csrfInput = modal?.querySelector("input[name=csrfmiddlewaretoken]")
+
+      // Fall back to document-level token
+      if (!csrfInput) {
+        csrfInput = document.querySelector("input[name=csrfmiddlewaretoken]")
+      }
+
+      if (csrfInput) {
+        evt.detail.headers["X-CSRFToken"] = csrfInput.value
+      }
+    }
+  },
+})
+
+/**
+ * HTMX extension for disabling submit buttons and showing a spinner.
+ */
 htmx.defineExtension("button-spinner", {
   onEvent: function (name, event) {
     if (name === "htmx:load") {
@@ -41,6 +68,30 @@ htmx.defineExtension("button-spinner", {
           elt.disabled = false
           elt.loading = false
         })
+      }
+    }
+  },
+})
+
+/**
+ * HTMX extension for auto-opening and auto-closing dialogs and drawers.
+ */
+htmx.defineExtension("show-hide-dialogs", {
+  onEvent: function (name, evt) {
+    const target = evt.target
+
+    // Auto-open dialogs/drawers after they're loaded into the DOM
+    if (name === "htmx:load") {
+      const dialog = target.matches("wa-dialog, wa-drawer") ? target : target.querySelector("wa-dialog, wa-drawer")
+
+      if (dialog) {
+        // Auto-open after a brief delay (unless it already has the 'open' attribute)
+        if (!dialog.hasAttribute("open")) {
+          setTimeout(() => (dialog.open = true), 100)
+        }
+
+        // Auto-cleanup when dialog closes
+        dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })
       }
     }
   },

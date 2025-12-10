@@ -1,9 +1,4 @@
-<wa-drawer
-  label="Manage Categories"
-  hx-on::load="setTimeout(() => this.open = true, 100)"
-  hx-on:wa-after-hide="this.remove()"
-  hx-on::config-request="event.detail.headers['X-CSRFToken'] = document.querySelector('input[name=csrfmiddlewaretoken]').value"
->
+<wa-drawer label="Manage Categories">
   <div class="category-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
     {% for category in categories %}
       {% partialdef category-item inline %}

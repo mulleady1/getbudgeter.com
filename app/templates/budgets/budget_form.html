@@ -3,7 +3,6 @@
 <wa-dialog
   label="{% if budget %}Edit Budget{% else %}Add Budget{% endif %}"
   style="--width: 500px;"
-  hx-on::load="setTimeout(() => this.open = true, 100)"
 >
   <form
     {% if budget %}
@@ -12,7 +11,6 @@
       hx-post="{% url 'budgets' %}"
     {% endif %}
     hx-swap="outerHTML"
-    hx-on::config-request="event.detail.headers['X-CSRFToken'] = document.querySelector('input[name=csrfmiddlewaretoken]').value"
   >
     <div style="margin-bottom: 1rem;">
       <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Category</label>
@@ -52,10 +50,4 @@
       <wa-button type="submit">Save</wa-button>
     </div>
   </form>
-
-  <script>
-    document.querySelector("wa-dialog").addEventListener("wa-hide", function () {
-      this.remove()
-    })
-  </script>
 </wa-dialog>

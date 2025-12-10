@@ -4,7 +4,6 @@
   <form
     hx-put="{% url 'edit_delete_transaction' transaction.id %}"
     hx-swap="outerHTML"
-    hx-on::config-request="event.detail.headers['X-CSRFToken'] = document.querySelector('input[name=csrfmiddlewaretoken]').value"
   >
     <div style="margin-bottom: 1rem;">
       <p><strong>{{ transaction.description }}</strong></p>
@@ -31,10 +30,4 @@
       <wa-button type="submit">Save</wa-button>
     </div>
   </form>
-
-  <script>
-    document.querySelector('wa-dialog').addEventListener('wa-hide', function () {
-      this.remove()
-    })
-  </script>
 </wa-dialog>

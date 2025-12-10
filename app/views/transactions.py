@@ -214,7 +214,7 @@ def categorize_transaction(request, transaction_id):
         transaction.category_id = category_id
         transaction.save()
 
-    return render(request, "transactions/transaction_list_item.html", {"transaction": transaction})
+    return render(request, "transactions/transactions_page.html#transaction-row", {"transaction": transaction})
 
 
 @login_required

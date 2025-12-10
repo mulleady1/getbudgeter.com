@@ -23,7 +23,7 @@ class BudgetListView(LoginRequiredMixin, View):
         context = {"budgets": budgets, "categories": categories, "current_month": current_month}
 
         if request.htmx:
-            template = "budgets/budget_list.html"
+            template = "budgets/budgets_page.html#budget-list"
         else:
             template = "budgets/budgets_page.html"
 
@@ -48,7 +48,7 @@ class BudgetListView(LoginRequiredMixin, View):
 
         budgets = Budget.objects.filter(user=request.user, month=month_date).select_related("category")
 
-        response = render(request, "budgets/budget_list.html", {"budgets": budgets})
+        response = render(request, "budgets/budgets_page.html#budget-list", {"budgets": budgets})
         response["HX-Trigger"] = "budgets-changed"
         return response
 
@@ -73,7 +73,7 @@ class BudgetEditDeleteView(LoginRequiredMixin, View):
         budget.save()
 
         budgets = Budget.objects.filter(user=request.user, month=budget.month).select_related("category")
-        response = render(request, "budgets/budget_list.html", {"budgets": budgets})
+        response = render(request, "budgets/budgets_page.html#budget-list", {"budgets": budgets})
         response["HX-Trigger"] = "budgets-changed"
         return response
 

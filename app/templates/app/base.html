@@ -14,7 +14,7 @@
     <script src="{% static 'js/app.js' %}?v=1.0.3"></script>
     <script src="{% static 'js/surreal.js' %}" defer></script>
   </head>
-  <body hx-ext="button-spinner" hx-indicator=".htmx-progress-bar">
+  <body hx-ext="csrf,button-spinner,show-hide-dialogs" hx-indicator=".htmx-progress-bar">
     <div class="htmx-progress-bar"></div>
 
     {% block header %}

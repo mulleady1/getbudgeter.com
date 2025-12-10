@@ -1,11 +1,10 @@
 {% csrf_token %}
 
-<wa-dialog label="Upload CSV" style="--width: 600px;" hx-on::load="setTimeout(() => this.open = true, 100)">
+<wa-dialog label="Upload CSV" style="--width: 600px;">
   <form
     hx-post="{% url 'upload_csv' %}"
     hx-encoding="multipart/form-data"
     hx-swap="outerHTML"
-    hx-on::config-request="event.detail.headers['X-CSRFToken'] = document.querySelector('input[name=csrfmiddlewaretoken]').value"
   >
     {% if error %}
       <wa-callout variant="danger" style="margin-bottom: 1rem;">
@@ -36,10 +35,4 @@
       <wa-button type="submit">Upload</wa-button>
     </div>
   </form>
-
-  <script>
-    document.querySelector("wa-dialog").addEventListener("wa-hide", function () {
-      this.remove()
-    })
-  </script>
 </wa-dialog>

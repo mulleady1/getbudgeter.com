@@ -1,8 +1,6 @@
 <wa-dialog
   label="Add New Category"
   style="--width: 400px;"
-  hx-on::load="setTimeout(() => this.open = true, 100)"
-  hx-on:wa-after-hide="this.remove()"
   hx-on::after-request="if (event.detail.successful) this.open = false"
 >
   <form id="new-category-form" hx-post="{% url 'category_list_create' %}">

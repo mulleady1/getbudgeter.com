@@ -6,7 +6,6 @@
   <div
     id="bills-page"
     style="max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 100px;"
-    hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.previousElementSibling.value"
   >
     <script>
       function changeMonth(direction) {
@@ -45,7 +44,7 @@
           id="month"
           name="month"
           value="{{ selected_month|date:'Y-m' }}"
-          hx-get="/"
+          hx-get="{% url 'bills' %}"
           hx-push-url="true"
           hx-target="#bills-list"
           hx-trigger="change delay:500ms"
@@ -71,6 +70,93 @@
       </div>
     </div>
 
-    {% include "bills/bill_list.html" %}
+    {% partialdef bills-list inline %}
+      <div id="bills-list">
+        <div style="flex: 1 1 70%; min-width: 30vw;">
+          <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0;">
+            {% for bill in bills %}
+              {% partialdef bill-item inline %}
+                {% load currency %}
+
+                <li class="bill-list-item">
+                  <div>
+                    {% if bill.link %}
+                      <a href="{{ bill.link }}" target="_blank">{{ bill.name }}</a>
+                    {% else %}
+                      <span>{{ bill.name }}</span>
+                    {% endif %}
+                  </div>
+
+                  <div>
+                    <span>{{ bill.amount|currency }}</span>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <wa-checkbox
+                      {% if bill.paid %}checked{% endif %}
+                      hx-post="{% url 'toggle_paid' bill.id %}"
+                      hx-target="closest li"
+                      hx-swap="outerHTML"
+                      >Paid</wa-checkbox
+                    >
+                    {% if not bill.autopay %}
+                      <span style="opacity: 0.6">
+                        <wa-badge appearance="filled" variant="danger">Not Autopay</wa-badge>
+                      </span>
+                    {% endif %}
+                  </div>
+
+                  <div style="display: flex; gap: 0.5rem;">
+                    <wa-button
+                      size="small"
+                      appearance="plain"
+                      hx-get="{% url 'edit_delete_bill' bill.id %}"
+                      hx-target="body"
+                      hx-swap="beforeend"
+                    >
+                      <wa-icon name="pencil" label="Edit"></wa-icon>
+                    </wa-button>
+
+                    <wa-button
+                      size="small"
+                      appearance="plain"
+                      variant="danger"
+                      hx-delete="{% url 'edit_delete_bill' bill.id %}"
+                      hx-trigger="confirmed"
+                      hx-target="closest li"
+                      hx-swap="outerHTML"
+                      onclick="customConfirm().then(yes => {
+                      if (yes) {
+                        htmx.trigger(this, 'confirmed');
+                      }
+                    })"
+                    >
+                      <wa-icon name="trash" label="Delete"></wa-icon>
+                    </wa-button>
+                  </div>
+                </li>
+              {% endpartialdef bill-item %}
+              {% empty %}
+              <li style="margin: 0;">No bills for this month.</li>
+            {% endfor %}
+          </ul>
+          <div style="padding-bottom: 1rem;">
+            <wa-button hx-get="{% url 'new_bill' %}" hx-target="body" hx-swap="beforeend">
+              <wa-icon slot="start" name="plus"></wa-icon>
+              Add Bill
+            </wa-button>
+          </div>
+        </div>
+
+        <div class="tile-container" style="padding-top: 7px;">
+          <div hx-get="{% url 'bill_stats' %}" hx-trigger="load, bills-changed from:body"></div>
+          <div
+            hx-get="{% url 'bill_links' %}"
+            hx-trigger="load"
+            style="padding: 30px; border: 1px solid #eee; border-radius: 5px;"
+          ></div>
+        </div>
+      </div>
+    {% endpartialdef bills-list %}
   </div>
 {% endblock %}

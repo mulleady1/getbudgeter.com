@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
 
-from ..models import Category, Transaction
+from ..models import Transaction
 
 
 class AnalyticsView(LoginRequiredMixin, View):
@@ -19,8 +19,16 @@ class AnalyticsView(LoginRequiredMixin, View):
         # Calculate date range based on preset
         if range_preset == "custom":
             # Use custom dates if provided
-            start_date = datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date() if request.GET.get("start_date") else today.replace(day=1)
-            end_date = datetime.strptime(request.GET.get("end_date"), "%Y-%m-%d").date() if request.GET.get("end_date") else today
+            start_date = (
+                datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date()
+                if request.GET.get("start_date")
+                else today.replace(day=1)
+            )
+            end_date = (
+                datetime.strptime(request.GET.get("end_date"), "%Y-%m-%d").date()
+                if request.GET.get("end_date")
+                else today
+            )
         elif range_preset == "this_month":
             start_date = today.replace(day=1)
             end_date = today
@@ -64,7 +72,7 @@ class AnalyticsView(LoginRequiredMixin, View):
         category_spending = defaultdict(Decimal)
         for trans in transactions:
             if trans.category:
-                category_name = dict(Category.CATEGORY_CHOICES).get(trans.category.name, trans.category.name)
+                category_name = trans.category.name
                 category_spending[category_name] += abs(trans.amount)
             else:
                 category_spending["Uncategorized"] += abs(trans.amount)

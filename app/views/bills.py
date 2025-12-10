@@ -37,7 +37,7 @@ class BillListCreateView(LoginRequiredMixin, View):
 
         bills = Bill.objects.filter(user=request.user, month=bill.month)
 
-        response = render(request, "bills/bill_list.html", {"bills": bills})
+        response = render(request, "bills/bills_page.html#bills-list", {"bills": bills})
         response["HX-Trigger"] = "bills-changed"
         return response
 
@@ -56,7 +56,7 @@ class BillEditDeleteView(LoginRequiredMixin, View):
         bill.autopay = data.get("autopay") == "on"
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
-        response = render(request, "bills/bill_list.html", {"bills": bills})
+        response = render(request, "bills/bills_page.html#bills-list", {"bills": bills})
         response["HX-Trigger"] = "bills-changed"
         return response
 
@@ -81,7 +81,7 @@ def toggle_paid(request, bill_id):
     bill = get_object_or_404(Bill, id=bill_id, user=request.user)
     bill.paid = not bill.paid
     bill.save()
-    response = render(request, "bills/bill_list_item.html", {"bill": bill})
+    response = render(request, "bills/bills_page.html#bill-item", {"bill": bill})
     response["HX-Trigger"] = "bills-changed"
     return response
 
@@ -122,7 +122,7 @@ class CopyBillsView(LoginRequiredMixin, View):
             new_bills.append(bill)
 
         logger.info("copied %s bills for %s", len(new_bills), target_month)
-        response = render(request, "bills/bill_list.html", {"bills": new_bills})
+        response = render(request, "bills/bills_page.html#bills-list", {"bills": new_bills})
         response["HX-Trigger"] = "bills-changed"
         return response
 

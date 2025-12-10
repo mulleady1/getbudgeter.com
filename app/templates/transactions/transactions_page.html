@@ -3,11 +3,7 @@
 {% block content %}
   {% csrf_token %}
 
-  <div
-    id="transactions-page"
-    style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem 100px;"
-    hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.previousElementSibling.value"
-  >
+  <div id="transactions-page" style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem 100px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
       <h1 style="margin: 0; font-size: 1.75rem;">Transactions</h1>
       <wa-button hx-get="{% url 'upload_csv' %}" hx-target="body" hx-swap="beforeend">
@@ -19,72 +15,68 @@
     <div id="transaction-list">
       {% if transactions %}
         <!-- Search Bar -->
-        <div style="margin-bottom: 1rem;">
-          <div style="position: relative; max-width: 500px;">
-            <input
-              type="text"
-              name="q"
-              id="transaction-search"
-              placeholder="Search transactions by date, merchant, description, or amount..."
-              value="{{ search_query|default:'' }}"
-              hx-get="{% url 'transactions' %}"
-              hx-trigger="keyup changed delay:300ms, search, reload-transactions from:body"
-              hx-target="#transactions-table"
-              hx-swap="outerHTML"
-              hx-push-url="true"
-              style="width: 100%; padding: 0.75rem 2.5rem 0.75rem 1rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;"
-            />
-            <wa-icon
-              name="magnifying-glass"
-              style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none;"
-            ></wa-icon>
-          </div>
-          {% if search_query %}
-            <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
-              Showing {{ showing_count }} of {{ total_count }} transactions
-              {% if total_count > showing_count %}(limited to 100){% endif %}
+        <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+          <div style="max-width: 500px;">
+            <div style="position: relative;">
+              <wa-input
+                type="search"
+                name="q"
+                id="transaction-search"
+                placeholder="Search..."
+                value="{{ search_query|default:'' }}"
+                hx-get="{% url 'transactions' %}"
+                hx-trigger="keyup changed delay:300ms, search, reload-transactions from:body"
+                hx-target="#transactions-table"
+                hx-swap="outerHTML"
+                hx-push-url="true"
+                hx-on::after-request="if (event.detail.successful) resetTransactionGridForm()"
+              >
+                <wa-icon slot="end" name="magnifying-glass"></wa-icon>
+              </wa-input>
+              <script>
+                function resetTransactionGridForm() {
+                  document.querySelectorAll("#transactions-table input[type='checkbox']").forEach(cb => cb.checked = false)
+                }
+              </script>
             </div>
-          {% endif %}
-        </div>
+            {% if search_query %}
+              <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+                Showing {{ showing_count }} of {{ total_count }} transactions
+                {% if total_count > showing_count %}(limited to 100){% endif %}
+              </div>
+            {% endif %}
+          </div>
 
-        <!-- Bulk Action Bar -->
-        <div
-          id="bulk-action-bar"
-          style="display: none; background: #f5f5f5; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; align-items: center; gap: 1rem;"
-        >
-          <span id="selected-count" style="font-weight: 500;">0 selected</span>
-          <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-            <select
-              id="bulk-category"
-              style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; min-width: 200px;"
-            >
-              <option value="">Select category...</option>
-              {% for category in categories %}
-                <option value="{{ category.id }}">{{ category.name }}</option>
-              {% endfor %}
-              <option value="__add_new__" style="border-top: 1px solid #ddd; margin-top: 4px; font-style: italic;">
-                New...
-              </option>
-              <option value="__manage__" style="border-top: 1px solid #ddd; margin-top: 4px; font-style: italic;">
-                Manage...
-              </option>
-            </select>
-            <wa-button
-              id="apply-bulk-category"
-              disabled
-              hx-post="{% url 'bulk_categorize_transactions' %}"
-              hx-swap="none"
-              hx-on::config-request="
+          <!-- Bulk Action Bar -->
+          <div id="bulk-action-bar" style="display: none; align-items: center; gap: 1rem;">
+            <span id="selected-count" style="font-weight: 500;">0 selected</span>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+              <wa-select id="bulk-category">
+                <wa-option value="">Select...</wa-option>
+                {% for category in categories %}
+                  <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
+                {% endfor %}
+                <wa-divider></wa-divider>
+                <wa-option value="__add_new__">New...</wa-option>
+                <wa-option value="__manage__">Manage...</wa-option>
+              </wa-select>
+              <wa-button
+                id="apply-bulk-category"
+                disabled
+                hx-post="{% url 'bulk_categorize_transactions' %}"
+                hx-swap="none"
+                hx-on::config-request="
                 const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
                 const transactionIds = Array.from(checkedBoxes).map(cb => cb.value).join(',');
                 const categoryId = document.getElementById('bulk-category').value;
                 event.detail.parameters.transaction_ids = transactionIds;
                 event.detail.parameters.category_id = categoryId;
               "
-            >
-              Apply to Selected
-            </wa-button>
-            <wa-button id="cancel-bulk-selection" appearance="outlined"> Cancel </wa-button>
+              >
+                Apply
+              </wa-button>
+              <wa-button id="cancel-bulk-selection" appearance="plain"> Cancel </wa-button>
+            </div>
           </div>
         </div>
 
@@ -98,6 +90,7 @@
                     id="select-all"
                     style="cursor: pointer; width: 18px; height: 18px;"
                     title="Select all"
+                    autocomplete="off"
                   />
                 </th>
                 <th style="text-align: left; padding: 0.75rem;">Date</th>
@@ -109,13 +102,94 @@
             </thead>
             <tbody>
               {% for transaction in transactions %}
-                {% include "transactions/transaction_list_item.html" %}
+                {% partialdef transaction-row inline %}
+                  {% load currency %}
+
+                  <tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
+                    <td style="padding: 0.75rem; width: 40px;">
+                      <input
+                        type="checkbox"
+                        class="transaction-checkbox"
+                        value="{{ transaction.id }}"
+                        style="cursor: pointer; width: 18px; height: 18px;"
+                        autocomplete="off"
+                      />
+                    </td>
+                    <td style="padding: 0.75rem;">{{ transaction.date|date:"m/d/Y" }}</td>
+                    <td style="padding: 0.75rem;">{{ transaction.merchant|truncatechars:30 }}</td>
+                    <td style="padding: 0.75rem;">{{ transaction.description|truncatechars:50 }}</td>
+                    <td style="padding: 0.75rem;">
+                      {% if transaction.category %}
+                        {% if transaction.category.name == "dining" %}
+                          <wa-badge style="--background-color: #ff6b6b; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "groceries" %}
+                          <wa-badge style="--background-color: #4ecdc4; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "shopping" %}
+                          <wa-badge style="--background-color: #95e1d3; --color: #333;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "transportation" %}
+                          <wa-badge style="--background-color: #f38181; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "entertainment" %}
+                          <wa-badge style="--background-color: #aa96da; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "utilities" %}
+                          <wa-badge style="--background-color: #fcbad3; --color: #333;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "healthcare" %}
+                          <wa-badge style="--background-color: #a8d8ea; --color: #333;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "travel" %}
+                          <wa-badge style="--background-color: #ffaaa5; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "income" %}
+                          <wa-badge style="--background-color: #51cf66; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% elif transaction.category.name == "other" %}
+                          <wa-badge style="--background-color: #868e96; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% else %}
+                          {# Custom user-created category #}
+                          <wa-badge style="--background-color: #9c6ade; --color: white;"
+                            >{{ transaction.category.name }}</wa-badge
+                          >
+                        {% endif %}
+                      {% else %}
+                        <wa-badge variant="neutral">Uncategorized</wa-badge>
+                      {% endif %}
+                    </td>
+                    <td
+                      style="padding: 0.75rem; text-align: right; font-weight: 500; {% if transaction.amount < 0 %}
+                        color: #d32f2f;
+                      {% else %}
+                        color: #388e3c;
+                      {% endif %}"
+                    >
+                      {{ transaction.amount|currency }}
+                    </td>
+                  </tr>
+                {% endpartialdef transaction-row %}
               {% endfor %}
             </tbody>
           </table>
 
           <script>
             ;(function () {
+              // Clear all checkboxes on page load to prevent browser restoration
+              document.querySelectorAll("#transactions-table input[type='checkbox']").forEach(cb => cb.checked = false)
+
               const selectAllCheckbox = document.getElementById("select-all")
               const bulkActionBar = document.getElementById("bulk-action-bar")
               const selectedCountSpan = document.getElementById("selected-count")

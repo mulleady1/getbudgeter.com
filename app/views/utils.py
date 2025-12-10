@@ -40,7 +40,7 @@ def get_bills(request):
     }
 
     if request.htmx:
-        template_name = "bills/bill_list.html"
+        template_name = "bills/bills_page.html#bills-list"
     else:
         template_name = "bills/bills_page.html"
 

@@ -1,8 +1,5 @@
 <wa-dialog
   label="Add Income"
-  hx-on::load="setTimeout(() => this.open = true, 100)"
-  hx-on:wa-after-hide="this.remove()"
-  hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.querySelector('[name=csrfmiddlewaretoken]').value"
   hx-on::after-request="if (event.detail.successful) this.open = false"
   style="--width: 300px"
 >

@@ -1,11 +1,8 @@
 <wa-dialog
   label="Copy Bills"
-  hx-on::load="setTimeout(() => this.open = true, 100)"
-  hx-on:wa-after-hide="this.remove()"
-  hx-on::config-request="event.detail.headers['X-CSRFToken'] = this.querySelector('[name=csrfmiddlewaretoken]').value"
   hx-on::after-request="if (event.detail.successful) this.open = false"
 >
-  <form id="copy-bills-form" hx-post="{% url 'copy' %}" hx-target="#bills-list">
+  <form id="copy-bills-form" hx-post="{% url 'copy' %}" hx-target="#bills-list" hx-swap="outerHTML">
     {% csrf_token %}
 
     <wa-input
