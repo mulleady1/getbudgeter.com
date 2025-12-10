@@ -1,9 +1,6 @@
 {% csrf_token %}
 
-<wa-dialog
-  label="{% if budget %}Edit Budget{% else %}Add Budget{% endif %}"
-  style="--width: 500px;"
->
+<wa-dialog label="{% if budget %}Edit Budget{% else %}Add Budget{% endif %}" style="--width: 500px;">
   <form
     {% if budget %}
       hx-put="{% url 'edit_delete_budget' budget.id %}"
@@ -31,16 +28,15 @@
     </div>
 
     <div style="margin-bottom: 1rem;">
-      <label for="amount" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Budget Amount</label>
-      <input
+      <wa-input
+        label="Budget Amount"
         type="number"
         name="amount"
         id="amount"
         step="0.01"
         required
-        style="width: 100%; padding: 0.5rem;"
         {% if budget %}value="{{ budget.amount }}"{% endif %}
-      />
+      ></wa-input>
     </div>
 
     <input type="hidden" name="month" value="{{ budget.month|date:'Y-m'|default:current_month|date:'Y-m' }}" />

@@ -5,74 +5,75 @@
     <h1 style="margin: 0 0 1.5rem 0; font-size: 1.75rem;">Analytics</h1>
 
     <!-- Date Range Selector -->
-    <form id="date-range-form" method="get" style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-      <div style="display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap;">
+    <form
+      id="date-range-form"
+      method="get"
+      style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+    >
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
         <div style="flex: 0 0 auto;">
-          <label for="range-preset" style="display: block; font-size: 0.875rem; font-weight: 500;">Date Range</label>
-          <select
-            id="range-preset"
-            name="range_preset"
-            style="margin-top: 2px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem; min-width: 150px;"
-            onchange="handleRangeChange(this.value)"
-          >
-            <option value="this_month" {% if range_preset == 'this_month' %}selected{% endif %}>This Month</option>
-            <option value="last_month" {% if range_preset == 'last_month' %}selected{% endif %}>Last Month</option>
-            <option value="this_quarter" {% if range_preset == 'this_quarter' %}selected{% endif %}>This Quarter</option>
-            <option value="this_year" {% if range_preset == 'this_year' %}selected{% endif %}>This Year</option>
-            <option value="last_6_months" {% if range_preset == 'last_6_months' %}selected{% endif %}>Past 6 Months</option>
-            <option value="all_time" {% if range_preset == 'all_time' %}selected{% endif %}>All Time</option>
-            <option value="custom" {% if range_preset == 'custom' %}selected{% endif %}>Custom</option>
-          </select>
+          <wa-select label="Date Range" id="range-preset" name="range_preset" onchange="handleRangeChange(this.value)">
+            <wa-option value="this_month" {% if range_preset == 'this_month' %}selected{% endif %}
+              >This Month</wa-option
+            >
+            <wa-option value="last_month" {% if range_preset == 'last_month' %}selected{% endif %}
+              >Last Month</wa-option
+            >
+            <wa-option value="this_quarter" {% if range_preset == 'this_quarter' %}selected{% endif %}>
+              This Quarter
+            </wa-option>
+            <wa-option value="this_year" {% if range_preset == 'this_year' %}selected{% endif %}>This Year</wa-option>
+            <wa-option value="last_6_months" {% if range_preset == 'last_6_months' %}selected{% endif %}>
+              Past 6 Months
+            </wa-option>
+            <wa-option value="all_time" {% if range_preset == 'all_time' %}selected{% endif %}>All Time</wa-option>
+            <wa-option value="custom" {% if range_preset == 'custom' %}selected{% endif %}>Custom</wa-option>
+          </wa-select>
         </div>
 
-        <div id="custom-dates" style="display: {% if range_preset == 'custom' %}flex{% else %}none{% endif %}; gap: 1rem; align-items: flex-end;">
-          <div>
-            <label for="custom-start" style="display: block; font-size: 0.875rem; font-weight: 500;">Start Date</label>
-            <input
-              type="date"
-              id="custom-start"
-              name="start_date"
-              value="{{ custom_start_date }}"
-              style="margin-top: 2px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem;"
-            />
-          </div>
-          <div>
-            <label for="custom-end" style="display: block; font-size: 0.875rem; font-weight: 500;">End Date</label>
-            <input
-              type="date"
-              id="custom-end"
-              name="end_date"
-              value="{{ custom_end_date }}"
-              style="margin-top: 2px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem;"
-            />
-          </div>
+        <div
+          id="custom-dates"
+          style="display: {% if range_preset == 'custom' %}flex{% else %}none{% endif %}; gap: 1rem; align-self: flex-end;"
+        >
+          <wa-input
+            label="Start Date"
+            type="date"
+            id="custom-start"
+            name="start_date"
+            value="{{ custom_start_date }}"
+          ></wa-input>
+          <wa-input
+            label="End Date"
+            type="date"
+            id="custom-end"
+            name="end_date"
+            value="{{ custom_end_date }}"
+          ></wa-input>
         </div>
 
-        <div id="apply-button" style="flex: 0 0 auto; display: {% if range_preset == 'custom' %}flex{% else %}none{% endif %}; align-items: flex-end; align-self: flex-end;">
-          <button
-            type="submit"
-            style="padding: 0.5rem 1.5rem; background: #1976d2; color: white; border: none; border-radius: 4px; font-size: 0.875rem; cursor: pointer; font-weight: 500;"
-          >
-            Apply
-          </button>
+        <div
+          id="apply-button"
+          style="flex: 0 0 auto; display: {% if range_preset == 'custom' %}flex{% else %}none{% endif %}; align-items: flex-end; align-self: flex-end;"
+        >
+          <wa-button type="submit">Apply</wa-button>
         </div>
       </div>
     </form>
 
     <script>
       function handleRangeChange(value) {
-        const customDates = document.getElementById('custom-dates');
-        const applyButton = document.getElementById('apply-button');
-        const form = document.getElementById('date-range-form');
+        const customDates = document.getElementById("custom-dates")
+        const applyButton = document.getElementById("apply-button")
+        const form = document.getElementById("date-range-form")
 
-        if (value === 'custom') {
-          customDates.style.display = 'flex';
-          applyButton.style.display = 'flex';
+        if (value === "custom") {
+          customDates.style.display = "flex"
+          applyButton.style.display = "flex"
         } else {
-          customDates.style.display = 'none';
-          applyButton.style.display = 'none';
+          customDates.style.display = "none"
+          applyButton.style.display = "none"
           // Auto-submit form for preset selections
-          form.submit();
+          form.submit()
         }
       }
     </script>
@@ -86,7 +87,9 @@
       </div>
       <div>
         <p style="margin: 0; color: #666; font-size: 0.875rem;">Total Spent</p>
-        <p style="margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 600; color: #d32f2f;">${{ total_spent|floatformat:2 }}</p>
+        <p style="margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 600; color: #d32f2f;">
+          ${{ total_spent|floatformat:2 }}
+        </p>
       </div>
       <div>
         <p style="margin: 0; color: #666; font-size: 0.875rem;">Date Range</p>
@@ -97,19 +100,25 @@
     </div>
 
     {% if category_chart %}
-      <div style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div
+        style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+      >
         {{ category_chart|safe }}
       </div>
     {% endif %}
 
     {% if trend_chart %}
-      <div style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div
+        style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+      >
         {{ trend_chart|safe }}
       </div>
     {% endif %}
 
     {% if merchant_chart %}
-      <div style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div
+        style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+      >
         {{ merchant_chart|safe }}
       </div>
     {% endif %}
