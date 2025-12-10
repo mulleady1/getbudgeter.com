@@ -1,0 +1,27 @@
+<wa-dialog
+  label="Add New Category"
+  style="--width: 400px;"
+  hx-on::load="setTimeout(() => this.open = true, 100)"
+  hx-on:wa-after-hide="this.remove()"
+  hx-on::after-request="if (event.detail.successful) this.open = false"
+>
+  <form id="new-category-form" hx-post="{% url 'category_list_create' %}">
+    {% csrf_token %}
+
+    <div style="margin-bottom: 1rem;">
+      <wa-input
+        name="name"
+        id="new-category-name"
+        label="Name"
+        placeholder="Subscriptions, Pet Care, Gym..."
+        required
+        maxlength="100"
+      ></wa-input>
+    </div>
+  </form>
+
+  <div slot="footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <wa-button appearance="outlined" onclick="this.closest('wa-dialog').open = false">Cancel</wa-button>
+    <wa-button type="submit" form="new-category-form">Save</wa-button>
+  </div>
+</wa-dialog>

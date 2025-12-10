@@ -13,15 +13,44 @@ from ..models import Category, Transaction
 
 class AnalyticsView(LoginRequiredMixin, View):
     def get(self, request):
-        # Get date range (default: last 3 months)
-        end_date = datetime.now().date()
-        start_date = (end_date - timedelta(days=90)).replace(day=1)
+        today = datetime.now().date()
+        range_preset = request.GET.get("range_preset", "this_month")
 
-        # Override with query params if provided
-        if request.GET.get("start_date"):
-            start_date = datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date()
-        if request.GET.get("end_date"):
-            end_date = datetime.strptime(request.GET.get("end_date"), "%Y-%m-%d").date()
+        # Calculate date range based on preset
+        if range_preset == "custom":
+            # Use custom dates if provided
+            start_date = datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date() if request.GET.get("start_date") else today.replace(day=1)
+            end_date = datetime.strptime(request.GET.get("end_date"), "%Y-%m-%d").date() if request.GET.get("end_date") else today
+        elif range_preset == "this_month":
+            start_date = today.replace(day=1)
+            end_date = today
+        elif range_preset == "last_month":
+            first_of_this_month = today.replace(day=1)
+            end_date = first_of_this_month - timedelta(days=1)
+            start_date = end_date.replace(day=1)
+        elif range_preset == "this_quarter":
+            quarter = (today.month - 1) // 3
+            start_date = today.replace(month=quarter * 3 + 1, day=1)
+            end_date = today
+        elif range_preset == "this_year":
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+        elif range_preset == "last_6_months":
+            end_date = today
+            start_date = (today - timedelta(days=180)).replace(day=1)
+        elif range_preset == "all_time":
+            # Get actual min/max dates from transactions
+            user_transactions = Transaction.objects.filter(user=request.user)
+            if user_transactions.exists():
+                start_date = user_transactions.order_by("date").first().date
+                end_date = user_transactions.order_by("-date").first().date
+            else:
+                start_date = today.replace(day=1)
+                end_date = today
+        else:
+            # Default to this month
+            start_date = today.replace(day=1)
+            end_date = today
 
         # Get transactions
         transactions = Transaction.objects.filter(
@@ -99,6 +128,9 @@ class AnalyticsView(LoginRequiredMixin, View):
             "end_date": end_date,
             "total_transactions": transactions.count(),
             "total_spent": sum(abs(t.amount) for t in transactions),
+            "range_preset": range_preset,
+            "custom_start_date": request.GET.get("start_date", ""),
+            "custom_end_date": request.GET.get("end_date", ""),
         }
 
         return render(request, "analytics/analytics_page.html", context)

@@ -1,8 +1,9 @@
 import logging
+from typing import cast
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
@@ -126,6 +127,7 @@ class TransactionListView(LoginRequiredMixin, View):
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
         category_id = request.GET.get("category")
+        search_query = request.GET.get("q", "").strip()
 
         # Base queryset
         transactions = Transaction.objects.filter(user=request.user).select_related("category")
@@ -138,19 +140,39 @@ class TransactionListView(LoginRequiredMixin, View):
         if category_id:
             transactions = transactions.filter(category_id=category_id)
 
-        # Get categories for filter dropdown
-        categories = Category.objects.filter(user=None, is_default=True)
+        # Apply search filter
+        if search_query:
+            from django.db.models import Q
+
+            transactions = transactions.filter(
+                Q(merchant__icontains=search_query)
+                | Q(description__icontains=search_query)
+                | Q(amount__icontains=search_query)
+                | Q(date__icontains=search_query)
+            )
+
+        # Get categories for filter dropdown (both default and user-specific)
+        from django.db.models import Q
+
+        categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
+
+        # Get total count before limiting
+        total_count = transactions.count()
+        limited_transactions = transactions[:100]
 
         context = {
-            "transactions": transactions[:100],  # Limit to 100 for now
+            "transactions": limited_transactions,
             "categories": categories,
             "start_date": start_date,
             "end_date": end_date,
             "selected_category": category_id,
+            "search_query": search_query,
+            "total_count": total_count,
+            "showing_count": len(limited_transactions),
         }
 
         if request.htmx:
-            template = "transactions/transaction_list.html"
+            template = "transactions/transactions_page.html#transactions-table"
         else:
             template = "transactions/transactions_page.html"
 
@@ -159,8 +181,10 @@ class TransactionListView(LoginRequiredMixin, View):
 
 class TransactionEditDeleteView(LoginRequiredMixin, View):
     def get(self, request, transaction_id):
+        from django.db.models import Q
+
         transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
-        categories = Category.objects.filter(user=None, is_default=True)
+        categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
         return render(
             request, "transactions/categorize_form.html", {"transaction": transaction, "categories": categories}
         )
@@ -170,7 +194,7 @@ class TransactionEditDeleteView(LoginRequiredMixin, View):
         transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
         category_id = data.get("category")
         if category_id:
-            transaction.category_id = category_id
+            transaction.category_id = cast(int, category_id)
             transaction.save()
         return HttpResponse()
 
@@ -191,3 +215,93 @@ def categorize_transaction(request, transaction_id):
         transaction.save()
 
     return render(request, "transactions/transaction_list_item.html", {"transaction": transaction})
+
+
+@login_required
+@require_http_methods(["POST"])
+def bulk_categorize_transactions(request):
+    """Bulk categorize multiple transactions at once"""
+    transaction_ids = request.POST.get("transaction_ids", "").split(",")
+    category_id = request.POST.get("category_id")
+
+    if not transaction_ids or not category_id:
+        return JsonResponse({"success": False, "error": "Missing required fields"}, status=400)
+
+    # Verify category exists and is accessible
+    category = get_object_or_404(Category, id=category_id)
+
+    # Update transactions - only for the current user
+    updated_count = Transaction.objects.filter(id__in=transaction_ids, user=request.user).update(
+        category_id=category_id
+    )
+
+    logger.info(
+        "User %s bulk categorized %s transactions to category %s",
+        request.user.username,
+        updated_count,
+        category.name,
+    )
+
+    res = HttpResponse()
+    res.headers["HX-Trigger"] = "reload-transactions"
+    return res
+
+
+@login_required
+@require_http_methods(["GET"])
+def new_category_dialog(request):
+    """Return the new category dialog HTML"""
+    return render(request, "transactions/new_category_dialog.html")
+
+
+class CategoryEditDeleteView(LoginRequiredMixin, View):
+    def put(self, request, category_id):
+        category = get_object_or_404(Category, id=category_id, user=request.user)
+        category.name = request.POST.get("name", "").strip()
+        category.save()
+        return HttpResponse()
+
+    def delete(self, request, category_id):
+        category = get_object_or_404(Category, id=category_id, user=request.user)
+        category.delete()
+        return HttpResponse()
+
+
+class CategoryListCreateView(LoginRequiredMixin, View):
+    def get(self, request):
+        categories = Category.objects.filter(user=request.user).order_by("name")
+        return render(request, "transactions/manage_categories.html", {"categories": categories})
+
+    def post(self, request):
+        category_name = request.POST.get("name", "").strip()
+        inline = "inline" in request.GET
+        if not category_name:
+            return JsonResponse({"success": False, "error": "Category name is required"}, status=400)
+
+        # Validate length
+        if len(category_name) > 100:
+            return JsonResponse({"success": False, "error": "Category name must be 100 characters or less"}, status=400)
+
+        # Check if user already has a category with this exact name
+        existing = Category.objects.filter(user=request.user, name=category_name).first()
+        if existing:
+            return JsonResponse({"success": False, "error": "You already have a category with this name"}, status=400)
+
+        # Create the category for this user
+        # Note: We bypass the choices validation by using save() directly
+        category = Category(name=category_name, user=request.user, is_default=False)
+        # Save without validation to allow custom names
+        category.save()
+
+        logger.info(
+            "User %s created custom category '%s'",
+            request.user.username,
+            category.name,
+        )
+
+        res = HttpResponse()
+        if inline:
+            return render(request, "transactions/manage_categories.html#category-item", {"category": category})
+        else:
+            res.headers["HX-Refresh"] = "true"
+        return res

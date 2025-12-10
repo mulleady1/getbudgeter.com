@@ -1,8 +1,8 @@
 <wa-dialog label="Upload Complete" style="--width: 500px;" open>
-  <wa-alert variant="success" style="margin-bottom: 1rem;">
+  <wa-callout variant="success" style="margin-bottom: 1rem;">
     <wa-icon slot="icon" name="check-circle"></wa-icon>
     CSV uploaded successfully!
-  </wa-alert>
+  </wa-callout>
 
   <div style="margin: 1rem 0;">
     <p><strong>Bank:</strong> {{ bank|title }}</p>
@@ -11,7 +11,7 @@
   </div>
 
   <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
-    <wa-button onclick="this.closest('wa-dialog').hide(); window.location.href='{% url 'transactions' %}'">
+    <wa-button onclick="this.closest('wa-dialog').open = false; window.location.href=\"{% url 'transactions' %}\"">
       View Transactions
     </wa-button>
   </div>

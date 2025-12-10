@@ -2,14 +2,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 
-from .utils import get_bills
-
 
 def home(request):
     if not request.user.is_authenticated:
         return redirect("login")
 
-    return get_bills(request)
+    return redirect("bills")
 
 
 def signup_view(request):

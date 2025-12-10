@@ -1,3 +1,8 @@
+:root {
+  --wa-font-size-scale: 0.95;
+  /* --wa-line-height-condensed: 0.7; */
+}
+
 :not(:defined) {
   visibility: hidden;
 }
@@ -22,12 +27,37 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e0e0e0;
   position: sticky;
   top: 0;
   background-color: white;
   z-index: 100;
+
+  .header-inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+  }
+
+  .nav-link {
+    padding: 0.5rem 0;
+    text-decoration: none;
+    color: #333;
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+  }
+
+  .nav-link.active {
+    border-bottom-color: var(--wa-color-primary);
+  }
+
+  .nav-link.logout {
+    color: #666;
+  }
 }
 
 a[hx-get] {

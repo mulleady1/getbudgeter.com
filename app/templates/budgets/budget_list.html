@@ -13,7 +13,7 @@
       <tbody>
         {% for budget in budgets %}
           <tr style="border-bottom: 1px solid #eee;">
-            <td style="padding: 0.75rem;">{{ budget.category.get_name_display }}</td>
+            <td style="padding: 0.75rem;">{{ budget.category.name }}</td>
             <td style="padding: 0.75rem; text-align: right; font-weight: 500;">{{ budget.amount|currency }}</td>
             <td style="padding: 0.75rem; text-align: right;">
               <wa-button

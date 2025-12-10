@@ -9,26 +9,24 @@ def create_default_categories_and_rules(apps, schema_editor):
 
     # Create default categories
     categories = {}
-    for category_code, _ in [
-        ("dining", "Dining & Food"),
-        ("groceries", "Groceries"),
-        ("shopping", "Shopping"),
-        ("transportation", "Transportation"),
-        ("entertainment", "Entertainment"),
-        ("utilities", "Utilities"),
-        ("healthcare", "Healthcare"),
-        ("travel", "Travel"),
-        ("income", "Income"),
-        ("other", "Other"),
+    for category_name in [
+        "Dining & Food",
+        "Groceries",
+        "Shopping",
+        "Transportation",
+        "Entertainment",
+        "Utilities",
+        "Healthcare",
+        "Travel",
+        "Income",
+        "Other",
     ]:
-        cat, created = Category.objects.get_or_create(
-            name=category_code, user=None, defaults={"is_default": True}
-        )
-        categories[category_code] = cat
+        cat, created = Category.objects.get_or_create(name=category_name, user=None, defaults={"is_default": True})
+        categories[category_name] = cat
 
     # Create default category rules
     default_rules = {
-        "dining": [
+        "Dining & Food": [
             "restaurant",
             "cafe",
             "coffee",
@@ -51,7 +49,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "food delivery",
             "dining",
         ],
-        "groceries": [
+        "Groceries": [
             "whole foods",
             "trader joe",
             "safeway",
@@ -68,7 +66,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "supermarket",
             "food market",
         ],
-        "shopping": [
+        "Shopping": [
             "amazon",
             "target",
             "best buy",
@@ -86,7 +84,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "etsy",
             "ebay",
         ],
-        "transportation": [
+        "Transportation": [
             "uber",
             "lyft",
             "shell",
@@ -103,7 +101,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "gas station",
             "fuel",
         ],
-        "entertainment": [
+        "Entertainment": [
             "netflix",
             "hulu",
             "disney",
@@ -121,7 +119,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "playstation",
             "xbox",
         ],
-        "utilities": [
+        "Utilities": [
             "electric",
             "gas bill",
             "water",
@@ -134,7 +132,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "phone bill",
             "utility",
         ],
-        "healthcare": [
+        "Healthcare": [
             "pharmacy",
             "cvs",
             "walgreens",
@@ -146,7 +144,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "clinic",
             "health",
         ],
-        "travel": [
+        "Travel": [
             "airline",
             "flight",
             "hotel",
@@ -160,7 +158,7 @@ def create_default_categories_and_rules(apps, schema_editor):
             "hertz",
             "enterprise",
         ],
-        "income": [
+        "Income": [
             "paycheck",
             "salary",
             "deposit",
@@ -183,9 +181,8 @@ def create_default_categories_and_rules(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('app', '0008_category_categoryrule_budget_transaction'),
+        ("app", "0008_category_categoryrule_budget_transaction"),
     ]
 
     operations = [

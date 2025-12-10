@@ -33,9 +33,13 @@ urlpatterns = [
     # Transactions
     path("transactions", views.TransactionListView.as_view(), name="transactions"),
     path("transactions/upload", views.UploadCSVView.as_view(), name="upload_csv"),
+    path("transactions/bulk-categorize", views.bulk_categorize_transactions, name="bulk_categorize_transactions"),
+    path("transactions/categories/new", views.new_category_dialog, name="new_category_dialog"),
+    path("transactions/categories", views.CategoryListCreateView.as_view(), name="category_list_create"),
     path(
-        "transactions/<int:transaction_id>/categorize", views.categorize_transaction, name="categorize_transaction"
+        "transactions/categories/<int:category_id>", views.CategoryEditDeleteView.as_view(), name="category_edit_delete"
     ),
+    path("transactions/<int:transaction_id>/categorize", views.categorize_transaction, name="categorize_transaction"),
     path(
         "transactions/<int:transaction_id>",
         views.TransactionEditDeleteView.as_view(),

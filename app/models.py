@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
@@ -59,20 +61,7 @@ class BillLink(models.Model):
 
 
 class Category(models.Model):
-    CATEGORY_CHOICES = [
-        ("dining", "Dining & Food"),
-        ("groceries", "Groceries"),
-        ("shopping", "Shopping"),
-        ("transportation", "Transportation"),
-        ("entertainment", "Entertainment"),
-        ("utilities", "Utilities"),
-        ("healthcare", "Healthcare"),
-        ("travel", "Travel"),
-        ("income", "Income"),
-        ("other", "Other"),
-    ]
-
-    name = models.CharField(max_length=100, choices=CATEGORY_CHOICES)
+    name = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     is_default = models.BooleanField(default=False)
 
@@ -81,10 +70,9 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
     def __str__(self):
-        label = dict(self.CATEGORY_CHOICES).get(self.name, self.name)
         if self.user:
-            return f"{label} ({self.user.username})"
-        return label
+            return f"{self.name} ({self.user.username})"
+        return self.name
 
 
 class CategoryRule(models.Model):
@@ -114,6 +102,9 @@ class Transaction(models.Model):
     original_data = models.JSONField()
     source = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    if TYPE_CHECKING:
+        category_id: int | None
 
     class Meta:
         ordering = ["-date", "-created_at"]
