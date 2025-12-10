@@ -1,8 +1,4 @@
-<wa-dialog
-  label="Add Income"
-  hx-on::after-request="if (event.detail.successful) this.open = false"
-  style="--width: 300px"
->
+<wa-dialog label="Add Income" style="--width: 300px">
   <form id="income-form" hx-post="{% url 'add_income' %}">
     {% csrf_token %}
 

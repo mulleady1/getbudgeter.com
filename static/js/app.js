@@ -94,6 +94,15 @@ htmx.defineExtension("show-hide-dialogs", {
         dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })
       }
     }
+
+    // Auto-close dialogs/drawers on successful form submissions
+    if (name === "htmx:afterRequest") {
+      const dialog = target.closest("wa-dialog, wa-drawer")
+
+      if (dialog && evt.detail.successful && target.matches("form")) {
+        dialog.open = false
+      }
+    }
   },
 })
 

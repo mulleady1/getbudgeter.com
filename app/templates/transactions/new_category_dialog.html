@@ -1,8 +1,4 @@
-<wa-dialog
-  label="Add New Category"
-  style="--width: 400px;"
-  hx-on::after-request="if (event.detail.successful) this.open = false"
->
+<wa-dialog label="Add New Category" style="--width: 400px;">
   <form id="new-category-form" hx-post="{% url 'category_list_create' %}">
     {% csrf_token %}
 

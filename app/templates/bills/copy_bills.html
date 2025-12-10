@@ -1,7 +1,4 @@
-<wa-dialog
-  label="Copy Bills"
-  hx-on::after-request="if (event.detail.successful) this.open = false"
->
+<wa-dialog label="Copy Bills">
   <form id="copy-bills-form" hx-post="{% url 'copy' %}" hx-target="#bills-list" hx-swap="outerHTML">
     {% csrf_token %}
 

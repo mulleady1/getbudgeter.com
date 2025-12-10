@@ -4,7 +4,6 @@
   {% else %}
     label="Add Bill"
   {% endif %}
-  hx-on::after-request="if (event.detail.successful) this.open = false"
 >
   <form
     id="bill-form"
@@ -50,7 +49,7 @@
       appearance="outlined"
       onclick="this.closest('wa-drawer').open = false"
       style="margin-top: 1rem; width: 100%;"
-      >
+    >
       Cancel
     </wa-button>
     <wa-button type="submit" form="bill-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>

@@ -4,7 +4,6 @@
   {% else %}
     label="Add Quick Link"
   {% endif %}
-  hx-on::after-request="if (event.detail.successful) this.open = false"
 >
   <form
     id="link-form"
@@ -21,14 +20,7 @@
 
     <wa-input name="label" label="Link label" value="{{ link.label }}" required style="width: 100%;"></wa-input>
 
-    <wa-input
-      type="url"
-      name="url"
-      label="URL"
-      value="{{ link.url }}"
-      required
-      style="width: 100%;"
-    ></wa-input>
+    <wa-input type="url" name="url" label="URL" value="{{ link.url }}" required style="width: 100%;"></wa-input>
   </form>
 
   <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -36,7 +28,7 @@
       appearance="outlined"
       onclick="this.closest('wa-drawer').open = false"
       style="margin-top: 1rem; width: 100%;"
-      >
+    >
       Cancel
     </wa-button>
     <wa-button type="submit" form="link-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>
