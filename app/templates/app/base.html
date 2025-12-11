@@ -9,10 +9,10 @@
     <title>Budgeter</title>
     <link rel="icon" type="image/png" href="{% static 'logo2.png' %}" />
     <link rel="stylesheet" href="{% static 'vendor/webawesome/styles/webawesome.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/app.css' %}?v=1.1.0" />
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?v=1.1.1" />
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <script src="{% static 'js/webawesome.js' %}?v=1.1.0" defer></script>
-    <script src="{% static 'js/app.js' %}?v=1.1.0"></script>
+    <script src="{% static 'js/webawesome.js' %}?v=1.1.1" defer></script>
+    <script src="{% static 'js/app.js' %}?v=1.1.1"></script>
     <script src="{% static 'js/surreal.js' %}" defer></script>
   </head>
   <body hx-ext="csrf,button-spinner,show-hide-dialogs" hx-indicator=".htmx-progress-bar">
@@ -68,7 +68,7 @@
               onclick="me('#mobile-nav-drawer').open = true"
               aria-label="Open navigation menu"
             >
-              <wa-icon name="menu"></wa-icon>
+              <wa-icon name="bars"></wa-icon>
             </wa-button>
             <wa-drawer id="mobile-nav-drawer" label="Menu" placement="end" data-no-autoopen>
               <nav class="mobile-nav">
