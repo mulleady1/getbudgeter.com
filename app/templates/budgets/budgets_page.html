@@ -8,8 +8,8 @@
     style="max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 100px;"
   >
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-      <h1 style="margin: 0; font-size: 1.75rem;">Budgets</h1>
-      <wa-button hx-get="{% url 'new_budget' %}" hx-target="body" hx-swap="beforeend">
+      <span></span>
+      <wa-button hx-get="/budgets/new" hx-target="body" hx-swap="beforeend">
         <wa-icon slot="start" name="plus"></wa-icon>
         Add Budget
       </wa-button>
@@ -38,7 +38,7 @@
                       <wa-button
                         size="small"
                         appearance="plain"
-                        hx-get="{% url 'edit_delete_budget' budget.id %}"
+                        hx-get="/budgets/{{ budget.id }}"
                         hx-target="body"
                         hx-swap="beforeend"
                       >
@@ -47,7 +47,7 @@
                       <wa-button
                         size="small"
                         appearance="plain"
-                        hx-delete="{% url 'edit_delete_budget' budget.id %}"
+                        hx-delete="/budgets/{{ budget.id }}"
                         hx-target="closest tr"
                         hx-swap="outerHTML"
                         hx-confirm="Are you sure you want to delete this budget?"

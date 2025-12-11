@@ -1,5 +1,5 @@
 <wa-dialog label="Copy Bills">
-  <form id="copy-bills-form" hx-post="{% url 'copy' %}" hx-target="#bills-list" hx-swap="outerHTML">
+  <form id="copy-bills-form" hx-post="/bills/copy" hx-target="#bills-list" hx-swap="outerHTML">
     {% csrf_token %}
 
     <wa-input

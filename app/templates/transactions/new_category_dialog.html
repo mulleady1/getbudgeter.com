@@ -1,5 +1,5 @@
 <wa-dialog label="Add New Category" style="--width: 400px;">
-  <form id="new-category-form" hx-post="{% url 'category_list_create' %}">
+  <form id="new-category-form" hx-post="/transactions/categories">
     {% csrf_token %}
 
     <div style="margin-bottom: 1rem;">

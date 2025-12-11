@@ -64,6 +64,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     is_default = models.BooleanField(default=False)
+    color = models.CharField(max_length=7, default="#9c6ade")
 
     class Meta:
         unique_together = [["name", "user"]]
@@ -73,6 +74,13 @@ class Category(models.Model):
         if self.user:
             return f"{self.name} ({self.user.username})"
         return self.name
+
+    def get_text_color(self):
+        """Return white or black text color based on background brightness"""
+        hex_color = self.color.lstrip("#")
+        r, g, b = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
+        brightness = (r * 299 + g * 587 + b * 114) / 1000
+        return "white" if brightness < 165 else "#333"
 
 
 class CategoryRule(models.Model):

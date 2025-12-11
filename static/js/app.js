@@ -86,7 +86,7 @@ htmx.defineExtension("show-hide-dialogs", {
 
       if (dialog) {
         // Auto-open after a brief delay (unless it already has the 'open' attribute)
-        if (!dialog.hasAttribute("open")) {
+        if (!dialog.hasAttribute("open") && !dialog.hasAttribute("data-no-autoopen")) {
           setTimeout(() => (dialog.open = true), 100)
         }
 

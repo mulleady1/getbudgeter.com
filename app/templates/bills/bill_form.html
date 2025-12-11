@@ -8,9 +8,9 @@
   <form
     id="bill-form"
     {% if bill.id %}
-      hx-put="{% url 'edit_delete_bill' bill.id %}"
+      hx-put="/bills/{{ bill.id }}"
     {% else %}
-      hx-post="{% url 'bills' %}"
+      hx-post="/bills"
     {% endif %}
     hx-target="#bills-list"
     hx-swap="outerHTML"

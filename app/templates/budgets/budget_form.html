@@ -3,9 +3,9 @@
 <wa-dialog label="{% if budget %}Edit Budget{% else %}Add Budget{% endif %}" style="--width: 500px;">
   <form
     {% if budget %}
-      hx-put="{% url 'edit_delete_budget' budget.id %}"
+      hx-put="/budgets/{{ budget.id }}"
     {% else %}
-      hx-post="{% url 'budgets' %}"
+      hx-post="/budgets"
     {% endif %}
     hx-swap="outerHTML"
   >

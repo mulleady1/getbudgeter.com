@@ -25,13 +25,40 @@
             <span style="font-size: 1.25rem; font-weight: 600;">Budgeter</span>
           </a>
           {% if user.is_authenticated %}
-            <nav style="display: flex; gap: 1.5rem; align-items: stretch;">
+            <nav class="desktop-nav">
               <a href="{% url 'bills' %}" class="nav-link {% if request.resolver_match.url_name == 'bills' %}active{% endif %}">Bills</a>
               <a href="{% url 'transactions' %}" class="nav-link {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">Transactions</a>
               <a href="{% url 'analytics' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">Analytics</a>
               <a href="{% url 'budgets' %}" class="nav-link {% if request.resolver_match.url_name == 'budgets' %}active{% endif %}">Budgets</a>
               <a href="{% url 'logout' %}" class="nav-link logout">Logout</a>
             </nav>
+            <wa-button
+              class="mobile-menu-button"
+              appearance="plain"
+              onclick="me('#mobile-nav-drawer').open = true"
+              aria-label="Open navigation menu"
+            >
+              <wa-icon name="menu" library="system"></wa-icon>
+            </wa-button>
+            <wa-drawer id="mobile-nav-drawer" label="Menu" placement="end" data-no-autoopen>
+              <nav class="mobile-nav">
+                <a href="{% url 'bills' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'bills' %}active{% endif %}" onclick="document.getElementById('mobile-nav-drawer').open = false">
+                  Bills
+                </a>
+                <a href="{% url 'transactions' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}" onclick="document.getElementById('mobile-nav-drawer').open = false">
+                  Transactions
+                </a>
+                <a href="{% url 'analytics' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}" onclick="document.getElementById('mobile-nav-drawer').open = false">
+                  Analytics
+                </a>
+                <a href="{% url 'budgets' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'budgets' %}active{% endif %}" onclick="document.getElementById('mobile-nav-drawer').open = false">
+                  Budgets
+                </a>
+                <a href="{% url 'logout' %}" class="mobile-nav-link logout" onclick="document.getElementById('mobile-nav-drawer').open = false">
+                  Logout
+                </a>
+              </nav>
+            </wa-drawer>
           {% endif %}
         </div>
       </header>

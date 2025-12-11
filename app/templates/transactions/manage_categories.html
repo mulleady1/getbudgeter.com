@@ -7,12 +7,12 @@
             name="name"
             value="{{ category.name }}"
             maxlength="100"
-            hx-put="{% url 'category_edit_delete' category.id %}"
+            hx-put="/transactions/categories/{{ category.id }}"
             hx-trigger="blur"
           ></wa-input>
           <wa-button
             appearance="plain"
-            hx-delete="{% url 'category_edit_delete' category.id %}"
+            hx-delete="/transactions/categories/{{ category.id }}"
             hx-target="closest div"
             hx-swap="outerHTML"
           >
@@ -28,7 +28,7 @@
       name="name"
       placeholder="New category"
       maxlength="100"
-      hx-post="{% url 'category_list_create' %}?inline"
+      hx-post="/transactions/categories?inline"
       hx-trigger="blur"
       hx-target="wa-drawer .category-list"
       hx-swap="beforeend"

@@ -44,7 +44,7 @@
           id="month"
           name="month"
           value="{{ selected_month|date:'Y-m' }}"
-          hx-get="{% url 'bills' %}"
+          hx-get="/bills"
           hx-push-url="true"
           hx-target="#bills-list"
           hx-trigger="change delay:500ms"
@@ -62,7 +62,7 @@
           <wa-button slot="trigger" size="small" appearance="plain">
             <wa-icon name="ellipsis-vertical"></wa-icon>
           </wa-button>
-          <wa-dropdown-item hx-get="{% url 'copy' %}" hx-target="body" hx-swap="beforeend">
+          <wa-dropdown-item hx-get="/bills/copy" hx-target="body" hx-swap="beforeend">
             <wa-icon slot="icon" name="copy"></wa-icon>
             Copy
           </wa-dropdown-item>
@@ -94,7 +94,7 @@
                   <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <wa-checkbox
                       {% if bill.paid %}checked{% endif %}
-                      hx-post="{% url 'toggle_paid' bill.id %}"
+                      hx-post="/bills/{{ bill.id }}/toggle"
                       hx-target="closest li"
                       hx-swap="outerHTML"
                       >Paid</wa-checkbox
@@ -110,7 +110,7 @@
                     <wa-button
                       size="small"
                       appearance="plain"
-                      hx-get="{% url 'edit_delete_bill' bill.id %}"
+                      hx-get="/bills/{{ bill.id }}"
                       hx-target="body"
                       hx-swap="beforeend"
                     >
@@ -121,7 +121,7 @@
                       size="small"
                       appearance="plain"
                       variant="danger"
-                      hx-delete="{% url 'edit_delete_bill' bill.id %}"
+                      hx-delete="/bills/{{ bill.id }}"
                       hx-trigger="confirmed"
                       hx-target="closest li"
                       hx-swap="outerHTML"
@@ -141,7 +141,7 @@
             {% endfor %}
           </ul>
           <div style="padding-bottom: 1rem;">
-            <wa-button hx-get="{% url 'new_bill' %}" hx-target="body" hx-swap="beforeend">
+            <wa-button hx-get="/bills/new" hx-target="body" hx-swap="beforeend">
               <wa-icon slot="start" name="plus"></wa-icon>
               Add Bill
             </wa-button>
@@ -149,9 +149,9 @@
         </div>
 
         <div class="tile-container" style="padding-top: 7px;">
-          <div hx-get="{% url 'bill_stats' %}" hx-trigger="load, bills-changed from:body"></div>
+          <div hx-get="/bills/stats" hx-trigger="load, bills-changed from:body"></div>
           <div
-            hx-get="{% url 'bill_links' %}"
+            hx-get="/bills/links"
             hx-trigger="load"
             style="padding: 30px; border: 1px solid #eee; border-radius: 5px;"
           ></div>

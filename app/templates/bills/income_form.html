@@ -1,5 +1,5 @@
 <wa-dialog label="Add Income" style="--width: 300px">
-  <form id="income-form" hx-post="{% url 'add_income' %}">
+  <form id="income-form" hx-post="/bills/income">
     {% csrf_token %}
 
     <wa-input type="number" name="income" label="Monthly Income" required value="{{ income }}"></wa-input>

@@ -25,7 +25,7 @@
           <li style="margin: 0; display: flex; align-items: center; gap: 8px;">
             <div class="reorder-buttons" style="flex-direction: column; gap: 1px;">
               <button
-                hx-post="{% url 'reorder_bill_link' link.id 'up' %}"
+                hx-post="/bills/links/{{ link.id }}/reorder/up"
                 hx-target="#bill-links-container"
                 hx-swap="outerHTML"
                 style="height: auto; padding: 0; border: none; background: none; cursor: pointer; font-size: 0.7rem; line-height: 1; color: #666;"
@@ -34,7 +34,7 @@
                 ▲
               </button>
               <button
-                hx-post="{% url 'reorder_bill_link' link.id 'down' %}"
+                hx-post="/bills/links/{{ link.id }}/reorder/down"
                 hx-target="#bill-links-container"
                 hx-swap="outerHTML"
                 style="height: auto; padding: 0; border: none; background: none; cursor: pointer; font-size: 0.7rem; line-height: 1; color: #666;"
@@ -52,5 +52,5 @@
     <div style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">No data.</div>
   {% endif %}
 
-  <a hx-get="{% url 'new_bill_link' %}" hx-target="body" hx-swap="beforeend"> New... </a>
+  <a hx-get="/bills/links/new" hx-target="body" hx-swap="beforeend"> New... </a>
 </div>

@@ -2,7 +2,7 @@
 
 <wa-dialog label="Categorize Transaction" style="--width: 500px;" open>
   <form
-    hx-put="{% url 'edit_delete_transaction' transaction.id %}"
+    hx-put="/transactions/{{ transaction.id }}"
     hx-swap="outerHTML"
   >
     <div style="margin-bottom: 1rem;">

@@ -3,6 +3,7 @@ from typing import cast
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
@@ -11,7 +12,7 @@ from django.views.generic import View
 from ..categorization import TransactionCategorizer
 from ..csv_parsers.base import BaseCSVParser
 from ..models import Category, Transaction
-from .utils import get_parser_class
+from .utils import get_parser_class, get_random_color
 
 logger = logging.getLogger(__name__)
 
@@ -145,8 +146,6 @@ class TransactionListView(LoginRequiredMixin, View):
 
         # Apply search filter
         if search_query:
-            from django.db.models import Q
-
             transactions = transactions.filter(
                 Q(merchant__icontains=search_query)
                 | Q(description__icontains=search_query)
@@ -155,8 +154,6 @@ class TransactionListView(LoginRequiredMixin, View):
             )
 
         # Get categories for filter dropdown (both default and user-specific)
-        from django.db.models import Q
-
         categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
 
         # Get total count before limiting
@@ -175,17 +172,27 @@ class TransactionListView(LoginRequiredMixin, View):
         }
 
         if request.htmx:
-            template = "transactions/transactions_page.html#transactions-table"
+            # Return main table + OOB query count
+            from django.template.loader import render_to_string
+
+            table_html = render_to_string(
+                "transactions/transactions_page.html#transactions-table",
+                context,
+                request=request
+            )
+            query_count_html = render_to_string(
+                "transactions/transactions_page.html#query-count",
+                context,
+                request=request
+            )
+            return HttpResponse(table_html + query_count_html)
         else:
             template = "transactions/transactions_page.html"
+            return render(request, template, context)
 
-        return render(request, template, context)
 
-
-class TransactionEditDeleteView(LoginRequiredMixin, View):
+class TransactionDetailView(LoginRequiredMixin, View):
     def get(self, request, transaction_id):
-        from django.db.models import Q
-
         transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
         categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
         return render(
@@ -199,25 +206,19 @@ class TransactionEditDeleteView(LoginRequiredMixin, View):
         if category_id:
             transaction.category_id = cast(int, category_id)
             transaction.save()
-        return HttpResponse()
+
+        categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
+
+        return render(
+            request,
+            "transactions/transactions_page.html#transaction-row",
+            {"transaction": transaction, "categories": categories},
+        )
 
     def delete(self, request, transaction_id):
         transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
         transaction.delete()
         return HttpResponse()
-
-
-@login_required
-@require_http_methods(["POST"])
-def categorize_transaction(request, transaction_id):
-    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
-    category_id = request.POST.get("category")
-
-    if category_id:
-        transaction.category_id = category_id
-        transaction.save()
-
-    return render(request, "transactions/transactions_page.html#transaction-row", {"transaction": transaction})
 
 
 @login_required
@@ -257,20 +258,7 @@ def new_category_dialog(request):
     return render(request, "transactions/new_category_dialog.html")
 
 
-class CategoryEditDeleteView(LoginRequiredMixin, View):
-    def put(self, request, category_id):
-        category = get_object_or_404(Category, id=category_id, user=request.user)
-        category.name = request.POST.get("name", "").strip()
-        category.save()
-        return HttpResponse()
-
-    def delete(self, request, category_id):
-        category = get_object_or_404(Category, id=category_id, user=request.user)
-        category.delete()
-        return HttpResponse()
-
-
-class CategoryListCreateView(LoginRequiredMixin, View):
+class CategoryListView(LoginRequiredMixin, View):
     def get(self, request):
         categories = Category.objects.filter(user=request.user).order_by("name")
         return render(request, "transactions/manage_categories.html", {"categories": categories})
@@ -292,7 +280,7 @@ class CategoryListCreateView(LoginRequiredMixin, View):
 
         # Create the category for this user
         # Note: We bypass the choices validation by using save() directly
-        category = Category(name=category_name, user=request.user, is_default=False)
+        category = Category(name=category_name, user=request.user, is_default=False, color=get_random_color())
         # Save without validation to allow custom names
         category.save()
 
@@ -302,9 +290,22 @@ class CategoryListCreateView(LoginRequiredMixin, View):
             category.name,
         )
 
-        res = HttpResponse()
         if inline:
             return render(request, "transactions/manage_categories.html#category-item", {"category": category})
-        else:
-            res.headers["HX-Refresh"] = "true"
+
+        res = HttpResponse()
+        res.headers["HX-Refresh"] = "true"
         return res
+
+
+class CategoryDetailView(LoginRequiredMixin, View):
+    def put(self, request, category_id):
+        category = get_object_or_404(Category, id=category_id, user=request.user)
+        category.name = request.POST.get("name", "").strip()
+        category.save()
+        return HttpResponse()
+
+    def delete(self, request, category_id):
+        category = get_object_or_404(Category, id=category_id, user=request.user)
+        category.delete()
+        return HttpResponse()

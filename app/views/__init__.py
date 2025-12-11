@@ -15,13 +15,12 @@ from .bills import (
 )
 from .budgets import BudgetEditDeleteView, BudgetListView, new_budget
 from .transactions import (
-    CategoryEditDeleteView,
-    CategoryListCreateView,
-    TransactionEditDeleteView,
+    CategoryDetailView,
+    CategoryListView,
+    TransactionDetailView,
     TransactionListView,
     UploadCSVView,
     bulk_categorize_transactions,
-    categorize_transaction,
     new_category_dialog,
 )
 
@@ -46,11 +45,10 @@ __all__ = [
     # Transactions
     "UploadCSVView",
     "TransactionListView",
-    "TransactionEditDeleteView",
-    "categorize_transaction",
+    "TransactionDetailView",
     "bulk_categorize_transactions",
-    "CategoryListCreateView",
-    "CategoryEditDeleteView",
+    "CategoryListView",
+    "CategoryDetailView",
     "new_category_dialog",
     # Analytics
     "AnalyticsView",
