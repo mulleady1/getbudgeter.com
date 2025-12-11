@@ -34,7 +34,7 @@ class CitiParser(BaseCSVParser):
                 credit = row.get("Credit", "").strip().replace("$", "").replace(",", "")
 
                 if debit:
-                    amount = -Decimal(debit)
+                    amount = Decimal(debit)
                 elif credit:
                     amount = Decimal(credit)
                 else:
