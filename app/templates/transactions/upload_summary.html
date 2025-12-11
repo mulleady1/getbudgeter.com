@@ -1,4 +1,4 @@
-<wa-dialog label="Upload Complete" style="--width: 500px;" open>
+<wa-dialog label="Upload Complete" style="--width: 500px;">
   <wa-callout variant="success" style="margin-bottom: 1rem;">
     <wa-icon slot="icon" name="check-circle"></wa-icon>
     CSV uploaded successfully!
@@ -11,7 +11,7 @@
   </div>
 
   <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
-    <wa-button onclick="this.closest('wa-dialog').open = false; window.location.href=\"{% url 'transactions' %}\"">
+    <wa-button onclick="window.location.reload()">
       View Transactions
     </wa-button>
   </div>
