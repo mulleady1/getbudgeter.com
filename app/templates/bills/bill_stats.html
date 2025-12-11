@@ -7,7 +7,7 @@
     <div style="padding: 30px; border: 1px solid #eee; border-radius: 5px; display: inline-block;">
       <div class="labelvalue">
         <span style="color: #0000">–</span>
-        <span><a hx-get="{% url 'add_income' %}" hx-target="body" hx-swap="beforeend">Income</a></span>
+        <span><a hx-get="/bills/income" hx-target="body" hx-swap="beforeend">Income</a></span>
         <span>{{ income|currency }}</span>
       </div>
       <div class="labelvalue">
@@ -24,6 +24,6 @@
   </div>
 {% else %}
   <div style="padding: 10px 0 20px 0">
-    <a hx-get="{% url 'add_income' %}" hx-target="body" hx-swap="beforeend">Add income</a>
+    <a hx-get="/bills/income" hx-target="body" hx-swap="beforeend">Add income</a>
   </div>
 {% endif %}

@@ -1,0 +1,113 @@
+#bills-page {
+  .header {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .month-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 799px) {
+    .header {
+      justify-content: center;
+    }
+
+    .dropdown {
+      position: fixed;
+      right: 1rem;
+      top: 8px;
+      z-index: 200;
+    }
+  }
+
+  .bill-list-item {
+    display: grid;
+    align-items: center;
+    gap: 1rem;
+    grid-template-columns: 3fr 1fr 160px 80px;
+    border-bottom: 1px solid #eee;
+    margin: 0;
+    padding: 5px 0;
+    animation: fadeIn 0.4s ease-in-out forwards;
+
+    a {
+      text-decoration: none;
+      color: inherit;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    wa-button::part(base) {
+      height: 30px;
+    }
+
+    @media (max-width: 799px) {
+      padding: 15px 0 10px;
+      display: grid;
+      grid-template-areas:
+        "name amount"
+        "paid actions";
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 0.5rem;
+
+      > :nth-child(1) {
+        /* Bill Name */
+        grid-area: name;
+        justify-self: start;
+        font-size: 1.2rem;
+      }
+
+      > :nth-child(2) {
+        /* Bill Amount */
+        grid-area: amount;
+        align-self: flex-start;
+        justify-self: end;
+        text-align: right;
+        font-size: 1.2rem;
+      }
+
+      > :nth-child(3) {
+        /* Paid Checkbox */
+        grid-area: paid;
+        justify-self: start;
+      }
+
+      > :nth-child(4) {
+        /* Actions/Buttons */
+        grid-area: actions;
+        justify-self: end;
+      }
+    }
+  }
+
+  @media (min-width: 768px) {
+    #bills-list {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+  }
+
+  #bill-links-container {
+    .reorder-buttons {
+      display: none;
+    }
+    &[data-edit-mode="true"] .reorder-buttons {
+      display: flex;
+      padding: 1px 0;
+    }
+
+    wa-dropdown wa-button::part(base) {
+      width: 30px;
+      height: 30px;
+    }
+  }
+}

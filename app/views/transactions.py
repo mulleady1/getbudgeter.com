@@ -1,5 +1,6 @@
 import logging
 from typing import cast
+from urllib.parse import parse_qs, urlparse
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,10 +12,62 @@ from django.views.generic import View
 
 from ..categorization import TransactionCategorizer
 from ..csv_parsers.base import BaseCSVParser
-from ..models import Category, Transaction
+from ..models import Category, CategoryRule, Transaction
 from .utils import get_parser_class, get_random_color
 
 logger = logging.getLogger(__name__)
+
+
+def create_category_rule_from_search(request, category_id, user):
+    """
+    Creates a CategoryRule if there's a search query in the current URL.
+
+    Args:
+        request: The HTTP request object
+        category_id: The ID of the category to associate with the rule
+        user: The user creating the rule
+
+    Returns:
+        The search query string if a rule was created, None otherwise
+    """
+    current_url = request.headers.get("HX-Current-URL", "")
+    if not current_url:
+        return None
+
+    parsed_url = urlparse(current_url)
+    query_params = parse_qs(parsed_url.query)
+    search_query = query_params.get("q", [""])[0].strip()
+
+    if not search_query:
+        return None
+
+    # Get the category
+    category = get_object_or_404(Category, id=category_id)
+
+    # Check if a rule with this keyword already exists for this user
+    existing_rule = CategoryRule.objects.filter(
+        user=user,
+        keyword__iexact=search_query
+    ).first()
+
+    if not existing_rule:
+        # Create a new CategoryRule
+        CategoryRule.objects.create(
+            user=user,
+            keyword=search_query,
+            category=category,
+            is_default=False,
+            priority=0
+        )
+        logger.info(
+            "user %s created CategoryRule: '%s' → %s",
+            user.id,
+            search_query,
+            category.name,
+        )
+        return search_query
+
+    return None
 
 
 class UploadCSVView(LoginRequiredMixin, View):
@@ -176,14 +229,10 @@ class TransactionListView(LoginRequiredMixin, View):
             from django.template.loader import render_to_string
 
             table_html = render_to_string(
-                "transactions/transactions_page.html#transactions-table",
-                context,
-                request=request
+                "transactions/transactions_page.html#transactions-table", context, request=request
             )
             query_count_html = render_to_string(
-                "transactions/transactions_page.html#query-count",
-                context,
-                request=request
+                "transactions/transactions_page.html#query-count", context, request=request
             )
             return HttpResponse(table_html + query_count_html)
         else:
@@ -206,6 +255,9 @@ class TransactionDetailView(LoginRequiredMixin, View):
         if category_id:
             transaction.category_id = cast(int, category_id)
             transaction.save()
+
+            # Create a CategoryRule if there's a search query
+            create_category_rule_from_search(request, category_id, request.user)
 
         categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
 
@@ -239,11 +291,11 @@ def bulk_categorize_transactions(request):
         category_id=category_id
     )
 
+    # Create a CategoryRule if there's a search query
+    create_category_rule_from_search(request, category_id, request.user)
+
     logger.info(
-        "User %s bulk categorized %s transactions to category %s",
-        request.user.username,
-        updated_count,
-        category.name,
+        "user %s bulk categorized %s transactions to category %s", request.user.id, updated_count, category.name
     )
 
     res = HttpResponse()
@@ -308,4 +360,110 @@ class CategoryDetailView(LoginRequiredMixin, View):
     def delete(self, request, category_id):
         category = get_object_or_404(Category, id=category_id, user=request.user)
         category.delete()
+        return HttpResponse()
+
+
+class CategoryRuleListView(LoginRequiredMixin, View):
+    def get(self, request):
+        # Get user-specific rules
+        rules = (
+            CategoryRule.objects.filter(user=request.user).select_related("category").order_by("-priority", "keyword")
+        )
+
+        # Get categories for dropdown
+        categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
+
+        context = {
+            "rules": rules,
+            "categories": categories,
+        }
+
+        return render(request, "transactions/category_rules_page.html", context)
+
+    def post(self, request):
+        keyword = request.POST.get("keyword", "").strip()
+        category_id = request.POST.get("category")
+        priority = request.POST.get("priority", "0")
+
+        if not keyword or not category_id:
+            return JsonResponse({"success": False, "error": "Keyword and category are required"}, status=400)
+
+        # Validate category exists and is accessible
+        category = get_object_or_404(
+            Category, Q(id=category_id) & (Q(user=None, is_default=True) | Q(user=request.user))
+        )
+
+        # Check if rule with this keyword already exists for this user
+        existing = CategoryRule.objects.filter(user=request.user, keyword__iexact=keyword).first()
+        if existing:
+            return JsonResponse({"success": False, "error": "You already have a rule with this keyword"}, status=400)
+
+        # Create the rule
+        rule = CategoryRule.objects.create(
+            user=request.user,
+            keyword=keyword,
+            category=category,
+            priority=int(priority) if priority.isdigit() else 0,
+            is_default=False,
+        )
+
+        logger.info(
+            "User %s created category rule: '%s' → %s (priority: %s)",
+            request.user.username,
+            rule.keyword,
+            category.name,
+            rule.priority,
+        )
+
+        res = HttpResponse()
+        res.headers["HX-Refresh"] = "true"
+        return res
+
+
+class CategoryRuleDetailView(LoginRequiredMixin, View):
+    def put(self, request, rule_id):
+        data = QueryDict(request.body)
+        rule = get_object_or_404(CategoryRule, id=rule_id, user=request.user)
+
+        # Update keyword if provided
+        keyword = data.get("keyword", "").strip()
+        if keyword:
+            rule.keyword = keyword
+
+        # Update category if provided
+        category_id = data.get("category")
+        if category_id:
+            category = get_object_or_404(
+                Category, Q(id=category_id) & (Q(user=None, is_default=True) | Q(user=request.user))
+            )
+            rule.category = category
+
+        # Update priority if provided
+        priority = data.get("priority")
+        if priority is not None:
+            rule.priority = int(priority) if priority.isdigit() else 0
+
+        rule.save()
+
+        logger.info(
+            "User %s updated category rule: '%s' → %s (priority: %s)",
+            request.user.username,
+            rule.keyword,
+            rule.category.name,
+            rule.priority,
+        )
+
+        return HttpResponse()
+
+    def delete(self, request, rule_id):
+        rule = get_object_or_404(CategoryRule, id=rule_id, user=request.user)
+
+        logger.info(
+            "User %s deleted category rule: '%s' → %s",
+            request.user.username,
+            rule.keyword,
+            rule.category.name,
+        )
+
+        rule.delete()
         return HttpResponse()

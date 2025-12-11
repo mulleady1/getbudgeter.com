@@ -17,6 +17,8 @@ from .budgets import BudgetEditDeleteView, BudgetListView, new_budget
 from .transactions import (
     CategoryDetailView,
     CategoryListView,
+    CategoryRuleDetailView,
+    CategoryRuleListView,
     TransactionDetailView,
     TransactionListView,
     UploadCSVView,
@@ -49,6 +51,8 @@ __all__ = [
     "bulk_categorize_transactions",
     "CategoryListView",
     "CategoryDetailView",
+    "CategoryRuleListView",
+    "CategoryRuleDetailView",
     "new_category_dialog",
     # Analytics
     "AnalyticsView",

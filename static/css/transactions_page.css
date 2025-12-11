@@ -1,0 +1,13 @@
+#transactions-page {
+  th,
+  td {
+    padding: 0.4em;
+    input[type="checkbox"] {
+      transform: translateY(3px);
+    }
+  }
+
+  .category-dropdown::part(menu) {
+    min-width: 200px;
+  }
+}

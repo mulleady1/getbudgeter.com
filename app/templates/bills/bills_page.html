@@ -3,9 +3,11 @@
 {% block content %}
   {% csrf_token %}
 
+  <link rel="stylesheet" href="/static/css/bills_page.css">
+
   <div
     id="bills-page"
-    style="max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 100px;"
+    style="max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 100px;"
   >
     <script>
       function changeMonth(direction) {

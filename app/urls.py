@@ -27,6 +27,8 @@ urlpatterns = [
     path("transactions/categories",                            views.CategoryListView.as_view(),        name="category_list_create"),
     path("transactions/categories/new",                        views.new_category_dialog,               name="new_category_dialog"),
     path("transactions/categories/<int:category_id>",          views.CategoryDetailView.as_view(),      name="category_edit_delete"),
+    path("transactions/category-rules",                        views.CategoryRuleListView.as_view(),    name="category_rules"),
+    path("transactions/category-rules/<int:rule_id>",          views.CategoryRuleDetailView.as_view(),  name="category_rule_edit_delete"),
     path("transactions/<int:transaction_id>",                  views.TransactionDetailView.as_view(),   name="transaction_detail"),
     
     path("analytics",                                          views.AnalyticsView.as_view(),           name="analytics"),
