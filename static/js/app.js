@@ -91,7 +91,9 @@ htmx.defineExtension("show-hide-dialogs", {
         }
 
         // Auto-cleanup when dialog closes
-        dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })
+        if (!dialog.hasAttribute("data-no-autoremove")) {
+          dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })
+        }
       }
     }
 
