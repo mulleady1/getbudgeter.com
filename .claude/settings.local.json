@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./env/bin/python:*)",
+      "Bash(cat:*)",
+      "Bash(./env/bin/pip install:*)",
+      "Bash(./env/bin/pip show:*)",
+      "Bash(python -c:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

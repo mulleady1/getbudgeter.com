@@ -21,8 +21,8 @@
 
       <form hx-post="/transactions/category-rules" style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 1rem; align-items: end;">
         <div>
-          <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9rem;">Keyword</label>
           <wa-input
+          label="Keyword"
             name="keyword"
             placeholder="e.g., 'Amazon', 'Starbucks'"
             required
@@ -30,8 +30,7 @@
         </div>
 
         <div>
-          <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9rem;">Category</label>
-          <wa-select name="category" required>
+          <wa-select label="Category" name="category" required>
             <wa-option value="">Select category...</wa-option>
             {% for category in categories %}
               <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
@@ -40,8 +39,8 @@
         </div>
 
         <div>
-          <label style="display: block; margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9rem;">Priority</label>
           <wa-input
+            label="Priority"
             type="number"
             name="priority"
             value="0"
@@ -66,7 +65,7 @@
 
         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
           {% for rule in rules %}
-            <div style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 1rem; align-items: center; padding: 0.75rem; border-radius: 6px; background: #f8f9fa;">
+            <div style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 1rem; align-items: center; margin-bottom: 0.5rem;">
               <div>
                 <wa-input
                   name="keyword"
@@ -125,11 +124,11 @@
     {% endif %}
 
     <!-- Info Box -->
-    <wa-alert style="margin-top: 1.5rem;" variant="info">
+    <wa-callout style="margin-top: 1.5rem;" variant="info">
       <wa-icon slot="icon" name="circle-info"></wa-icon>
       <strong>How it works:</strong> When you upload transactions, the system searches for these keywords in the merchant name and description.
       If a match is found, the transaction is automatically assigned to the specified category.
       Higher priority rules are checked first.
-    </wa-alert>
+    </wa-callout>
   </div>
 {% endblock %}

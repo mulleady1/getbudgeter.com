@@ -1,11 +1,11 @@
 {% extends "app/base.html" %}
-{% load currency %}
+{% load myfilters %}
 
 {% block content %}
   {% csrf_token %}
   
   <link rel="stylesheet" href="/static/css/transactions_page.css">
-  
+
   <div id="transactions-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <span></span>

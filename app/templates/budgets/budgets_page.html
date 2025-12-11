@@ -1,12 +1,10 @@
 {% extends "app/base.html" %}
+{% load myfilters %}
 
 {% block content %}
   {% csrf_token %}
 
-  <div
-    id="budgets-page"
-    style="max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 100px;"
-  >
+  <div id="budgets-page" style="max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <span></span>
       <wa-button hx-get="/budgets/new" hx-target="body" hx-swap="beforeend">
@@ -16,8 +14,6 @@
     </div>
 
     {% partialdef budget-list inline %}
-      {% load currency %}
-
       <div id="budget-list">
         {% if budgets %}
           <table style="width: 100%; border-collapse: collapse;">

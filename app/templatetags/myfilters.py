@@ -18,3 +18,11 @@ def currency(value):
     if rv.endswith(".00"):
         rv = rv[:-3]
     return rv
+
+
+@register.filter
+def startswith(value, arg):
+    """Check if value starts with arg"""
+    if value is None:
+        return False
+    return str(value).startswith(str(arg))

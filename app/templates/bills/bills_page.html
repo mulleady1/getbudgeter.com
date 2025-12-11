@@ -1,14 +1,12 @@
 {% extends "app/base.html" %}
+{% load myfilters %}
 
 {% block content %}
   {% csrf_token %}
 
-  <link rel="stylesheet" href="/static/css/bills_page.css">
+  <link rel="stylesheet" href="/static/css/bills_page.css" />
 
-  <div
-    id="bills-page"
-    style="max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 100px;"
-  >
+  <div id="bills-page" style="max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <script>
       function changeMonth(direction) {
         const monthInput = document.getElementById("month")
@@ -78,8 +76,6 @@
           <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0;">
             {% for bill in bills %}
               {% partialdef bill-item inline %}
-                {% load currency %}
-
                 <li class="bill-list-item">
                   <div>
                     {% if bill.link %}
