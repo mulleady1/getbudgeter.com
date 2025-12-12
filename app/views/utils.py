@@ -40,7 +40,7 @@ def get_bills(request):
         "selected_month": selected_month,
     }
 
-    if request.htmx:
+    if request.htmx and not request.htmx.boosted:
         template_name = "bills/bills_page.html#bills-list"
     else:
         template_name = "bills/bills_page.html"

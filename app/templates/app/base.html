@@ -9,11 +9,11 @@
     <title>Budgeter</title>
     <link rel="icon" type="image/png" href="{% static 'logo2.png' %}" />
     <link rel="stylesheet" href="{% static 'vendor/webawesome/styles/webawesome.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/app.css' %}?v=1.1.3" />
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?v=1.1.7" />
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <script src="{% static 'js/webawesome.js' %}?v=1.1.3" defer></script>
-    <script src="{% static 'js/app.js' %}?v=1.1.3"></script>
-    <script src="{% static 'js/surreal.js' %}" defer></script>
+    <script src="{% static 'js/webawesome.js' %}?v=1.1.7" type="module"></script>
+    <script src="{% static 'js/app.js' %}?v=1.1.7"></script>
+    <script src="{% static 'js/surreal.js' %}"></script>
   </head>
   <body hx-ext="csrf,button-spinner,show-hide-dialogs" hx-indicator=".htmx-progress-bar">
     <div class="htmx-progress-bar"></div>
@@ -27,10 +27,10 @@
           </a>
           {% if user.is_authenticated %}
             <nav class="desktop-nav">
-              <a href="{% url 'bills' %}"        class="nav-link {% if request.path|startswith:'/bills' %}active{% endif %}"><span>Bills</span></a>
+              <a href="{% url 'bills' %}"        class="nav-link {% if request.path|startswith:'/bills' %}active{% endif %}">       <span>Bills</span></a>
               <a href="{% url 'transactions' %}" class="nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}"><span>Transactions</span></a>
-              <a href="{% url 'analytics' %}"    class="nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}"><span>Analytics</span></a>
-              <a href="{% url 'budgets' %}"      class="nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}"><span>Budgets</span></a>
+              <a href="{% url 'analytics' %}"    class="nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}">   <span>Analytics</span></a>
+              <a href="{% url 'budgets' %}"      class="nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}">     <span>Budgets</span></a>
               <wa-dropdown placement="bottom-end">
                 <wa-button slot="trigger" appearance="plain" aria-label="User menu" style="transform: translateY(6px);">
                   <wa-icon name="user-circle" style="font-size: 1.25rem;"></wa-icon>
@@ -57,36 +57,29 @@
             <div style="position: absolute">
               <wa-drawer id="mobile-nav-drawer" label="Menu" placement="end" data-no-autoopen data-no-autoremove>
                 <nav class="mobile-nav">
-                  <a href="{% url 'bills' %}" class="mobile-nav-link {% if request.path|startswith:'/bills' %}active{% endif %}"
-                    onclick="document.getElementById('mobile-nav-drawer').open = false"
-                  >
+                  <script>
+                    me().on('click', (e) => { me(e).parentElement.open = false })
+                  </script>
+                  <a href="{% url 'bills' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/bills' %}active{% endif %}">
                     Bills
                   </a>
-                  <a href="{% url 'transactions' %}" class="mobile-nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}"
-                    onclick="document.getElementById('mobile-nav-drawer').open = false"
-                  >
+                  <a href="{% url 'transactions' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}">
                     Transactions
                   </a>
-                  <a href="{% url 'analytics' %}" class="mobile-nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}"
-                    onclick="document.getElementById('mobile-nav-drawer').open = false"
-                  >
+                  <a href="{% url 'analytics' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}">
                     Analytics
                   </a>
-                  <a href="{% url 'budgets' %}" class="mobile-nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}"
-                    onclick="document.getElementById('mobile-nav-drawer').open = false"
-                  >
+                  <a href="{% url 'budgets' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}">
                     Budgets
                   </a>
                   <a
                     href="/transactions/category-rules"
+                    hx-boost="true"
                     class="mobile-nav-link"
-                    onclick="document.getElementById('mobile-nav-drawer').open = false"
                   >
                     Category Rules
                   </a>
-                  <a href="{% url 'logout' %}" class="mobile-nav-link logout"
-                    onclick="document.getElementById('mobile-nav-drawer').open = false"
-                  >
+                  <a href="{% url 'logout' %}" class="mobile-nav-link logout">
                     Logout
                   </a>
                 </nav>

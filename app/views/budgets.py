@@ -22,7 +22,7 @@ class BudgetListView(LoginRequiredMixin, View):
 
         context = {"budgets": budgets, "categories": categories, "current_month": current_month}
 
-        if request.htmx:
+        if request.htmx and not request.htmx.boosted:
             template = "budgets/budgets_page.html#budget-list"
         else:
             template = "budgets/budgets_page.html"

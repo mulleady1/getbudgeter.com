@@ -45,20 +45,11 @@ def create_category_rule_from_search(request, category_id, user):
     category = get_object_or_404(Category, id=category_id)
 
     # Check if a rule with this keyword already exists for this user
-    existing_rule = CategoryRule.objects.filter(
-        user=user,
-        keyword__iexact=search_query
-    ).first()
+    existing_rule = CategoryRule.objects.filter(user=user, keyword__iexact=search_query).first()
 
     if not existing_rule:
         # Create a new CategoryRule
-        CategoryRule.objects.create(
-            user=user,
-            keyword=search_query,
-            category=category,
-            is_default=False,
-            priority=0
-        )
+        CategoryRule.objects.create(user=user, keyword=search_query, category=category, is_default=False, priority=0)
         logger.info(
             "user %s created CategoryRule: '%s' → %s",
             user.id,
@@ -224,7 +215,7 @@ class TransactionListView(LoginRequiredMixin, View):
             "showing_count": len(limited_transactions),
         }
 
-        if request.htmx:
+        if request.htmx and not request.htmx.boosted:
             # Return main table + OOB query count
             from django.template.loader import render_to_string
 
