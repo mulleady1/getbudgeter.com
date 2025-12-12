@@ -1,11 +1,7 @@
-{% csrf_token %}
+<wa-dialog label="Upload CSV">
+  <form hx-post="{% url 'upload_csv' %}" hx-encoding="multipart/form-data" hx-swap="outerHTML">
+    {% csrf_token %}
 
-<wa-dialog label="Upload CSV" style="--width: 600px;">
-  <form
-    hx-post="{% url 'upload_csv' %}"
-    hx-encoding="multipart/form-data"
-    hx-swap="outerHTML"
-  >
     {% if error %}
       <wa-callout variant="danger" style="margin-bottom: 1rem;">
         <wa-icon slot="icon" name="exclamation-triangle"></wa-icon>
@@ -16,7 +12,7 @@
     <div style="margin-bottom: 1rem;">
       <label for="bank_type" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Type</label>
       <select id="bank_type" name="bank_type" required style="width: 100%;">
-        <option value="">Select a type...</option>
+        <option value="">Select...</option>
         <option value="citi">Citi</option>
         <option value="capital_one">Capital One</option>
       </select>

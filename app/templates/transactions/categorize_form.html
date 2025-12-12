@@ -1,10 +1,7 @@
-{% csrf_token %}
-
 <wa-dialog label="Categorize Transaction" style="--width: 500px;" open>
-  <form
-    hx-put="/transactions/{{ transaction.id }}"
-    hx-swap="outerHTML"
-  >
+  <form hx-put="/transactions/{{ transaction.id }}" hx-swap="outerHTML">
+    {% csrf_token %}
+
     <div style="margin-bottom: 1rem;">
       <p><strong>{{ transaction.description }}</strong></p>
       <p style="color: #666;">{{ transaction.date|date:"m/d/Y" }} - ${{ transaction.amount }}</p>
@@ -15,10 +12,7 @@
       <select name="category" id="category" required style="width: 100%; padding: 0.5rem;">
         <option value="">Select category...</option>
         {% for category in categories %}
-          <option
-            value="{{ category.id }}"
-            {% if transaction.category_id == category.id %}selected{% endif %}
-          >
+          <option value="{{ category.id }}" {% if transaction.category_id == category.id %}selected{% endif %}>
             {{ category.name }}
           </option>
         {% endfor %}
