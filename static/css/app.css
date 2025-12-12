@@ -74,7 +74,7 @@ header {
 
   .mobile-nav-link {
     display: block;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
     text-decoration: none;
     color: #333;
     border-left: 3px solid transparent;
@@ -98,6 +98,14 @@ header {
     border-top: 1px solid #e0e0e0;
     margin-top: 0.5rem;
     padding-top: 1.5rem;
+  }
+
+  wa-drawer::part(dialog) {
+    max-width: 250px;
+  }
+
+  wa-drawer::part(body) {
+    padding: 0;
   }
 
   @media (max-width: 768px) {
