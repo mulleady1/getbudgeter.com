@@ -35,9 +35,9 @@ class CapitalOneParser(BaseCSVParser):
                 credit = row.get("Credit", "").strip().replace("$", "").replace(",", "")
 
                 if debit:
-                    amount = -Decimal(debit)
+                    amount = Decimal(debit)  # Debit becomes positive (flipped from negative)
                 elif credit:
-                    amount = Decimal(credit)
+                    amount = -Decimal(credit)  # Credit becomes negative (flipped from positive)
                 else:
                     continue  # Skip if no amount
 
