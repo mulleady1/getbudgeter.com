@@ -198,7 +198,7 @@ class TransactionListView(LoginRequiredMixin, View):
             )
 
         # Get categories for filter dropdown (both default and user-specific)
-        categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
+        categories = Category.objects.filter(user=request.user).order_by("name")
 
         # Get total count before limiting
         total_count = transactions.count()
@@ -234,7 +234,7 @@ class TransactionListView(LoginRequiredMixin, View):
 class TransactionDetailView(LoginRequiredMixin, View):
     def get(self, request, transaction_id):
         transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
-        categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
+        categories = Category.objects.filter(user=request.user).order_by("name")
         return render(
             request, "transactions/categorize_form.html", {"transaction": transaction, "categories": categories}
         )
@@ -250,7 +250,7 @@ class TransactionDetailView(LoginRequiredMixin, View):
             # Create a CategoryRule if there's a search query
             create_category_rule_from_search(request, category_id, request.user)
 
-        categories = Category.objects.filter(Q(user=None, is_default=True) | Q(user=request.user)).order_by("name")
+        categories = Category.objects.filter(user=request.user).order_by("name")
 
         return render(
             request,

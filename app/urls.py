@@ -30,6 +30,7 @@ urlpatterns = [
     path("transactions/<int:transaction_id>",                  views.TransactionDetailView.as_view(),   name="transaction_detail"),
     
     path("category-rules",                                     views.CategoryRuleListView.as_view(),    name="category_rules"),
+    path("category-rules/reprocess",                           views.reprocess_transactions,            name="reprocess_transactions"),
     path("category-rules/<int:rule_id>",                       views.CategoryRuleDetailView.as_view(),  name="category_rule_edit_delete"),
 
     path("analytics",                                          views.AnalyticsView.as_view(),           name="analytics"),

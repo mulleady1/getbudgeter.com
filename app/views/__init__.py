@@ -14,7 +14,7 @@ from .bills import (
     toggle_paid,
 )
 from .budgets import BudgetEditDeleteView, BudgetListView, new_budget
-from .category_rules import CategoryRuleDetailView, CategoryRuleListView
+from .category_rules import CategoryRuleDetailView, CategoryRuleListView, reprocess_transactions
 from .transactions import (
     CategoryDetailView,
     CategoryListView,
@@ -52,6 +52,7 @@ __all__ = [
     "CategoryDetailView",
     "CategoryRuleListView",
     "CategoryRuleDetailView",
+    "reprocess_transactions",
     "new_category_dialog",
     # Analytics
     "AnalyticsView",

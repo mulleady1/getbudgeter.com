@@ -6,6 +6,13 @@
   <div id="category-rules-page" style="max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h1 style="margin: 0; font-size: 1.75rem; font-weight: 600;">Category Rules</h1>
+      <wa-button
+        appearance="outlined"
+        hx-post="/category-rules/reprocess"
+        hx-confirm="This will recategorize all your transactions based on your current rules. Continue?"
+      >
+        Reprocess transactions
+      </wa-button>
     </div>
 
     <p style="color: #666; margin-bottom: 1.5rem;">
