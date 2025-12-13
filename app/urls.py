@@ -28,6 +28,8 @@ urlpatterns = [
     path("transactions/categories/new",                        views.new_category_dialog,               name="new_category_dialog"),
     path("transactions/categories/<int:category_id>",          views.CategoryDetailView.as_view(),      name="category_edit_delete"),
     path("transactions/<int:transaction_id>",                  views.TransactionDetailView.as_view(),   name="transaction_detail"),
+    path("transactions/<int:transaction_id>/token-selection/<int:category_id>",  views.token_selection_dialog,  name="token_selection_dialog"),
+    path("transactions/<int:transaction_id>/create-rule",      views.create_rule_from_token,            name="create_rule_from_token"),
     
     path("category-rules",                                     views.CategoryRuleListView.as_view(),    name="category_rules"),
     path("category-rules/reprocess",                           views.reprocess_transactions,            name="reprocess_transactions"),

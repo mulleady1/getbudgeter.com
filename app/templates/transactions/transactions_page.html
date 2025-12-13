@@ -134,10 +134,9 @@
 
               {% for category in categories %}
                 <wa-dropdown-item
-                  hx-put="/transactions/{{ transaction.id }}"
-                  hx-target="closest tr"
-                  hx-swap="outerHTML"
-                  hx-on::config-request="event.detail.parameters.category = {{ category.id }}"
+                  hx-get="/transactions/{{ transaction.id }}/token-selection/{{ category.id }}"
+                  hx-target="body"
+                  hx-swap="beforeend"
                 >
                   {{ category.name }}
                 </wa-dropdown-item>

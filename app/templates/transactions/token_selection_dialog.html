@@ -1,0 +1,45 @@
+<wa-dialog label="Select the relevant text to create a rule" style="--width: 500px;" open>
+  <div style="margin-bottom: 1rem;">
+    <p style="margin-bottom: 1rem; color: #666;">
+      Click on a word to create a category rule for future transactions:
+    </p>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+      {% for token in tokens %}
+        <wa-button
+          appearance="outlined"
+          hx-post="/transactions/{{ transaction.id }}/create-rule"
+          hx-target="[data-transaction-id='{{ transaction.id }}']"
+          hx-swap="outerHTML"
+          hx-on::config-request="
+            event.detail.parameters.token = '{{ token }}';
+            event.detail.parameters.category_id = '{{ category_id }}';
+          "
+          hx-on::after-request="
+            if (event.detail.successful) {
+              this.closest('wa-dialog').open = false;
+            }
+          "
+        >
+          {{ token }}
+        </wa-button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div slot="footer" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+    <wa-button
+      appearance="outlined"
+      hx-put="/transactions/{{ transaction.id }}"
+      hx-target="[data-transaction-id='{{ transaction.id }}']"
+      hx-swap="outerHTML"
+      hx-on::config-request="event.detail.parameters.category = {{ category_id }}"
+      hx-on::after-request="
+        if (event.detail.successful) {
+          this.closest('wa-dialog').open = false;
+        }
+      "
+    >
+      Dismiss (no rule)
+    </wa-button>
+  </div>
+</wa-dialog>

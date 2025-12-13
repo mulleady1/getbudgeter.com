@@ -150,8 +150,9 @@ def reprocess_transactions(request):
         # Get category based on current rules
         category = categorizer.categorize(transaction.merchant, transaction.description)
 
-        # Update if category changed
-        if transaction.category != category:
+        # Only update if a rule matched (category is not None) and it's different
+        # This preserves manual "one-off" categorizations that don't have rules
+        if category is not None and transaction.category != category:
             transaction.category = category
             transaction.save()
             updated_count += 1

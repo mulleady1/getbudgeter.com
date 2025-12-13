@@ -301,6 +301,72 @@ def new_category_dialog(request):
     return render(request, "transactions/new_category_dialog.html")
 
 
+@login_required
+@require_http_methods(["GET"])
+def token_selection_dialog(request, transaction_id, category_id):
+    """Return the token selection dialog for creating a category rule"""
+    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
+    category = get_object_or_404(Category, id=category_id, user=request.user)
+
+    # Split the transaction description into tokens (on whitespace)
+    text = transaction.description
+    tokens = [token.strip() for token in text.split() if token.strip()]
+
+    context = {
+        "transaction": transaction,
+        "category_id": category_id,
+        "tokens": tokens,
+    }
+
+    return render(request, "transactions/token_selection_dialog.html", context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def create_rule_from_token(request, transaction_id):
+    """Create a category rule from a selected token and update the transaction"""
+    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
+
+    token = request.POST.get("token", "").strip()
+    category_id = request.POST.get("category_id")
+
+    if not token or not category_id:
+        return JsonResponse({"success": False, "error": "Token and category are required"}, status=400)
+
+    category = get_object_or_404(Category, id=category_id, user=request.user)
+
+    # Check if a rule with this keyword already exists for this user
+    existing_rule = CategoryRule.objects.filter(user=request.user, keyword__iexact=token).first()
+
+    if not existing_rule:
+        # Create the new CategoryRule
+        CategoryRule.objects.create(
+            user=request.user,
+            keyword=token,
+            category=category,
+            is_default=False,
+            priority=0,
+        )
+        logger.info(
+            "User %s created CategoryRule from token: '%s' → %s",
+            request.user.username,
+            token,
+            category.name,
+        )
+
+    # Update the transaction's category
+    transaction.category = category
+    transaction.save()
+
+    # Return the updated transaction row
+    categories = Category.objects.filter(user=request.user).order_by("name")
+    return render(
+        request,
+        "transactions/transactions_page.html#transaction-row",
+        {"transaction": transaction, "categories": categories},
+    )
+
+
 class CategoryListView(LoginRequiredMixin, View):
     def get(self, request):
         categories = Category.objects.filter(user=request.user).order_by("name")
