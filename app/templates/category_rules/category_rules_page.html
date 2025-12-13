@@ -3,8 +3,90 @@
 {% block content %}
   {% csrf_token %}
 
+  <style>
+    .category-rules-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+
+    .rule-form-grid {
+      display: grid;
+      grid-template-columns: 2fr 2fr 1fr auto;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .rule-grid {
+      display: grid;
+      grid-template-columns: 2fr 2fr 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .rule-headers {
+      display: grid;
+      grid-template-columns: 2fr 2fr 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 0 0.5rem 0.5rem;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: var(--wa-font-size-xs);
+      color: var(--wa-color-text-quiet);
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 768px) {
+      .category-rules-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .category-rules-header h1 {
+        font-size: 1.5rem !important;
+      }
+
+      .rule-form-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .rule-headers {
+        display: none;
+      }
+
+      .rule-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+      }
+
+      .rule-grid > div:not(:last-child) {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .rule-grid > div:not(:last-child)::before {
+        content: attr(data-label);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+      }
+    }
+  </style>
+
   <div id="category-rules-page" style="max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <div class="category-rules-header">
       <h1 style="margin: 0; font-size: 1.75rem; font-weight: 600;">Category Rules</h1>
       <wa-button
         appearance="outlined"
@@ -20,6 +102,21 @@
       Rules are matched in order of priority (higher numbers first).
     </p>
 
+    <!-- Search Box -->
+    <div style="margin-bottom: 1.5rem;">
+      <wa-input
+        name="search"
+        placeholder="Search by keyword or category..."
+        value="{{ search_query }}"
+        hx-get="/category-rules"
+        hx-trigger="keyup changed delay:300ms, search"
+        hx-target="#category-rules-card-wrapper"
+        hx-include="[name='group_by_category']"
+      >
+        <wa-icon slot="prefix" name="search"></wa-icon>
+      </wa-input>
+    </div>
+
     <!-- Add New Rule Form -->
     <wa-card style="margin-bottom: 1.5rem;">
       <div slot="header">
@@ -28,7 +125,7 @@
 
       <form
         hx-post="/category-rules"
-        style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 1rem; align-items: end;"
+        class="rule-form-grid"
       >
         <div>
           <wa-input label="Keyword" name="keyword" placeholder="e.g., 'Amazon', 'Starbucks'" required></wa-input>
@@ -55,11 +152,12 @@
     </wa-card>
 
     <!-- Rules List -->
+    <div id="category-rules-card-wrapper">
     {% partialdef category-rules-card inline %}
-      {% if rules %}
+      {% if rules or page_obj %}
         <wa-card>
           <div slot="header" style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 1.1rem;">Your Rules ({{ rules.count }})</h3>
+            <h3 style="margin: 0; font-size: 1.1rem;">Your Rules ({{ total_count }})</h3>
             <div style="display: flex; align-items: center; gap: 1.5rem;">
               {% if group_by_category %}
                 <wa-button appearance="outlined" size="small" style="--wa-form-control-value-line-height: 0.7;">
@@ -86,9 +184,10 @@
               <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem;">
                 <input
                   type="checkbox"
+                  name="group_by_category"
                   {% if group_by_category %}checked{% endif %}
-                  {% if not group_by_category %}hx-get="/category-rules?group_by_category=true"{% endif %}
-                  {% if group_by_category %}hx-get="/category-rules"{% endif %}
+                  {% if not group_by_category %}hx-get="/category-rules?group_by_category=true{% if search_query %}&search={{ search_query }}{% endif %}"{% endif %}
+                  {% if group_by_category %}hx-get="/category-rules{% if search_query %}?search={{ search_query }}{% endif %}"{% endif %}
                   hx-target="closest wa-card"
                   hx-swap="outerHTML"
                   style="cursor: pointer;"
@@ -99,95 +198,101 @@
           </div>
 
           <!-- Column Headers -->
-          <div style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 1rem; align-items: center; padding: 0 0.5rem 0.5rem; border-bottom: 2px solid #e5e7eb; margin-bottom: 0.5rem; font-weight: 600; font-size: var(--wa-font-size-xs); color: var(--wa-color-text-quiet); text-transform: uppercase;">
+          <div class="rule-headers">
             <div>Keyword</div>
             <div>Category</div>
             <div>Priority</div>
             <div style="width: 40px;"></div>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.5rem;">
-            {% for rule in rules %}
-              {% if group_by_category %}
-                {% ifchanged rule.category %}
-                  {% if not forloop.first %}</div>{% endif %}
-                  <div
-                    class="category-header"
-                    style="background: linear-gradient(135deg, {{ rule.category.color }}15 0%, {{ rule.category.color }}08 100%); border-left: 3px solid {{ rule.category.color }}; padding: 0.5rem 0.75rem; border-radius: 4px; cursor: pointer; user-select: none;"
-                  >
-                    <script>
-                      me().on('click', e => {
-                        var header = me(e)
-                        var group = me(header.nextElementSibling)
-                        var chevron = me('.chevron', header)
-                        // Toggle visibility
-                        if (group.style.display === 'none') {
-                          group.styles({ display: 'block' })
-                          chevron.styles({ transform: 'rotate(0deg)' })
-                        } else {
-                          group.styles({ display: 'none' })
-                          chevron.styles({ transform: 'rotate(-90deg)' })
-                        }
-                      })
-                    </script>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                      <wa-icon class="chevron" name="chevron-down" style="font-size: 0.9rem; color: {{ rule.category.color }}; transition: transform 0.2s;"></wa-icon>
-                      <div style="width: 12px; height: 12px; border-radius: 3px; background: {{ rule.category.color }};"></div>
-                      <span style="font-weight: 600; color: #374151; font-size: 0.95rem;">{{ rule.category.name }}</span>
+          <div id="rules-container" style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.5rem;">
+            {% partialdef rules-list inline %}
+              {% for rule in rules %}
+                {% if group_by_category %}
+                  {% ifchanged rule.category %}
+                    {% if not forloop.first %}</div>{% endif %}
+                    <div
+                      class="category-header"
+                      style="background: linear-gradient(135deg, {{ rule.category.color }}15 0%, {{ rule.category.color }}08 100%); border-left: 3px solid {{ rule.category.color }}; padding: 0.5rem 0.75rem; border-radius: 4px; cursor: pointer; user-select: none;"
+                    >
+                      <script>
+                        me().on('click', e => {
+                          var header = me(e)
+                          var group = me(header.nextElementSibling)
+                          var chevron = me('.chevron', header)
+                          // Toggle visibility
+                          if (group.style.display === 'none') {
+                            group.styles({ display: 'block' })
+                            chevron.styles({ transform: 'rotate(0deg)' })
+                          } else {
+                            group.styles({ display: 'none' })
+                            chevron.styles({ transform: 'rotate(-90deg)' })
+                          }
+                        })
+                      </script>
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <wa-icon class="chevron" name="chevron-down" style="font-size: 0.9rem; color: {{ rule.category.color }}; transition: transform 0.2s;"></wa-icon>
+                        <div style="width: 12px; height: 12px; border-radius: 3px; background: {{ rule.category.color }};"></div>
+                        <span style="font-weight: 600; color: #374151; font-size: 0.95rem;">{{ rule.category.name }}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div class="category-group" style="display: block;">
-                {% endifchanged %}
-              {% endif %}
-              <div
-                style="display: grid; grid-template-columns: 2fr 2fr 1fr auto; gap: 1rem; align-items: center; margin-bottom: 0.5rem;"
-              >
-                <div>
-                  <wa-input
-                    name="keyword"
-                    value="{{ rule.keyword }}"
-                    hx-put="/category-rules/{{ rule.id }}"
-                    hx-trigger="blur"
-                  ></wa-input>
-                </div>
-
-                <div>
-                  <wa-select
-                    name="category"
-                    value="{{ rule.category.id }}"
-                    hx-put="/category-rules/{{ rule.id }}"
-                    hx-trigger="change"
-                  >
-                    {% for category in categories %}
-                      <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
-                    {% endfor %}
-                  </wa-select>
-                </div>
-
-                <div>
-                  <wa-input
-                    type="number"
-                    name="priority"
-                    value="{{ rule.priority }}"
-                    min="0"
-                    max="100"
-                    hx-put="/category-rules/{{ rule.id }}"
-                    hx-trigger="blur"
-                  ></wa-input>
-                </div>
-
-                <wa-button
-                  appearance="plain"
-                  hx-delete="/category-rules/{{ rule.id }}"
-                  hx-target="closest div"
-                  hx-swap="outerHTML"
-                  hx-confirm="Are you sure you want to delete this rule?"
+                    <div class="category-group" style="display: block;">
+                  {% endifchanged %}
+                {% endif %}
+                <div class="rule-grid"
+                  {% if forloop.last and page_obj.has_next %}
+                    hx-get="/category-rules?page={{ page_obj.next_page_number }}{% if group_by_category %}&group_by_category=true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}"
+                    hx-trigger="revealed"
+                    hx-swap="afterend"
+                  {% endif %}
                 >
-                  <wa-icon name="trash"></wa-icon>
-                </wa-button>
-              </div>
-            {% endfor %}
-            {% if group_by_category and rules %}</div>{% endif %}
+                  <div data-label="Keyword">
+                    <wa-input
+                      name="keyword"
+                      value="{{ rule.keyword }}"
+                      hx-put="/category-rules/{{ rule.id }}"
+                      hx-trigger="blur"
+                    ></wa-input>
+                  </div>
+
+                  <div data-label="Category">
+                    <wa-select
+                      name="category"
+                      value="{{ rule.category.id }}"
+                      hx-put="/category-rules/{{ rule.id }}"
+                      hx-trigger="change"
+                    >
+                      {% for category in categories %}
+                        <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
+                      {% endfor %}
+                    </wa-select>
+                  </div>
+
+                  <div data-label="Priority">
+                    <wa-input
+                      type="number"
+                      name="priority"
+                      value="{{ rule.priority }}"
+                      min="0"
+                      max="100"
+                      hx-put="/category-rules/{{ rule.id }}"
+                      hx-trigger="blur"
+                    ></wa-input>
+                  </div>
+
+                  <wa-button
+                    appearance="plain"
+                    hx-delete="/category-rules/{{ rule.id }}"
+                    hx-target="closest div"
+                    hx-swap="outerHTML"
+                    hx-confirm="Are you sure you want to delete this rule?"
+                  >
+                    <wa-icon name="trash"></wa-icon>
+                  </wa-button>
+                </div>
+              {% endfor %}
+              {% if group_by_category and rules %}</div>{% endif %}
+            {% endpartialdef %}
           </div>
         </wa-card>
       {% else %}
@@ -202,6 +307,7 @@
         </wa-card>
       {% endif %}
     {% endpartialdef %}
+    </div>
 
     <!-- Info Box -->
     <wa-callout style="margin-top: 1.5rem;" variant="info">

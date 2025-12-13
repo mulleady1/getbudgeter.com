@@ -65,7 +65,7 @@ class AnalyticsView(LoginRequiredMixin, View):
             user=request.user,
             date__gte=start_date,
             date__lte=end_date,
-            amount__lt=0,  # Only expenses (debits)
+            amount__gte=0,  # Only non-negative amounts
         ).select_related("category")
 
         # Spending by category
