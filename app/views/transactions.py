@@ -173,9 +173,14 @@ class TransactionListView(LoginRequiredMixin, View):
         end_date = request.GET.get("end_date")
         category_id = request.GET.get("category")
         search_query = request.GET.get("q", "").strip()
+        page = int(request.GET.get("page", "1"))
+
+        # Pagination settings
+        page_size = 50
+        offset = (page - 1) * page_size
 
         # Base queryset
-        transactions = Transaction.objects.filter(user=request.user).select_related("category")
+        transactions = Transaction.objects.filter(user=request.user).select_related("category").order_by("-date", "-id")
 
         # Apply filters
         if start_date:
@@ -202,20 +207,29 @@ class TransactionListView(LoginRequiredMixin, View):
 
         # Get total count before limiting
         total_count = transactions.count()
-        limited_transactions = transactions[:100]
+        paginated_transactions = transactions[offset : offset + page_size]
+        has_more = total_count > offset + page_size
 
         context = {
-            "transactions": limited_transactions,
+            "transactions": paginated_transactions,
             "categories": categories,
             "start_date": start_date,
             "end_date": end_date,
             "selected_category": category_id,
             "search_query": search_query,
             "total_count": total_count,
-            "showing_count": len(limited_transactions),
+            "showing_count": min(offset + len(paginated_transactions), total_count),
+            "page": page,
+            "has_more": has_more,
         }
 
-        if request.htmx and not request.htmx.boosted:
+        # Check if this is an infinite scroll request
+        if request.htmx and request.GET.get("page"):
+            # Return only transaction rows for infinite scroll
+            from django.template.loader import render_to_string
+
+            return render(request, "transactions/transactions_page.html#transaction-rows", context)
+        elif request.htmx and not request.htmx.boosted:
             # Return main table + OOB query count
             from django.template.loader import render_to_string
 
