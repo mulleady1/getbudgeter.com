@@ -11,3 +11,120 @@
     min-width: 200px;
   }
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  #transactions-page {
+    padding: 0.5rem 0.5rem 100px !important;
+
+    /* Stack search and filter vertically on mobile */
+    .search-filter-container {
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+
+      > div:first-child {
+        flex-direction: column !important;
+        width: 100% !important;
+
+        > div {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: auto !important;
+        }
+      }
+
+      wa-input {
+        max-width: 100% !important;
+      }
+    }
+  }
+
+  /* Bulk action bar mobile adjustments */
+  #bulk-action-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0.75rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+    gap: 0.75rem !important;
+
+    > div {
+      flex-direction: column !important;
+      gap: 0.5rem !important;
+    }
+
+    #selected-count {
+      text-align: center;
+    }
+  }
+
+  #transactions-table {
+    /* Hide description column on mobile - too much info */
+    th:nth-child(4),
+    td:nth-child(4) {
+      display: none;
+    }
+
+    /* Make table scrollable horizontally */
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    thead,
+    tbody,
+    tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    /* Adjust column widths for mobile */
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 40px !important;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 80px;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      width: 120px;
+    }
+
+    th:nth-child(5),
+    td:nth-child(5) {
+      width: 110px;
+    }
+
+    th:nth-child(6),
+    td:nth-child(6) {
+      width: 85px;
+    }
+
+    /* Reduce padding on mobile */
+    th,
+    td {
+      padding: 0.5rem 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    /* Truncate merchant name more aggressively on mobile */
+    td:nth-child(3) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Make header sticky on mobile for better UX */
+    thead {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 10;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+}

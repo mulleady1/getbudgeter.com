@@ -4,7 +4,7 @@
 {% block content %}
   {% csrf_token %}
   
-  <link rel="stylesheet" href="/static/css/transactions_page.css">
+  <link rel="stylesheet" href="/static/css/transactions_page.css?v=1.1.12">
 
   <div id="transactions-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -18,7 +18,7 @@
     <div id="transaction-list">
       {% if transactions %}
         <!-- Search Bar -->
-        <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start;">
+        <div class="search-filter-container" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start;">
           <div style="display: flex; gap: 1rem; align-items: flex-start; flex: 1;">
             <div style="flex: 1; max-width: 300px;">
               <div style="position: relative;">
@@ -28,6 +28,7 @@
                   id="transaction-search"
                   placeholder="Search..."
                   value="{{ search_query|default:'' }}"
+                  with-clear
                   hx-get="/transactions"
                   hx-trigger="keyup changed delay:300ms, search, reload-transactions from:body"
                   hx-target="#transactions-table"
