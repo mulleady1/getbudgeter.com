@@ -177,34 +177,9 @@
           </table>
         {% endpartialdef transactions-table %}
 
-        {% partialdef transaction-rows inline %}
+        {% partialdef transaction-rows %}
           {% for transaction in transactions %}
-            {% partialdef transaction-row inline %}
-              <tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
-                <td style=" width: 40px;">
-                  <input
-                    type="checkbox"
-                    class="transaction-checkbox"
-                    value="{{ transaction.id }}"
-                    style="cursor: pointer; width: 18px; height: 18px;"
-                    autocomplete="off"
-                  />
-                </td>
-                <td>{{ transaction.date|date:"m/d/Y" }}</td>
-                <td>{{ transaction.merchant|truncatechars:30 }}</td>
-                <td>{{ transaction.description|truncatechars:50 }}</td>
-                <td>{% partial category-dropdown %}</td>
-                <td
-                  style="text-align: right; font-weight: 500; {% if transaction.amount < 0 %}
-                    color: #d32f2f;
-                  {% else %}
-                    color: #388e3c;
-                  {% endif %}"
-                >
-                  {{ transaction.amount|currency }}
-                </td>
-              </tr>
-            {% endpartialdef transaction-row %}
+            {% partial transaction-row %}
           {% endfor %}
           {% if has_more %}
             <tr id="infinite-scroll-trigger"
@@ -218,6 +193,33 @@
             </tr>
           {% endif %}
         {% endpartialdef transaction-rows %}
+
+        {% partialdef transaction-row %}
+          <tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
+            <td style=" width: 40px;">
+              <input
+                type="checkbox"
+                class="transaction-checkbox"
+                value="{{ transaction.id }}"
+                style="cursor: pointer; width: 18px; height: 18px;"
+                autocomplete="off"
+              />
+            </td>
+            <td>{{ transaction.date|date:"m/d/Y" }}</td>
+            <td>{{ transaction.merchant|truncatechars:30 }}</td>
+            <td>{{ transaction.description|truncatechars:50 }}</td>
+            <td>{% partial category-dropdown %}</td>
+            <td
+              style="text-align: right; font-weight: 500; {% if transaction.amount < 0 %}
+                color: #d32f2f;
+              {% else %}
+                color: #388e3c;
+              {% endif %}"
+            >
+              {{ transaction.amount|currency }}
+            </td>
+          </tr>
+        {% endpartialdef transaction-row %}
 
           <script>
             ;(function () {
@@ -308,7 +310,6 @@
               })
             })()
           </script>
-        {% endpartialdef transactions-table %}
       {% else %}
         <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
       {% endif %}
