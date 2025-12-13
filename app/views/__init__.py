@@ -14,11 +14,10 @@ from .bills import (
     toggle_paid,
 )
 from .budgets import BudgetEditDeleteView, BudgetListView, new_budget
+from .category_rules import CategoryRuleDetailView, CategoryRuleListView
 from .transactions import (
     CategoryDetailView,
     CategoryListView,
-    CategoryRuleDetailView,
-    CategoryRuleListView,
     TransactionDetailView,
     TransactionListView,
     UploadCSVView,

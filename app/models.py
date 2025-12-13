@@ -29,6 +29,39 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
+@receiver(post_save, sender=User)
+def clone_default_categories_and_rules(sender, instance, created, **kwargs):
+    """Clone default categories and category rules for new users"""
+    if created:
+        # First, clone default categories
+        default_categories = Category.objects.filter(user=None)
+        category_mapping = {}  # Map old category PK to new category
+
+        for default_cat in default_categories:
+            new_cat = Category.objects.create(
+                name=default_cat.name,
+                user=instance,
+                is_default=False,
+                color=default_cat.color,
+            )
+            category_mapping[default_cat.pk] = new_cat
+
+        # Then, clone default category rules
+        default_rules = CategoryRule.objects.filter(user=None).select_related("category")
+
+        for default_rule in default_rules:
+            # Get the user's corresponding category
+            new_category = category_mapping.get(default_rule.category.pk)
+            if new_category:
+                CategoryRule.objects.create(
+                    user=instance,
+                    keyword=default_rule.keyword,
+                    category=new_category,
+                    is_default=False,
+                    priority=default_rule.priority,
+                )
+
+
 class Bill(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)

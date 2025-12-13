@@ -1,6 +1,9 @@
 :root {
-  --wa-font-size-scale: 0.9;
-  /* --wa-line-height-condensed: 0.7; */
+  --wa-color-text-quiet: var(--wa-color-neutral-60);
+
+  @media (min-width: 800px) {
+    --wa-font-size-scale: 0.9;
+  }
 }
 
 :not(:defined) {
@@ -170,6 +173,7 @@ a[hx-get] {
 wa-button,
 wa-input,
 wa-select {
+  --wa-form-control-border-color: var(--wa-color-neutral-border-normal);
   --wa-form-control-height: round(
     calc(1.6 * var(--wa-form-control-padding-block) + 1em * var(--wa-form-control-value-line-height)),
     1px
