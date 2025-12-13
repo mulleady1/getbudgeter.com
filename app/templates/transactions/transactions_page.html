@@ -52,7 +52,6 @@
                 {% if search_query %}
                   <div id="query-count" hx-swap-oob="true" style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
                     Showing {{ showing_count }} of {{ total_count }} transactions
-                    {% if total_count > showing_count %}(limited to 100){% endif %}
                   </div>
                 {% else %}
                   <div id="query-count" hx-swap-oob="true"></div>
@@ -172,37 +171,53 @@
                 <th style="text-align: right;">Amount</th>
               </tr>
             </thead>
-            <tbody>
-              {% for transaction in transactions %}
-                {% partialdef transaction-row inline %}
-                  <tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
-                    <td style=" width: 40px;">
-                      <input
-                        type="checkbox"
-                        class="transaction-checkbox"
-                        value="{{ transaction.id }}"
-                        style="cursor: pointer; width: 18px; height: 18px;"
-                        autocomplete="off"
-                      />
-                    </td>
-                    <td>{{ transaction.date|date:"m/d/Y" }}</td>
-                    <td>{{ transaction.merchant|truncatechars:30 }}</td>
-                    <td>{{ transaction.description|truncatechars:50 }}</td>
-                    <td>{% partial category-dropdown %}</td>
-                    <td
-                      style="text-align: right; font-weight: 500; {% if transaction.amount < 0 %}
-                        color: #d32f2f;
-                      {% else %}
-                        color: #388e3c;
-                      {% endif %}"
-                    >
-                      {{ transaction.amount|currency }}
-                    </td>
-                  </tr>
-                {% endpartialdef transaction-row %}
-              {% endfor %}
+            <tbody id="transactions-tbody">
+              {% partial transaction-rows %}
             </tbody>
           </table>
+        {% endpartialdef transactions-table %}
+
+        {% partialdef transaction-rows inline %}
+          {% for transaction in transactions %}
+            {% partialdef transaction-row inline %}
+              <tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
+                <td style=" width: 40px;">
+                  <input
+                    type="checkbox"
+                    class="transaction-checkbox"
+                    value="{{ transaction.id }}"
+                    style="cursor: pointer; width: 18px; height: 18px;"
+                    autocomplete="off"
+                  />
+                </td>
+                <td>{{ transaction.date|date:"m/d/Y" }}</td>
+                <td>{{ transaction.merchant|truncatechars:30 }}</td>
+                <td>{{ transaction.description|truncatechars:50 }}</td>
+                <td>{% partial category-dropdown %}</td>
+                <td
+                  style="text-align: right; font-weight: 500; {% if transaction.amount < 0 %}
+                    color: #d32f2f;
+                  {% else %}
+                    color: #388e3c;
+                  {% endif %}"
+                >
+                  {{ transaction.amount|currency }}
+                </td>
+              </tr>
+            {% endpartialdef transaction-row %}
+          {% endfor %}
+          {% if has_more %}
+            <tr id="infinite-scroll-trigger"
+              hx-get="/transactions?page={{ page|add:1 }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}"
+              hx-trigger="revealed"
+              hx-swap="outerHTML"
+            >
+              <td colspan="6" style="text-align: center; padding: 1rem; color: #666;">
+                <wa-spinner></wa-spinner> Loading more...
+              </td>
+            </tr>
+          {% endif %}
+        {% endpartialdef transaction-rows %}
 
           <script>
             ;(function () {
