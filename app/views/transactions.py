@@ -432,3 +432,21 @@ class CategoryDetailView(LoginRequiredMixin, View):
         category = get_object_or_404(Category, id=category_id, user=request.user)
         category.delete()
         return HttpResponse()
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_transaction_anomaly(request, transaction_id):
+    """Toggle the anomaly flag for a transaction"""
+    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
+    transaction.anomaly = not transaction.anomaly
+    transaction.save()
+
+    logger.info(
+        "User %s toggled anomaly flag for transaction %s to %s",
+        request.user.username,
+        transaction_id,
+        transaction.anomaly,
+    )
+
+    return HttpResponse()

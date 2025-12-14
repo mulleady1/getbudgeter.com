@@ -137,6 +137,7 @@ class Transaction(models.Model):
     merchant = models.CharField(max_length=255, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
+    anomaly = models.BooleanField(default=False)
 
     transaction_hash = models.CharField(max_length=64, db_index=True)
 
