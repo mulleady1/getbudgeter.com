@@ -24,6 +24,7 @@ from .transactions import (
     bulk_categorize_transactions,
     create_rule_from_token,
     new_category_dialog,
+    toggle_anomaly,
     token_selection_dialog,
 )
 
@@ -56,6 +57,7 @@ __all__ = [
     "CategoryRuleDetailView",
     "reprocess_transactions",
     "new_category_dialog",
+    "toggle_anomaly",
     "token_selection_dialog",
     "create_rule_from_token",
     # Analytics

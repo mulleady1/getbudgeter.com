@@ -66,6 +66,7 @@ class AnalyticsView(LoginRequiredMixin, View):
             date__gte=start_date,
             date__lte=end_date,
             amount__gte=0,  # Only non-negative amounts
+            anomaly=False,  # Exclude anomaly transactions
         ).select_related("category")
 
         # Spending by category

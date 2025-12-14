@@ -432,3 +432,19 @@ class CategoryDetailView(LoginRequiredMixin, View):
         category = get_object_or_404(Category, id=category_id, user=request.user)
         category.delete()
         return HttpResponse()
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_anomaly(request, transaction_id):
+    """Toggle the anomaly status of a transaction"""
+    transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
+    transaction.anomaly = not transaction.anomaly
+    transaction.save()
+
+    categories = Category.objects.filter(user=request.user).order_by("name")
+    return render(
+        request,
+        "transactions/transactions_page.html#transaction-row",
+        {"transaction": transaction, "categories": categories},
+    )

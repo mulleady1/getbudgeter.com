@@ -142,6 +142,7 @@ class Transaction(models.Model):
 
     original_data = models.JSONField()
     source = models.CharField(max_length=50)
+    anomaly = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     if TYPE_CHECKING:

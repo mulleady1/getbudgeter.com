@@ -26,6 +26,55 @@
     </div>
   </div>
 
+  <div style="position: relative; margin: 1.5rem 0;">
+    <wa-divider></wa-divider>
+    <span style="
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 0 1rem;
+      color: #999;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    ">or</span>
+  </div>
+
+  <div style="margin-bottom: 1rem;">
+    <wa-input
+      label="Custom keyword"
+      value="{{ transaction.description }}"
+      style="width: 100%;"
+    >
+      <div slot="help-text">Or enter a custom keyword for the rule</div>
+    </wa-input>
+    <wa-button
+      appearance="primary"
+      style="margin-top: 0.5rem; width: 100%;"
+      hx-post="/transactions/{{ transaction.id }}/create-rule"
+      hx-target="[data-transaction-id='{{ transaction.id }}']"
+      hx-swap="outerHTML"
+      hx-on::config-request="
+        const input = this.previousElementSibling;
+        event.detail.parameters.token = input.value;
+        event.detail.parameters.category_id = '{{ category_id }}';
+      "
+      hx-on::after-request="
+        if (event.detail.successful) {
+          this.closest('wa-dialog').open = false;
+        }
+      "
+    >
+      Create
+    </wa-button>
+  </div>
+
+  <div style="margin: 2rem 0 1.5rem 0;">
+    <wa-divider></wa-divider>
+  </div>
+
   <div slot="footer" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
     <wa-button
       appearance="outlined"

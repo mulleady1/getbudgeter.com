@@ -101,6 +101,11 @@
 
     th:nth-child(6),
     td:nth-child(6) {
+      width: 60px;
+    }
+
+    th:nth-child(7),
+    td:nth-child(7) {
       width: 85px;
     }
 
