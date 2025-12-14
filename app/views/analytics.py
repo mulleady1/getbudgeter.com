@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 
 import plotly.express as px
@@ -13,11 +13,13 @@ from ..models import Transaction
 
 class AnalyticsView(LoginRequiredMixin, View):
     def get(self, request):
-        today = datetime.now().date()
-        range_preset = request.GET.get("range_preset", "this_month")
+        from calendar import monthrange
 
-        # Calculate date range based on preset
-        if range_preset == "custom":
+        today = datetime.now().date()
+        mode = request.GET.get("mode", "month")
+
+        # Calculate date range based on mode
+        if mode == "custom":
             # Use custom dates if provided
             start_date = (
                 datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date()
@@ -29,36 +31,21 @@ class AnalyticsView(LoginRequiredMixin, View):
                 if request.GET.get("end_date")
                 else today
             )
-        elif range_preset == "this_month":
-            start_date = today.replace(day=1)
-            end_date = today
-        elif range_preset == "last_month":
-            first_of_this_month = today.replace(day=1)
-            end_date = first_of_this_month - timedelta(days=1)
-            start_date = end_date.replace(day=1)
-        elif range_preset == "this_quarter":
-            quarter = (today.month - 1) // 3
-            start_date = today.replace(month=quarter * 3 + 1, day=1)
-            end_date = today
-        elif range_preset == "this_year":
-            start_date = today.replace(month=1, day=1)
-            end_date = today
-        elif range_preset == "last_6_months":
-            end_date = today
-            start_date = (today - timedelta(days=180)).replace(day=1)
-        elif range_preset == "all_time":
-            # Get actual min/max dates from transactions
-            user_transactions = Transaction.objects.filter(user=request.user)
-            if user_transactions.exists():
-                start_date = user_transactions.order_by("date").first().date
-                end_date = user_transactions.order_by("-date").first().date
+        else:  # month mode
+            # Parse month input (format: YYYY-MM)
+            month_str = request.GET.get("month")
+            if month_str:
+                try:
+                    selected_month = datetime.strptime(month_str, "%Y-%m").date()
+                except ValueError:
+                    selected_month = today.replace(day=1)
             else:
-                start_date = today.replace(day=1)
-                end_date = today
-        else:
-            # Default to this month
-            start_date = today.replace(day=1)
-            end_date = today
+                selected_month = today.replace(day=1)
+
+            # Get first and last day of the selected month
+            start_date = selected_month.replace(day=1)
+            last_day = monthrange(selected_month.year, selected_month.month)[1]
+            end_date = selected_month.replace(day=last_day)
 
         # Get transactions
         transactions = Transaction.objects.filter(
@@ -137,9 +124,16 @@ class AnalyticsView(LoginRequiredMixin, View):
             "end_date": end_date,
             "total_transactions": transactions.count(),
             "total_spent": sum(abs(t.amount) for t in transactions),
-            "range_preset": range_preset,
+            "mode": mode,
+            "month": request.GET.get("month", today.strftime("%Y-%m")),
             "custom_start_date": request.GET.get("start_date", ""),
             "custom_end_date": request.GET.get("end_date", ""),
         }
 
-        return render(request, "analytics/analytics_page.html", context)
+        # Return partial for htmx requests, full page otherwise
+        if request.htmx and not request.htmx.boosted:
+            template_name = "analytics/analytics_page.html#content"
+        else:
+            template_name = "analytics/analytics_page.html"
+
+        return render(request, template_name, context)
