@@ -24,6 +24,7 @@
 
     .mode-selector {
       flex: 0 0 auto;
+      max-width: 200px;
 
       @media (max-width: 768px) {
         flex: 1 1 auto;
@@ -37,10 +38,16 @@
 
       .month-arrow-btn {
         flex: 0 0 auto;
+
+        wa-button {
+          width: 32px;
+          min-width: 32px;
+        }
       }
 
       .month-input-wrapper {
         flex: 1 1 auto;
+        max-width: 180px;
       }
 
       @media (max-width: 768px) {
