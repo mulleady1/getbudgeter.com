@@ -28,6 +28,7 @@
 
       @media (max-width: 768px) {
         flex: 1 1 auto;
+        max-width: none;
       }
     }
 
