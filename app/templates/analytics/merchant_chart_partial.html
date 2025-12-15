@@ -1,0 +1,42 @@
+{% load static %}
+
+<div class="merchant-chart-section">
+  <div class="chart-filter">
+    <wa-select
+      id="category-filter"
+      name="category"
+      size="small"
+      value="{{ selected_category }}"
+    >
+      <script>
+        me().on('change', (e) => {
+          const form = document.querySelector('#date-range-form')
+          const formData = new FormData(form)
+          const category = e.target.value
+
+          // Build query string from form data
+          const params = new URLSearchParams(formData)
+          params.set('category', category)
+
+          // Trigger HTMX request
+          htmx.ajax('GET', `/analytics/merchant-chart?${params.toString()}`, {
+            target: '#merchant-chart-container',
+            swap: 'innerHTML'
+          })
+        })
+      </script>
+      <wa-option value="all">All Categories</wa-option>
+      {% for category in categories %}
+        <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
+      {% endfor %}
+    </wa-select>
+  </div>
+
+  {% if merchant_chart %}
+    <div class="chart-container">
+      {{ merchant_chart|safe }}
+    </div>
+  {% else %}
+    <p class="empty-state">No merchant data available.</p>
+  {% endif %}
+</div>

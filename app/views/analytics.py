@@ -12,6 +12,33 @@ from ..models import Transaction
 
 
 class AnalyticsView(LoginRequiredMixin, View):
+    def get_merchant_chart(self, transactions, selected_category=None):
+        """Generate merchant chart HTML, optionally filtered by category"""
+        # Filter by category if specified
+        filtered_transactions = transactions
+        if selected_category and selected_category != "all":
+            try:
+                filtered_transactions = transactions.filter(category_id=int(selected_category))
+            except (ValueError, TypeError):
+                pass
+
+        # Top merchants
+        merchant_spending = defaultdict(Decimal)
+        for trans in filtered_transactions:
+            if trans.merchant:
+                merchant_spending[trans.merchant] += abs(trans.amount)
+
+        top_merchants = sorted(merchant_spending.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        if top_merchants:
+            merchants = [m[0] for m in top_merchants]
+            amounts = [float(m[1]) for m in top_merchants]
+
+            fig = go.Figure(data=[go.Bar(x=merchants, y=amounts)])
+            fig.update_layout(title="Top 10 Merchants", xaxis_title="Merchant", yaxis_title="Amount ($)", height=400)
+            return fig.to_html(include_plotlyjs=False, div_id="merchant-chart", config={"displayModeBar": False})
+        return None
+
     def get(self, request):
         from calendar import monthrange
 
@@ -134,25 +161,14 @@ class AnalyticsView(LoginRequiredMixin, View):
             else:
                 trend_chart = None
 
-        # Top merchants
-        merchant_spending = defaultdict(Decimal)
-        for trans in transactions:
-            if trans.merchant:
-                merchant_spending[trans.merchant] += abs(trans.amount)
+        # Get categories for dropdown
+        from ..models import Category
 
-        top_merchants = sorted(merchant_spending.items(), key=lambda x: x[1], reverse=True)[:10]
+        categories = Category.objects.filter(user=request.user).order_by("name")
+        selected_category = request.GET.get("category", "all")
 
-        if top_merchants:
-            merchants = [m[0] for m in top_merchants]
-            amounts = [float(m[1]) for m in top_merchants]
-
-            fig = go.Figure(data=[go.Bar(x=merchants, y=amounts)])
-            fig.update_layout(title="Top 10 Merchants", xaxis_title="Merchant", yaxis_title="Amount ($)", height=400)
-            merchant_chart = fig.to_html(
-                include_plotlyjs=False, div_id="merchant-chart", config={"displayModeBar": False}
-            )
-        else:
-            merchant_chart = None
+        # Generate merchant chart with optional category filter
+        merchant_chart = self.get_merchant_chart(transactions, selected_category)
 
         context = {
             "category_chart": category_chart,
@@ -167,6 +183,83 @@ class AnalyticsView(LoginRequiredMixin, View):
             "year": request.GET.get("year", str(today.year)),
             "custom_start_date": request.GET.get("start_date", ""),
             "custom_end_date": request.GET.get("end_date", ""),
+            "categories": categories,
+            "selected_category": selected_category,
         }
 
         return render(request, "analytics/analytics_page.html", context)
+
+
+class MerchantChartPartialView(LoginRequiredMixin, View):
+    """Partial view for merchant chart with category filter"""
+
+    def get(self, request):
+        from calendar import monthrange
+
+        from ..models import Category
+
+        today = datetime.now().date()
+        mode = request.GET.get("mode", "month")
+
+        # Calculate date range based on mode (same logic as main analytics view)
+        if mode == "custom":
+            start_date = (
+                datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date()
+                if request.GET.get("start_date")
+                else today.replace(day=1)
+            )
+            end_date = (
+                datetime.strptime(request.GET.get("end_date"), "%Y-%m-%d").date()
+                if request.GET.get("end_date")
+                else today
+            )
+        elif mode == "year":
+            year_str = request.GET.get("year")
+            if year_str:
+                try:
+                    selected_year = int(year_str)
+                except ValueError:
+                    selected_year = today.year
+            else:
+                selected_year = today.year
+            start_date = datetime(selected_year, 1, 1).date()
+            end_date = datetime(selected_year, 12, 31).date()
+        else:  # month mode (default)
+            month_str = request.GET.get("month")
+            if month_str:
+                try:
+                    selected_month = datetime.strptime(month_str, "%Y-%m").date()
+                except ValueError:
+                    selected_month = today.replace(day=1)
+            else:
+                selected_month = today.replace(day=1)
+            start_date = selected_month.replace(day=1)
+            last_day = monthrange(selected_month.year, selected_month.month)[1]
+            end_date = selected_month.replace(day=last_day)
+
+        # Get transactions
+        transactions = Transaction.objects.filter(
+            user=request.user,
+            date__gte=start_date,
+            date__lte=end_date,
+            amount__gte=0,
+            anomaly=False,
+        ).select_related("category")
+
+        # Get selected category
+        selected_category = request.GET.get("category", "all")
+
+        # Get categories for dropdown
+        categories = Category.objects.filter(user=request.user).order_by("name")
+
+        # Generate merchant chart
+        analytics_view = AnalyticsView()
+        merchant_chart = analytics_view.get_merchant_chart(transactions, selected_category)
+
+        context = {
+            "merchant_chart": merchant_chart,
+            "categories": categories,
+            "selected_category": selected_category,
+        }
+
+        return render(request, "analytics/merchant_chart_partial.html", context)

@@ -1,4 +1,4 @@
-from .analytics import AnalyticsView
+from .analytics import AnalyticsView, MerchantChartPartialView
 from .auth import home, login_view, logout_view, signup_view
 from .bills import (
     AddIncomeView,
@@ -62,6 +62,7 @@ __all__ = [
     "create_rule_from_token",
     # Analytics
     "AnalyticsView",
+    "MerchantChartPartialView",
     # Budgets
     "BudgetListView",
     "new_budget",

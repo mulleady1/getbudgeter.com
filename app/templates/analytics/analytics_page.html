@@ -272,11 +272,9 @@
         </div>
       {% endif %}
 
-      {% if merchant_chart %}
-        <div class="chart-container">
-          {{ merchant_chart|safe }}
-        </div>
-      {% endif %}
+      <div id="merchant-chart-container">
+        {% include "analytics/merchant_chart_partial.html" %}
+      </div>
 
       {% if not category_chart and not trend_chart and not merchant_chart %}
         <p class="empty-state">

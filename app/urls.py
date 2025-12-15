@@ -37,6 +37,7 @@ urlpatterns = [
     path("category-rules/<int:rule_id>",                       views.CategoryRuleDetailView.as_view(),  name="category_rule_edit_delete"),
 
     path("analytics",                                          views.AnalyticsView.as_view(),           name="analytics"),
+    path("analytics/merchant-chart",                           views.MerchantChartPartialView.as_view(), name="merchant_chart_partial"),
     
     path("budgets",                                            views.BudgetListView.as_view(),          name="budgets"),
     path("budgets/new",                                        views.new_budget,                        name="new_budget"),
