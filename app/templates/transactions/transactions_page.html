@@ -1,10 +1,6 @@
 {% extends "app/base.html" %}
 {% load myfilters %}
 
-{% block extra_styles %}
-  <link rel="stylesheet" href="/static/css/transactions_page.css?v={{ UI_VERSION }}" />
-{% endblock %}
-
 {% block content %}
 
   {% if request.htmx %}
