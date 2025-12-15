@@ -290,6 +290,15 @@
                     },
                     legend: {
                       position: 'bottom'
+                    },
+                    tooltip: {
+                      callbacks: {
+                        label: (context) => {
+                          const label = context.label || ''
+                          const value = context.parsed || 0
+                          return label + ': $' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        }
+                      }
                     }
                   }
                 }
@@ -334,7 +343,7 @@
                     },
                     tooltip: {
                       callbacks: {
-                        label: (context) => '$' + context.parsed.y.toFixed(2)
+                        label: (context) => '$' + context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                       }
                     }
                   },
