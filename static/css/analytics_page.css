@@ -151,6 +151,17 @@
   color: #666;
 }
 
+.category-chart-section {
+  .chart-filter {
+    margin-bottom: 1rem;
+    max-width: 200px;
+
+    @media (max-width: 768px) {
+      max-width: none;
+    }
+  }
+}
+
 .merchant-chart-section {
   background: white;
   padding: 1.5rem;
