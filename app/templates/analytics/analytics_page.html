@@ -1,12 +1,20 @@
 {% extends "app/base.html" %}
-
 {% load static %}
+{% load myfilters %}
+
+{% block extra_styles %}
+  <link rel="stylesheet" href="{% static 'css/analytics_page.css' %}?v={{ UI_VERSION }}" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'js/plotly.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 
 {% if request.htmx %}
   <head>
-    <link rel="stylesheet" href="/static/css/analytics_page.css?v={{ UI_VERSION }}" />
+    <link rel="stylesheet" href="{% static 'css/analytics_page.css' %}?v={{ UI_VERSION }}" />
     <script src="{% static 'js/plotly.min.js' %}"></script>
   </head>
 {% endif %}
@@ -241,13 +249,13 @@
         <div class="stat-item">
           <p class="stat-label">Total Spent</p>
           <p class="stat-value negative">
-            ${{ total_spent|floatformat:2 }}
+            {{ total_spent|currency }}
           </p>
         </div>
         <div class="stat-item">
           <p class="stat-label">Date Range</p>
           <p class="stat-date">
-            {{ start_date|date:"m/d/Y" }} - {{ end_date|date:"m/d/Y" }}
+            {{ start_date|date:"n/j/Y" }} - {{ end_date|date:"n/j/Y" }}
           </p>
         </div>
       </div>

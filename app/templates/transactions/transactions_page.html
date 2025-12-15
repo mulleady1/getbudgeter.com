@@ -1,11 +1,16 @@
 {% extends "app/base.html" %}
+{% load static %}
 {% load myfilters %}
+
+{% block extra_styles %}
+  <link rel="stylesheet" href="{% static 'css/transactions_page.css' %}?v={{ UI_VERSION }}" />
+{% endblock %}
 
 {% block content %}
 
   {% if request.htmx %}
     <head>
-      <link rel="stylesheet" href="/static/css/transactions_page.css?v={{ UI_VERSION }}" />
+      <link rel="stylesheet" href="{% static 'css/transactions_page.css' %}?v={{ UI_VERSION }}" />
     </head>
   {% endif %}
 
@@ -211,7 +216,7 @@
                 autocomplete="off"
               />
             </td>
-            <td>{{ transaction.date|date:"m/d/Y" }}</td>
+            <td>{{ transaction.date|date:"n/j/Y" }}</td>
             <td>{{ transaction.merchant|truncatechars:30 }}</td>
             <td>{{ transaction.description|truncatechars:50 }}</td>
             <td>{% partial category-dropdown %}</td>
