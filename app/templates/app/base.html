@@ -16,6 +16,7 @@
     <script src="{% static 'js/webawesome.js' %}?v={{ UI_VERSION }}" type="module"></script>
     <script src="{% static 'js/app.js' %}?v={{ UI_VERSION }}"></script>
     <script src="{% static 'js/surreal.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
   </head>
   <body hx-ext="csrf,button-spinner,show-hide-dialogs,head-support" hx-indicator=".htmx-progress-bar">
     <div class="htmx-progress-bar"></div>
