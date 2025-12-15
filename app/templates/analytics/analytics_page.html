@@ -1,8 +1,16 @@
 {% extends "app/base.html" %}
 
-{% block content %}
+{% load static %}
 
+{% block extra_styles %}
   <link rel="stylesheet" href="/static/css/analytics_page.css?v={{ UI_VERSION }}" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'js/plotly.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
 
   <div class="analytics-container">
     <!-- Date Range Selector -->

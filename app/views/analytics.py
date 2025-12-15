@@ -89,7 +89,7 @@ class AnalyticsView(LoginRequiredMixin, View):
             )
             fig.update_layout(height=400)
             category_chart = fig.to_html(
-                include_plotlyjs=True, div_id="category-chart", config={"displayModeBar": False}
+                include_plotlyjs=False, div_id="category-chart", config={"displayModeBar": False}
             )
         else:
             category_chart = None

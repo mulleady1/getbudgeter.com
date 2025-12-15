@@ -9,11 +9,13 @@
     <title>Budgeter</title>
     <link rel="icon" type="image/png" href="{% static 'logo2.png' %}" />
     <link rel="stylesheet" href="{% static 'vendor/webawesome/styles/webawesome.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/app.css' %}?v=1.1.17" />
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ UI_VERSION }}" />
+    {% block extra_styles %}{% endblock %}
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-    <script src="{% static 'js/webawesome.js' %}?v=1.1.17" type="module"></script>
-    <script src="{% static 'js/app.js' %}?v=1.1.17"></script>
+    <script src="{% static 'js/webawesome.js' %}?v={{ UI_VERSION }}" type="module"></script>
+    <script src="{% static 'js/app.js' %}?v={{ UI_VERSION }}"></script>
     <script src="{% static 'js/surreal.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
   </head>
   <body hx-ext="csrf,button-spinner,show-hide-dialogs" hx-indicator=".htmx-progress-bar">
     <div class="htmx-progress-bar"></div>
