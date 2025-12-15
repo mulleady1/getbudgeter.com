@@ -1,11 +1,9 @@
 {% extends "app/base.html" %}
 {% load myfilters %}
 
-{% block extra_styles %}
-  <link rel="stylesheet" href="/static/css/transactions_page.css?v={{ UI_VERSION }}" />
-{% endblock %}
-
 {% block content %}
+  <link rel="stylesheet" href="/static/css/transactions_page.css?v={{ UI_VERSION }}" />
+
   {% csrf_token %}
   
   <div id="transactions-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
