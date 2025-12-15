@@ -12,6 +12,13 @@
 
 {% block content %}
 
+{% if request.htmx %}
+  <head>
+    <link rel="stylesheet" href="/static/css/analytics_page.css?v={{ UI_VERSION }}" />
+    <script src="{% static 'js/plotly.min.js' %}"></script>
+  </head>
+{% endif %}
+
   <div class="analytics-container">
     <!-- Date Range Selector -->
     <form

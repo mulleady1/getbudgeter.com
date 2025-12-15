@@ -11,13 +11,14 @@
     <link rel="stylesheet" href="{% static 'vendor/webawesome/styles/webawesome.css' %}" />
     <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ UI_VERSION }}" />
     {% block extra_styles %}{% endblock %}
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htmx-ext-head-support@2.0.5" integrity="sha384-cvMqHzjCJsOHgGuyB3sWXaUSv/Krm0BdzjuI1rtkjCbL1l1oHJx+cHyVRJhyuEz0" crossorigin="anonymous"></script>
     <script src="{% static 'js/webawesome.js' %}?v={{ UI_VERSION }}" type="module"></script>
     <script src="{% static 'js/app.js' %}?v={{ UI_VERSION }}"></script>
     <script src="{% static 'js/surreal.js' %}"></script>
     {% block extra_scripts %}{% endblock %}
   </head>
-  <body hx-ext="csrf,button-spinner,show-hide-dialogs" hx-indicator=".htmx-progress-bar">
+  <body hx-ext="csrf,button-spinner,show-hide-dialogs,head-support" hx-indicator=".htmx-progress-bar">
     <div class="htmx-progress-bar"></div>
 
     {% block header %}
