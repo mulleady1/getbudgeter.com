@@ -1,9 +1,8 @@
+import json
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 
-import plotly.express as px
-import plotly.graph_objects as go
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
@@ -12,8 +11,8 @@ from ..models import Transaction
 
 
 class AnalyticsView(LoginRequiredMixin, View):
-    def get_merchant_chart(self, transactions, selected_category=None):
-        """Generate merchant chart HTML, optionally filtered by category"""
+    def get_merchant_chart_data(self, transactions, selected_category=None):
+        """Generate merchant chart data, optionally filtered by category"""
         # Filter by category if specified
         filtered_transactions = transactions
         if selected_category and selected_category != "all":
@@ -31,12 +30,10 @@ class AnalyticsView(LoginRequiredMixin, View):
         top_merchants = sorted(merchant_spending.items(), key=lambda x: x[1], reverse=True)[:10]
 
         if top_merchants:
-            merchants = [m[0] for m in top_merchants]
-            amounts = [float(m[1]) for m in top_merchants]
-
-            fig = go.Figure(data=[go.Bar(x=merchants, y=amounts)])
-            fig.update_layout(title="Top 10 Merchants", xaxis_title="Merchant", yaxis_title="Amount ($)", height=400)
-            return fig.to_html(include_plotlyjs=False, div_id="merchant-chart", config={"displayModeBar": False})
+            return {
+                "labels": [m[0] for m in top_merchants],
+                "data": [float(m[1]) for m in top_merchants],
+            }
         return None
 
     def get(self, request):
@@ -106,20 +103,14 @@ class AnalyticsView(LoginRequiredMixin, View):
             else:
                 category_spending["Uncategorized"] += abs(trans.amount)
 
-        # Create pie chart for spending by category
-        # Plotly.js is loaded separately in the template, so we don't include it here
+        # Create data for pie chart
         if category_spending:
-            fig = px.pie(
-                names=list(category_spending.keys()),
-                values=[float(v) for v in category_spending.values()],
-                title="Spending by Category",
-            )
-            fig.update_layout(height=400)
-            category_chart = fig.to_html(
-                include_plotlyjs=False, div_id="category-chart", config={"displayModeBar": False}
-            )
+            category_chart_data = {
+                "labels": list(category_spending.keys()),
+                "data": [float(v) for v in category_spending.values()],
+            }
         else:
-            category_chart = None
+            category_chart_data = None
 
         # Spending over time (by week for month mode, by month otherwise)
         if mode == "month":
@@ -134,15 +125,13 @@ class AnalyticsView(LoginRequiredMixin, View):
 
             if weekly_spending:
                 weeks = sorted(weekly_spending.keys())
-                amounts = [float(weekly_spending[w]) for w in weeks]
-                # Format as "Week of MMM DD"
-                week_labels = [w.strftime("Week of %b %d") for w in weeks]
-
-                fig = go.Figure(data=[go.Scatter(x=week_labels, y=amounts, mode="lines+markers", line=dict(width=3))])
-                fig.update_layout(title="Spending Trend", xaxis_title="Week", yaxis_title="Amount ($)", height=400)
-                trend_chart = fig.to_html(include_plotlyjs=False, div_id="trend-chart", config={"displayModeBar": False})
+                trend_chart_data = {
+                    "labels": [w.strftime("Week of %b %d") for w in weeks],
+                    "data": [float(weekly_spending[w]) for w in weeks],
+                    "period": "Week",
+                }
             else:
-                trend_chart = None
+                trend_chart_data = None
         else:
             # Group by month for year/custom view
             monthly_spending = defaultdict(Decimal)
@@ -152,14 +141,13 @@ class AnalyticsView(LoginRequiredMixin, View):
 
             if monthly_spending:
                 months = sorted(monthly_spending.keys())
-                amounts = [float(monthly_spending[m]) for m in months]
-                month_labels = [m.strftime("%b %Y") for m in months]
-
-                fig = go.Figure(data=[go.Scatter(x=month_labels, y=amounts, mode="lines+markers", line=dict(width=3))])
-                fig.update_layout(title="Spending Trend", xaxis_title="Month", yaxis_title="Amount ($)", height=400)
-                trend_chart = fig.to_html(include_plotlyjs=False, div_id="trend-chart", config={"displayModeBar": False})
+                trend_chart_data = {
+                    "labels": [m.strftime("%b %Y") for m in months],
+                    "data": [float(monthly_spending[m]) for m in months],
+                    "period": "Month",
+                }
             else:
-                trend_chart = None
+                trend_chart_data = None
 
         # Get categories for dropdown
         from ..models import Category
@@ -167,13 +155,13 @@ class AnalyticsView(LoginRequiredMixin, View):
         categories = Category.objects.filter(user=request.user).order_by("name")
         selected_category = request.GET.get("category", "all")
 
-        # Generate merchant chart with optional category filter
-        merchant_chart = self.get_merchant_chart(transactions, selected_category)
+        # Generate merchant chart data with optional category filter
+        merchant_chart_data = self.get_merchant_chart_data(transactions, selected_category)
 
         context = {
-            "category_chart": category_chart,
-            "trend_chart": trend_chart,
-            "merchant_chart": merchant_chart,
+            "category_chart_data": json.dumps(category_chart_data) if category_chart_data else None,
+            "trend_chart_data": json.dumps(trend_chart_data) if trend_chart_data else None,
+            "merchant_chart_data": json.dumps(merchant_chart_data) if merchant_chart_data else None,
             "start_date": start_date,
             "end_date": end_date,
             "total_transactions": transactions.count(),
@@ -252,12 +240,12 @@ class MerchantChartPartialView(LoginRequiredMixin, View):
         # Get categories for dropdown
         categories = Category.objects.filter(user=request.user).order_by("name")
 
-        # Generate merchant chart
+        # Generate merchant chart data
         analytics_view = AnalyticsView()
-        merchant_chart = analytics_view.get_merchant_chart(transactions, selected_category)
+        merchant_chart_data = analytics_view.get_merchant_chart_data(transactions, selected_category)
 
         context = {
-            "merchant_chart": merchant_chart,
+            "merchant_chart_data": json.dumps(merchant_chart_data) if merchant_chart_data else None,
             "categories": categories,
             "selected_category": selected_category,
         }

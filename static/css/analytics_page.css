@@ -133,9 +133,15 @@
   border-radius: 8px;
   margin-bottom: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 450px;
 
   @media (max-width: 768px) {
     padding: 0.5rem;
+    height: 400px;
+  }
+
+  canvas {
+    max-height: 400px;
   }
 }
 

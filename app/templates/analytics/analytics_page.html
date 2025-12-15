@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="{% static 'js/plotly.min.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -15,7 +15,7 @@
 {% if request.htmx %}
   <head>
     <link rel="stylesheet" href="{% static 'css/analytics_page.css' %}?v={{ UI_VERSION }}" />
-    <script src="{% static 'js/plotly.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   </head>
 {% endif %}
 
@@ -260,15 +260,95 @@
         </div>
       </div>
 
-      {% if category_chart %}
+      {% if category_chart_data %}
         <div class="chart-container">
-          {{ category_chart|safe }}
+          <canvas id="category-chart"></canvas>
+          <script>
+            (() => {
+              const categoryData = {{ category_chart_data|safe }}
+              const categoryCtx = me('#category-chart').getContext('2d')
+              new Chart(categoryCtx, {
+                type: 'pie',
+                data: {
+                  labels: categoryData.labels,
+                  datasets: [{
+                    data: categoryData.data,
+                    backgroundColor: [
+                      '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                      '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+                    ]
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: 'Spending by Category',
+                      font: { size: 16 }
+                    },
+                    legend: {
+                      position: 'bottom'
+                    }
+                  }
+                }
+              })
+            })()
+          </script>
         </div>
       {% endif %}
 
-      {% if trend_chart %}
+      {% if trend_chart_data %}
         <div class="chart-container">
-          {{ trend_chart|safe }}
+          <canvas id="trend-chart"></canvas>
+          <script>
+            (() => {
+              const trendData = {{ trend_chart_data|safe }}
+              const trendCtx = me('#trend-chart').getContext('2d')
+              new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                  labels: trendData.labels,
+                  datasets: [{
+                    label: 'Spending',
+                    data: trendData.data,
+                    borderColor: '#36A2EB',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.1,
+                    fill: true
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: 'Spending Trend',
+                      font: { size: 16 }
+                    },
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      callbacks: {
+                        label: (context) => '$' + context.parsed.y.toFixed(2)
+                      }
+                    }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    },
+                    x: {
+                    }
+                  }
+                }
+              })
+            })()
+          </script>
         </div>
       {% endif %}
 
@@ -276,7 +356,7 @@
         {% include "analytics/merchant_chart_partial.html" %}
       </div>
 
-      {% if not category_chart and not trend_chart and not merchant_chart %}
+      {% if not category_chart_data and not trend_chart_data and not merchant_chart_data %}
         <p class="empty-state">
           No transaction data available. Upload some transactions to see analytics.
         </p>

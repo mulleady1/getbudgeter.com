@@ -3,7 +3,6 @@
 <div class="merchant-chart-section">
   <div class="chart-filter">
     <wa-select
-      id="category-filter"
       name="category"
       size="small"
       value="{{ selected_category }}"
@@ -32,9 +31,60 @@
     </wa-select>
   </div>
 
-  {% if merchant_chart %}
+  {% if merchant_chart_data %}
     <div class="chart-container">
-      {{ merchant_chart|safe }}
+      <canvas id="merchant-chart"></canvas>
+      <script>
+        (() => {
+          // Destroy existing chart if it exists
+          const existingChart = Chart.getChart('merchant-chart')
+          if (existingChart) {
+            existingChart.destroy()
+          }
+
+          const merchantData = {{ merchant_chart_data|safe }}
+          const merchantCtx = me('#merchant-chart').getContext('2d')
+          new Chart(merchantCtx, {
+            type: 'bar',
+            data: {
+              labels: merchantData.labels,
+              datasets: [{
+                label: 'Spending',
+                data: merchantData.data,
+                backgroundColor: '#36A2EB',
+                borderColor: '#36A2EB',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                title: {
+                  display: true,
+                  text: 'Top 10 Merchants',
+                  font: { size: 16 }
+                },
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  callbacks: {
+                    label: (context) => '$' + context.parsed.y.toFixed(2)
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true
+                },
+                x: {
+                }
+              }
+            }
+          })
+        })()
+      </script>
     </div>
   {% else %}
     <p class="empty-state">No merchant data available.</p>
