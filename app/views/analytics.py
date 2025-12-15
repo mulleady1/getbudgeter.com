@@ -94,22 +94,45 @@ class AnalyticsView(LoginRequiredMixin, View):
         else:
             category_chart = None
 
-        # Spending over time (by month)
-        monthly_spending = defaultdict(Decimal)
-        for trans in transactions:
-            month_key = trans.date.replace(day=1)
-            monthly_spending[month_key] += abs(trans.amount)
+        # Spending over time (by week for month mode, by month otherwise)
+        if mode == "month":
+            # Group by week for month view
+            from datetime import timedelta
 
-        if monthly_spending:
-            months = sorted(monthly_spending.keys())
-            amounts = [float(monthly_spending[m]) for m in months]
-            month_labels = [m.strftime("%b %Y") for m in months]
+            weekly_spending = defaultdict(Decimal)
+            for trans in transactions:
+                # Get the Monday of the week this transaction belongs to
+                week_start = trans.date - timedelta(days=trans.date.weekday())
+                weekly_spending[week_start] += abs(trans.amount)
 
-            fig = go.Figure(data=[go.Scatter(x=month_labels, y=amounts, mode="lines+markers", line=dict(width=3))])
-            fig.update_layout(title="Spending Trend", xaxis_title="Month", yaxis_title="Amount ($)", height=400)
-            trend_chart = fig.to_html(include_plotlyjs=False, div_id="trend-chart", config={"displayModeBar": False})
+            if weekly_spending:
+                weeks = sorted(weekly_spending.keys())
+                amounts = [float(weekly_spending[w]) for w in weeks]
+                # Format as "Week of MMM DD"
+                week_labels = [w.strftime("Week of %b %d") for w in weeks]
+
+                fig = go.Figure(data=[go.Scatter(x=week_labels, y=amounts, mode="lines+markers", line=dict(width=3))])
+                fig.update_layout(title="Spending Trend", xaxis_title="Week", yaxis_title="Amount ($)", height=400)
+                trend_chart = fig.to_html(include_plotlyjs=False, div_id="trend-chart", config={"displayModeBar": False})
+            else:
+                trend_chart = None
         else:
-            trend_chart = None
+            # Group by month for year/custom view
+            monthly_spending = defaultdict(Decimal)
+            for trans in transactions:
+                month_key = trans.date.replace(day=1)
+                monthly_spending[month_key] += abs(trans.amount)
+
+            if monthly_spending:
+                months = sorted(monthly_spending.keys())
+                amounts = [float(monthly_spending[m]) for m in months]
+                month_labels = [m.strftime("%b %Y") for m in months]
+
+                fig = go.Figure(data=[go.Scatter(x=month_labels, y=amounts, mode="lines+markers", line=dict(width=3))])
+                fig.update_layout(title="Spending Trend", xaxis_title="Month", yaxis_title="Amount ($)", height=400)
+                trend_chart = fig.to_html(include_plotlyjs=False, div_id="trend-chart", config={"displayModeBar": False})
+            else:
+                trend_chart = None
 
         # Top merchants
         merchant_spending = defaultdict(Decimal)
