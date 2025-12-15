@@ -10,83 +10,74 @@
   border-radius: 8px;
   margin-bottom: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
 
-#date-range-form .form-fields {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-direction: row;
-}
+  .form-fields {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-direction: row;
 
-@media (max-width: 768px) {
-  #date-range-form .form-fields {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
 
-#date-range-form .form-fields .mode-selector {
-  flex: 0 0 auto;
-}
+    .mode-selector {
+      flex: 0 0 auto;
 
-@media (max-width: 768px) {
-  #date-range-form .form-fields .mode-selector {
-    flex: 1 1 auto;
-  }
-}
+      @media (max-width: 768px) {
+        flex: 1 1 auto;
+      }
+    }
 
-#date-range-form .form-fields #month-input-container {
-  gap: 0.5rem;
-  align-items: flex-end;
-}
+    #month-input-container,
+    #year-input-container {
+      gap: 0.5rem;
+      align-items: flex-end;
 
-#date-range-form .form-fields #month-input-container .month-arrow-btn {
-  flex: 0 0 auto;
-}
+      .month-arrow-btn {
+        flex: 0 0 auto;
+      }
 
-#date-range-form .form-fields #month-input-container .month-input-wrapper {
-  flex: 1 1 auto;
-}
+      .month-input-wrapper {
+        flex: 1 1 auto;
+      }
 
-@media (max-width: 768px) {
-  #date-range-form .form-fields #month-input-container {
-    align-items: flex-end;
-    justify-content: center;
-    gap: 0.25rem;
-  }
+      @media (max-width: 768px) {
+        align-items: flex-end;
+        justify-content: center;
+        gap: 0.25rem;
 
-  #date-range-form .form-fields #month-input-container .month-arrow-btn {
-    flex: 0 0 auto;
-  }
+        .month-arrow-btn {
+          flex: 0 0 auto;
+        }
 
-  #date-range-form .form-fields #month-input-container .month-input-wrapper {
-    flex: 0 1 200px;
-    max-width: 200px;
-  }
-}
+        .month-input-wrapper {
+          flex: 0 1 200px;
+          max-width: 200px;
+        }
+      }
+    }
 
-#date-range-form .form-fields #custom-dates {
-  gap: 1rem;
-  align-self: flex-end;
-}
+    #custom-dates {
+      gap: 1rem;
+      align-self: flex-end;
 
-@media (max-width: 768px) {
-  #date-range-form .form-fields #custom-dates {
-    flex-direction: column;
-    align-self: stretch;
-  }
-}
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-self: stretch;
+      }
+    }
 
-#date-range-form .form-fields #apply-button {
-  flex: 0 0 auto;
-  align-items: flex-end;
-  align-self: flex-end;
-}
+    #apply-button {
+      flex: 0 0 auto;
+      align-items: flex-end;
+      align-self: flex-end;
 
-@media (max-width: 768px) {
-  #date-range-form .form-fields #apply-button {
-    align-self: stretch;
+      @media (max-width: 768px) {
+        align-self: stretch;
+      }
+    }
   }
 }
 
@@ -98,34 +89,34 @@
   display: flex;
   gap: 2rem;
   justify-content: space-around;
-}
 
-@media (max-width: 768px) {
-  .stats-summary {
+  @media (max-width: 768px) {
     flex-direction: column;
     gap: 1rem;
   }
-}
 
-.stats-summary .stat-item .stat-label {
-  margin: 0;
-  color: #666;
-  font-size: 0.875rem;
-}
+  .stat-item {
+    .stat-label {
+      margin: 0;
+      color: #666;
+      font-size: 0.875rem;
+    }
 
-.stats-summary .stat-item .stat-value {
-  margin: 0.25rem 0 0 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
+    .stat-value {
+      margin: 0.25rem 0 0 0;
+      font-size: 1.5rem;
+      font-weight: 600;
 
-.stats-summary .stat-item .stat-value.negative {
-  color: #d32f2f;
-}
+      &.negative {
+        color: #d32f2f;
+      }
+    }
 
-.stats-summary .stat-item .stat-date {
-  margin: 0.25rem 0 0 0;
-  font-size: 0.875rem;
+    .stat-date {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.875rem;
+    }
+  }
 }
 
 .chart-container {
@@ -134,6 +125,10 @@
   border-radius: 8px;
   margin-bottom: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+  }
 }
 
 .empty-state {

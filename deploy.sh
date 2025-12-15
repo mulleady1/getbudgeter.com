@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 echo "[deploy.sh] rsyncing files..."
-rsync -avz --exclude='*.pyc' --exclude='__pycache__/' manage.py requirements.txt static app project wwa:/var/www/getbudgeter.com.2/
+rsync -avz --exclude='*.pyc' --exclude='__pycache__/' manage.py requirements.txt static app project UI_VERSION wwa:/var/www/getbudgeter.com.2/
 echo "[deploy.sh] rsyncing files... done"
 
 if [ "$1" = "--init" ]; then

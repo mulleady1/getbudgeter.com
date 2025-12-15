@@ -31,7 +31,21 @@ class AnalyticsView(LoginRequiredMixin, View):
                 if request.GET.get("end_date")
                 else today
             )
-        else:  # month mode
+        elif mode == "year":
+            # Parse year input (format: YYYY)
+            year_str = request.GET.get("year")
+            if year_str:
+                try:
+                    selected_year = int(year_str)
+                except ValueError:
+                    selected_year = today.year
+            else:
+                selected_year = today.year
+
+            # Get first and last day of the selected year
+            start_date = datetime(selected_year, 1, 1).date()
+            end_date = datetime(selected_year, 12, 31).date()
+        else:  # month mode (default)
             # Parse month input (format: YYYY-MM)
             month_str = request.GET.get("month")
             if month_str:
@@ -66,6 +80,7 @@ class AnalyticsView(LoginRequiredMixin, View):
                 category_spending["Uncategorized"] += abs(trans.amount)
 
         # Create pie chart for spending by category
+        # Plotly.js is loaded separately in the template, so we don't include it here
         if category_spending:
             fig = px.pie(
                 names=list(category_spending.keys()),
@@ -74,7 +89,7 @@ class AnalyticsView(LoginRequiredMixin, View):
             )
             fig.update_layout(height=400)
             category_chart = fig.to_html(
-                include_plotlyjs="cdn", div_id="category-chart", config={"displayModeBar": False}
+                include_plotlyjs=True, div_id="category-chart", config={"displayModeBar": False}
             )
         else:
             category_chart = None
@@ -92,7 +107,7 @@ class AnalyticsView(LoginRequiredMixin, View):
 
             fig = go.Figure(data=[go.Scatter(x=month_labels, y=amounts, mode="lines+markers", line=dict(width=3))])
             fig.update_layout(title="Spending Trend", xaxis_title="Month", yaxis_title="Amount ($)", height=400)
-            trend_chart = fig.to_html(include_plotlyjs="cdn", div_id="trend-chart", config={"displayModeBar": False})
+            trend_chart = fig.to_html(include_plotlyjs=False, div_id="trend-chart", config={"displayModeBar": False})
         else:
             trend_chart = None
 
@@ -111,7 +126,7 @@ class AnalyticsView(LoginRequiredMixin, View):
             fig = go.Figure(data=[go.Bar(x=merchants, y=amounts)])
             fig.update_layout(title="Top 10 Merchants", xaxis_title="Merchant", yaxis_title="Amount ($)", height=400)
             merchant_chart = fig.to_html(
-                include_plotlyjs="cdn", div_id="merchant-chart", config={"displayModeBar": False}
+                include_plotlyjs=False, div_id="merchant-chart", config={"displayModeBar": False}
             )
         else:
             merchant_chart = None
@@ -126,14 +141,9 @@ class AnalyticsView(LoginRequiredMixin, View):
             "total_spent": sum(abs(t.amount) for t in transactions),
             "mode": mode,
             "month": request.GET.get("month", today.strftime("%Y-%m")),
+            "year": request.GET.get("year", str(today.year)),
             "custom_start_date": request.GET.get("start_date", ""),
             "custom_end_date": request.GET.get("end_date", ""),
         }
 
-        # Return partial for htmx requests, full page otherwise
-        if request.htmx and not request.htmx.boosted:
-            template_name = "analytics/analytics_page.html#content"
-        else:
-            template_name = "analytics/analytics_page.html"
-
-        return render(request, template_name, context)
+        return render(request, "analytics/analytics_page.html", context)
