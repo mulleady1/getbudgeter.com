@@ -16,16 +16,16 @@
   {% csrf_token %}
 
   <script>
-    function init() {
+    function init(firstRun) {
       // Clear all checkboxes on page load to prevent browser restoration
       any("#transactions-table input[type='checkbox']").run((cb) => (cb.checked = false))
 
-      const selectAllCheckbox = me("#select-all")
       const selectedCountSpan = me("#selected-count")
       const bulkActionBar = me("#bulk-action-bar")
       const bulkCategorySelect = me("#bulk-category")
       const applyButton = me("#bulk-apply")
       const cancelButton = me("#bulk-cancel")
+      const selectAllCheckbox = me("#select-all")
 
       function updateBulkActionBar() {
         const checkboxes = any(".transaction-checkbox")
@@ -56,48 +56,50 @@
         applyButton.disabled = !bulkCategorySelect.value
       }
 
+      if (firstRun) {
+        // Individual checkboxes
+        me("body").on("change", function (e) {
+          if (e.target.classList.contains("transaction-checkbox")) {
+            updateBulkActionBar()
+          }
+        })
+
+        // Category select change
+        bulkCategorySelect.on("change", function () {
+          if (this.value === "__add_new__") {
+            // Load new category dialog via htmx
+            htmx.ajax("GET", "/transactions/categories/new", {
+              target: "body",
+              swap: "beforeend",
+            })
+            this.value = "" // Reset select
+            applyButton.disabled = true
+          } else if (this.value === "__manage__") {
+            // Load manage categories dialog via htmx
+            htmx.ajax("GET", "/transactions/categories", {
+              target: "body",
+              swap: "beforeend",
+            })
+            this.value = "" // Reset select
+            applyButton.disabled = true
+          } else {
+            applyButton.disabled = !this.value
+          }
+        })
+
+        // Cancel button
+        cancelButton.on("click", function () {
+          const checkboxes = any(".transaction-checkbox")
+          checkboxes.run((cb) => (cb.checked = false))
+          selectAllCheckbox.checked = false
+          updateBulkActionBar()
+        })
+      }
+
       // Select all checkbox
       selectAllCheckbox.on("change", function () {
         const checkboxes = any(".transaction-checkbox")
         checkboxes.run((cb) => (cb.checked = this.checked))
-        updateBulkActionBar()
-      })
-
-      // Individual checkboxes
-      me("body").on("change", function (e) {
-        if (e.target.classList.contains("transaction-checkbox")) {
-          updateBulkActionBar()
-        }
-      })
-
-      // Category select change
-      bulkCategorySelect.on("change", function () {
-        if (this.value === "__add_new__") {
-          // Load new category dialog via htmx
-          htmx.ajax("GET", "/transactions/categories/new", {
-            target: "body",
-            swap: "beforeend",
-          })
-          this.value = "" // Reset select
-          applyButton.disabled = true
-        } else if (this.value === "__manage__") {
-          // Load manage categories dialog via htmx
-          htmx.ajax("GET", "/transactions/categories", {
-            target: "body",
-            swap: "beforeend",
-          })
-          this.value = "" // Reset select
-          applyButton.disabled = true
-        } else {
-          applyButton.disabled = !this.value
-        }
-      })
-
-      // Cancel button
-      cancelButton.on("click", function () {
-        const checkboxes = any(".transaction-checkbox")
-        checkboxes.run((cb) => (cb.checked = false))
-        selectAllCheckbox.checked = false
         updateBulkActionBar()
       })
     }
@@ -108,8 +110,13 @@
       me("#bulk-action-bar").style.display = "none"
     }
 
-    onloadAdd(init)
-    me("body").on("htmx:load", init)
+    onloadAdd(() => init(true))
+    
+    me("body").on("htmx:load", (e) => {
+      if (e.detail.elt.id === "transactions-table") {
+        init(false)
+      }
+    })
   </script>
 
   <div id="transactions-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
