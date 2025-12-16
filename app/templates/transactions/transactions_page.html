@@ -26,7 +26,7 @@
     </div>
 
     <div id="transaction-list">
-      {% if transactions %}
+      {% if transactions or search_query or selected_category %}
         <!-- Search Bar -->
         <div class="search-filter-container" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start;">
           <div style="display: flex; gap: 1rem; align-items: flex-start; flex: 1;">
@@ -40,17 +40,17 @@
                   value="{{ search_query|default:'' }}"
                   with-clear
                   hx-get="/transactions"
-                  hx-trigger="keyup changed delay:300ms, search, reload-transactions from:body"
+                  hx-trigger="keyup changed delay:300ms, search, wa-clear, reload-transactions from:body"
                   hx-target="#transactions-table"
                   hx-swap="outerHTML"
                   hx-push-url="true"
                   hx-include="#category-filter"
-                  hx-on::after-request="if (event.detail.successful) resetTransactionGridForm()"
+                  hx-on::after-request="if (event.detail.successful) resetCheckboxes()"
                 >
                   <wa-icon slot="end" name="magnifying-glass"></wa-icon>
                 </wa-input>
                 <script>
-                  function resetTransactionGridForm() {
+                  function resetCheckboxes() {
                     document
                       .querySelectorAll("#transactions-table input[type='checkbox']")
                       .forEach((cb) => (cb.checked = false))
@@ -82,7 +82,7 @@
                 hx-swap="outerHTML"
                 hx-push-url="true"
                 hx-include="#transaction-search"
-                hx-on::after-request="if (event.detail.successful) resetTransactionGridForm()"
+                hx-on::after-request="if (event.detail.successful) resetCheckboxes()"
               >
                 <wa-option value="">All categories</wa-option>
                 <wa-option value="uncategorized">Uncategorized</wa-option>
