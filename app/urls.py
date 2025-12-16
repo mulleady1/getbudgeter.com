@@ -38,6 +38,7 @@ urlpatterns = [
 
     path("analytics",                                          views.AnalyticsView.as_view(),           name="analytics"),
     path("analytics/merchant-chart",                           views.MerchantChartPartialView.as_view(), name="merchant_chart_partial"),
+    path("analytics/trend-chart",                              views.TrendChartPartialView.as_view(),   name="trend_chart_partial"),
     
     path("budgets",                                            views.BudgetListView.as_view(),          name="budgets"),
     path("budgets/new",                                        views.new_budget,                        name="new_budget"),
