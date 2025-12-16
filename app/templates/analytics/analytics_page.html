@@ -1,6 +1,7 @@
 {% extends "app/base.html" %}
 {% load static %}
 {% load myfilters %}
+{% load humanize %}
 
 {% block extra_styles %}
   <link rel="stylesheet" href="{% static 'css/analytics_page.css' %}?v={{ UI_VERSION }}" />
@@ -244,7 +245,7 @@
       <div class="stats-summary">
         <div class="stat-item">
           <p class="stat-label">Total Transactions</p>
-          <p class="stat-value">{{ total_transactions }}</p>
+          <p class="stat-value">{{ total_transactions|intcomma }}</p>
         </div>
         <div class="stat-item">
           <p class="stat-label">Total Spent</p>
@@ -254,7 +255,7 @@
         </div>
         <div class="stat-item">
           <p class="stat-label">Date Range</p>
-          <p class="stat-date">
+          <p class="stat-value">
             {{ start_date|date:"n/j/Y" }} - {{ end_date|date:"n/j/Y" }}
           </p>
         </div>
