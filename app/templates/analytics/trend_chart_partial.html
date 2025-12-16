@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="merchant-chart-section">
+<div class="trend-chart-section">
   <div class="chart-filter">
     <wa-select
       name="category"
@@ -13,10 +13,10 @@
           const formData = new FormData(form)
           const category = e.target.value
 
-          // Update trend chart dropdown to match
-          const trendSelect = me('#trend-chart-container wa-select')
-          if (trendSelect) {
-            trendSelect.value = category
+          // Update merchant chart dropdown to match
+          const merchantSelect = me('#merchant-chart-container wa-select')
+          if (merchantSelect) {
+            merchantSelect.value = category
           }
 
           // Build query string from form data
@@ -24,12 +24,12 @@
           params.set('category', category)
 
           // Trigger HTMX requests for both charts
-          htmx.ajax('GET', `/analytics/merchant-chart?${params.toString()}`, {
-            target: '#merchant-chart-container',
-            swap: 'innerHTML'
-          })
           htmx.ajax('GET', `/analytics/trend-chart?${params.toString()}`, {
             target: '#trend-chart-container',
+            swap: 'innerHTML'
+          })
+          htmx.ajax('GET', `/analytics/merchant-chart?${params.toString()}`, {
+            target: '#merchant-chart-container',
             swap: 'innerHTML'
           })
         })
@@ -41,31 +41,33 @@
     </wa-select>
   </div>
 
-  {% if merchant_chart_data %}
+  {% if trend_chart_data %}
     <div class="chart-container">
-      <canvas id="merchant-chart"></canvas>
+      <canvas id="trend-chart"></canvas>
       <script>
         // Delay chart initialization to ensure canvas is properly sized
         setTimeout(() => {
           // Destroy existing chart if it exists
-          const existingChart = Chart.getChart('merchant-chart')
+          const existingChart = Chart.getChart('trend-chart')
           if (existingChart) {
             existingChart.destroy()
           }
 
-          const merchantData = {{ merchant_chart_data|safe }}
-          const canvas = me('#merchant-chart')
-          const merchantCtx = canvas.getContext('2d')
-          new Chart(merchantCtx, {
-            type: 'bar',
+          const trendData = {{ trend_chart_data|safe }}
+          const canvas = me('#trend-chart')
+          const trendCtx = canvas.getContext('2d')
+          new Chart(trendCtx, {
+            type: 'line',
             data: {
-              labels: merchantData.labels,
+              labels: trendData.labels,
               datasets: [{
                 label: 'Spending',
-                data: merchantData.data,
-                backgroundColor: '#36A2EB',
+                data: trendData.data,
                 borderColor: '#36A2EB',
-                borderWidth: 1
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                borderWidth: 3,
+                tension: 0.1,
+                fill: true
               }]
             },
             options: {
@@ -74,7 +76,7 @@
               plugins: {
                 title: {
                   display: true,
-                  text: 'Top 10 Merchants',
+                  text: 'Spending Trend',
                   font: { size: 16 }
                 },
                 legend: {
@@ -99,6 +101,6 @@
       </script>
     </div>
   {% else %}
-    <p class="empty-state">No merchant data available.</p>
+    <p class="empty-state">No trend data available.</p>
   {% endif %}
 </div>

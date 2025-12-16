@@ -37,6 +37,48 @@ class AnalyticsView(LoginRequiredMixin, View):
             }
         return None
 
+    def get_trend_chart_data(self, transactions, mode, selected_category=None):
+        """Generate trend chart data, optionally filtered by category"""
+        # Filter by category if specified
+        filtered_transactions = transactions
+        if selected_category and selected_category != "all":
+            try:
+                filtered_transactions = transactions.filter(category_id=int(selected_category))
+            except (ValueError, TypeError):
+                pass
+
+        # Spending over time (by week for month mode, by month otherwise)
+        if mode == "month":
+            # Group by week for month view
+            weekly_spending = defaultdict(Decimal)
+            for trans in filtered_transactions:
+                # Get the Monday of the week this transaction belongs to
+                week_start = trans.date - timedelta(days=trans.date.weekday())
+                weekly_spending[week_start] += abs(trans.amount)
+
+            if weekly_spending:
+                weeks = sorted(weekly_spending.keys())
+                return {
+                    "labels": [w.strftime("Week of %b %d") for w in weeks],
+                    "data": [float(weekly_spending[w]) for w in weeks],
+                    "period": "Week",
+                }
+        else:
+            # Group by month for year/custom view
+            monthly_spending = defaultdict(Decimal)
+            for trans in filtered_transactions:
+                month_key = trans.date.replace(day=1)
+                monthly_spending[month_key] += abs(trans.amount)
+
+            if monthly_spending:
+                months = sorted(monthly_spending.keys())
+                return {
+                    "labels": [m.strftime("%b %Y") for m in months],
+                    "data": [float(monthly_spending[m]) for m in months],
+                    "period": "Month",
+                }
+        return None
+
     def get(self, request):
         today = datetime.now().date()
 
@@ -136,43 +178,11 @@ class AnalyticsView(LoginRequiredMixin, View):
         else:
             category_chart_data = None
 
-        # Spending over time (by week for month mode, by month otherwise)
-        if mode == "month":
-            # Group by week for month view
-            weekly_spending = defaultdict(Decimal)
-            for trans in transactions:
-                # Get the Monday of the week this transaction belongs to
-                week_start = trans.date - timedelta(days=trans.date.weekday())
-                weekly_spending[week_start] += abs(trans.amount)
-
-            if weekly_spending:
-                weeks = sorted(weekly_spending.keys())
-                trend_chart_data = {
-                    "labels": [w.strftime("Week of %b %d") for w in weeks],
-                    "data": [float(weekly_spending[w]) for w in weeks],
-                    "period": "Week",
-                }
-            else:
-                trend_chart_data = None
-        else:
-            # Group by month for year/custom view
-            monthly_spending = defaultdict(Decimal)
-            for trans in transactions:
-                month_key = trans.date.replace(day=1)
-                monthly_spending[month_key] += abs(trans.amount)
-
-            if monthly_spending:
-                months = sorted(monthly_spending.keys())
-                trend_chart_data = {
-                    "labels": [m.strftime("%b %Y") for m in months],
-                    "data": [float(monthly_spending[m]) for m in months],
-                    "period": "Month",
-                }
-            else:
-                trend_chart_data = None
-
         # Get categories for dropdown
         categories = Category.objects.filter(user=request.user).order_by("name")
+
+        # Generate trend chart data with optional category filter
+        trend_chart_data = self.get_trend_chart_data(transactions, mode, selected_category)
 
         # Generate merchant chart data with optional category filter
         merchant_chart_data = self.get_merchant_chart_data(transactions, selected_category)
@@ -277,3 +287,85 @@ class MerchantChartPartialView(LoginRequiredMixin, View):
         }
 
         return render(request, "analytics/merchant_chart_partial.html", context)
+
+
+class TrendChartPartialView(LoginRequiredMixin, View):
+    """Partial view for trend chart with category filter"""
+
+    def get(self, request):
+        today = datetime.now().date()
+
+        # Get parameters from query string or session
+        if not request.GET:
+            session_params = request.session.get("analytics_params", {})
+            mode = session_params.get("mode", "month")
+            month = session_params.get("month", today.strftime("%Y-%m"))
+            year = session_params.get("year", str(today.year))
+            start_date_str = session_params.get("start_date", "")
+            end_date_str = session_params.get("end_date", "")
+            selected_category = session_params.get("category", "all")
+        else:
+            mode = request.GET.get("mode", "month")
+            month = request.GET.get("month", today.strftime("%Y-%m"))
+            year = request.GET.get("year", str(today.year))
+            start_date_str = request.GET.get("start_date", "")
+            end_date_str = request.GET.get("end_date", "")
+            selected_category = request.GET.get("category", "all")
+
+        # Calculate date range based on mode (same logic as main analytics view)
+        if mode == "custom":
+            start_date = (
+                datetime.strptime(start_date_str, "%Y-%m-%d").date()
+                if start_date_str
+                else today.replace(day=1)
+            )
+            end_date = (
+                datetime.strptime(end_date_str, "%Y-%m-%d").date()
+                if end_date_str
+                else today
+            )
+        elif mode == "year":
+            if year:
+                try:
+                    selected_year = int(year)
+                except ValueError:
+                    selected_year = today.year
+            else:
+                selected_year = today.year
+            start_date = datetime(selected_year, 1, 1).date()
+            end_date = datetime(selected_year, 12, 31).date()
+        else:  # month mode (default)
+            if month:
+                try:
+                    selected_month = datetime.strptime(month, "%Y-%m").date()
+                except ValueError:
+                    selected_month = today.replace(day=1)
+            else:
+                selected_month = today.replace(day=1)
+            start_date = selected_month.replace(day=1)
+            last_day = monthrange(selected_month.year, selected_month.month)[1]
+            end_date = selected_month.replace(day=last_day)
+
+        # Get transactions
+        transactions = Transaction.objects.filter(
+            user=request.user,
+            date__gte=start_date,
+            date__lte=end_date,
+            amount__gte=0,
+            anomaly=False,
+        ).select_related("category")
+
+        # Get categories for dropdown
+        categories = Category.objects.filter(user=request.user).order_by("name")
+
+        # Generate trend chart data
+        analytics_view = AnalyticsView()
+        trend_chart_data = analytics_view.get_trend_chart_data(transactions, mode, selected_category)
+
+        context = {
+            "trend_chart_data": json.dumps(trend_chart_data) if trend_chart_data else None,
+            "categories": categories,
+            "selected_category": selected_category,
+        }
+
+        return render(request, "analytics/trend_chart_partial.html", context)

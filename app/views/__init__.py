@@ -1,4 +1,4 @@
-from .analytics import AnalyticsView, MerchantChartPartialView
+from .analytics import AnalyticsView, MerchantChartPartialView, TrendChartPartialView
 from .auth import home, login_view, logout_view, signup_view
 from .bills import (
     AddIncomeView,
@@ -63,6 +63,7 @@ __all__ = [
     # Analytics
     "AnalyticsView",
     "MerchantChartPartialView",
+    "TrendChartPartialView",
     # Budgets
     "BudgetListView",
     "new_budget",
