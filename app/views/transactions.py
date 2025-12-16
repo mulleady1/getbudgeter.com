@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 
@@ -226,13 +227,9 @@ class TransactionListView(LoginRequiredMixin, View):
         # Check if this is an infinite scroll request
         if request.htmx and request.GET.get("page"):
             # Return only transaction rows for infinite scroll
-            from django.template.loader import render_to_string
-
             return render(request, "transactions/transactions_page.html#transaction-rows", context)
         elif request.htmx and not request.htmx.boosted:
             # Return main table + OOB query count
-            from django.template.loader import render_to_string
-
             table_html = render_to_string(
                 "transactions/transactions_page.html#transactions-table", context, request=request
             )

@@ -136,21 +136,6 @@
       </form>
     </wa-card>
 
-    <!-- Search Box -->
-    <div style="margin-bottom: 1.5rem;">
-      <wa-input
-        name="search"
-        placeholder="Search by keyword or category..."
-        value="{{ search_query }}"
-        hx-get="/category-rules"
-        hx-trigger="keyup changed delay:300ms, search"
-        hx-target="#category-rules-card-wrapper"
-        hx-include="[name='group_by_category']"
-      >
-        <wa-icon slot="prefix" name="search"></wa-icon>
-      </wa-input>
-    </div>
-
     <!-- Rules List -->
     <div id="category-rules-card-wrapper">
     {% partialdef category-rules-card inline %}
@@ -195,6 +180,21 @@
                 Group by category
               </label>
             </div>
+          </div>
+
+          <!-- Search Box -->
+          <div style="margin-bottom: 1rem;">
+            <wa-input
+              name="search"
+              placeholder="Search by keyword or category..."
+              value="{{ search_query }}"
+              hx-get="/category-rules"
+              hx-trigger="keyup changed delay:300ms, search"
+              hx-target="#category-rules-card-wrapper"
+              hx-include="[name='group_by_category']"
+            >
+              <wa-icon slot="prefix" name="search"></wa-icon>
+            </wa-input>
           </div>
 
           <!-- Column Headers -->

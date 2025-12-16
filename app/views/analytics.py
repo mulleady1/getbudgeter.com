@@ -1,13 +1,14 @@
 import json
+from calendar import monthrange
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
 
-from ..models import Transaction
+from ..models import Category, Transaction
 
 
 class AnalyticsView(LoginRequiredMixin, View):
@@ -37,30 +38,54 @@ class AnalyticsView(LoginRequiredMixin, View):
         return None
 
     def get(self, request):
-        from calendar import monthrange
-
         today = datetime.now().date()
-        mode = request.GET.get("mode", "month")
+
+        # If there are no query parameters, try to load from session
+        if not request.GET:
+            session_params = request.session.get("analytics_params", {})
+            mode = session_params.get("mode", "month")
+            month = session_params.get("month", today.strftime("%Y-%m"))
+            year = session_params.get("year", str(today.year))
+            start_date_str = session_params.get("start_date", "")
+            end_date_str = session_params.get("end_date", "")
+            selected_category = session_params.get("category", "all")
+        else:
+            # Get parameters from query string
+            mode = request.GET.get("mode", "month")
+            month = request.GET.get("month", today.strftime("%Y-%m"))
+            year = request.GET.get("year", str(today.year))
+            start_date_str = request.GET.get("start_date", "")
+            end_date_str = request.GET.get("end_date", "")
+            selected_category = request.GET.get("category", "all")
+
+            # Save to session for next visit
+            request.session["analytics_params"] = {
+                "mode": mode,
+                "month": month,
+                "year": year,
+                "start_date": start_date_str,
+                "end_date": end_date_str,
+                "category": selected_category,
+            }
 
         # Calculate date range based on mode
         if mode == "custom":
             # Use custom dates if provided
             start_date = (
-                datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date()
-                if request.GET.get("start_date")
+                datetime.strptime(start_date_str, "%Y-%m-%d").date()
+                if start_date_str
                 else today.replace(day=1)
             )
             end_date = (
-                datetime.strptime(request.GET.get("end_date"), "%Y-%m-%d").date()
-                if request.GET.get("end_date")
+                datetime.strptime(end_date_str, "%Y-%m-%d").date()
+                if end_date_str
                 else today
             )
         elif mode == "year":
             # Parse year input (format: YYYY)
-            year_str = request.GET.get("year")
-            if year_str:
+            if year:
                 try:
-                    selected_year = int(year_str)
+                    selected_year = int(year)
                 except ValueError:
                     selected_year = today.year
             else:
@@ -71,10 +96,9 @@ class AnalyticsView(LoginRequiredMixin, View):
             end_date = datetime(selected_year, 12, 31).date()
         else:  # month mode (default)
             # Parse month input (format: YYYY-MM)
-            month_str = request.GET.get("month")
-            if month_str:
+            if month:
                 try:
-                    selected_month = datetime.strptime(month_str, "%Y-%m").date()
+                    selected_month = datetime.strptime(month, "%Y-%m").date()
                 except ValueError:
                     selected_month = today.replace(day=1)
             else:
@@ -115,8 +139,6 @@ class AnalyticsView(LoginRequiredMixin, View):
         # Spending over time (by week for month mode, by month otherwise)
         if mode == "month":
             # Group by week for month view
-            from datetime import timedelta
-
             weekly_spending = defaultdict(Decimal)
             for trans in transactions:
                 # Get the Monday of the week this transaction belongs to
@@ -150,10 +172,7 @@ class AnalyticsView(LoginRequiredMixin, View):
                 trend_chart_data = None
 
         # Get categories for dropdown
-        from ..models import Category
-
         categories = Category.objects.filter(user=request.user).order_by("name")
-        selected_category = request.GET.get("category", "all")
 
         # Generate merchant chart data with optional category filter
         merchant_chart_data = self.get_merchant_chart_data(transactions, selected_category)
@@ -167,10 +186,10 @@ class AnalyticsView(LoginRequiredMixin, View):
             "total_transactions": transactions.count(),
             "total_spent": sum(abs(t.amount) for t in transactions),
             "mode": mode,
-            "month": request.GET.get("month", today.strftime("%Y-%m")),
-            "year": request.GET.get("year", str(today.year)),
-            "custom_start_date": request.GET.get("start_date", ""),
-            "custom_end_date": request.GET.get("end_date", ""),
+            "month": month,
+            "year": year,
+            "custom_start_date": start_date_str,
+            "custom_end_date": end_date_str,
             "categories": categories,
             "selected_category": selected_category,
         }
@@ -182,30 +201,41 @@ class MerchantChartPartialView(LoginRequiredMixin, View):
     """Partial view for merchant chart with category filter"""
 
     def get(self, request):
-        from calendar import monthrange
-
-        from ..models import Category
-
         today = datetime.now().date()
-        mode = request.GET.get("mode", "month")
+
+        # Get parameters from query string or session
+        if not request.GET:
+            session_params = request.session.get("analytics_params", {})
+            mode = session_params.get("mode", "month")
+            month = session_params.get("month", today.strftime("%Y-%m"))
+            year = session_params.get("year", str(today.year))
+            start_date_str = session_params.get("start_date", "")
+            end_date_str = session_params.get("end_date", "")
+            selected_category = session_params.get("category", "all")
+        else:
+            mode = request.GET.get("mode", "month")
+            month = request.GET.get("month", today.strftime("%Y-%m"))
+            year = request.GET.get("year", str(today.year))
+            start_date_str = request.GET.get("start_date", "")
+            end_date_str = request.GET.get("end_date", "")
+            selected_category = request.GET.get("category", "all")
 
         # Calculate date range based on mode (same logic as main analytics view)
         if mode == "custom":
             start_date = (
-                datetime.strptime(request.GET.get("start_date"), "%Y-%m-%d").date()
-                if request.GET.get("start_date")
+                datetime.strptime(start_date_str, "%Y-%m-%d").date()
+                if start_date_str
                 else today.replace(day=1)
             )
             end_date = (
-                datetime.strptime(request.GET.get("end_date"), "%Y-%m-%d").date()
-                if request.GET.get("end_date")
+                datetime.strptime(end_date_str, "%Y-%m-%d").date()
+                if end_date_str
                 else today
             )
         elif mode == "year":
-            year_str = request.GET.get("year")
-            if year_str:
+            if year:
                 try:
-                    selected_year = int(year_str)
+                    selected_year = int(year)
                 except ValueError:
                     selected_year = today.year
             else:
@@ -213,10 +243,9 @@ class MerchantChartPartialView(LoginRequiredMixin, View):
             start_date = datetime(selected_year, 1, 1).date()
             end_date = datetime(selected_year, 12, 31).date()
         else:  # month mode (default)
-            month_str = request.GET.get("month")
-            if month_str:
+            if month:
                 try:
-                    selected_month = datetime.strptime(month_str, "%Y-%m").date()
+                    selected_month = datetime.strptime(month, "%Y-%m").date()
                 except ValueError:
                     selected_month = today.replace(day=1)
             else:
@@ -233,9 +262,6 @@ class MerchantChartPartialView(LoginRequiredMixin, View):
             amount__gte=0,
             anomaly=False,
         ).select_related("category")
-
-        # Get selected category
-        selected_category = request.GET.get("category", "all")
 
         # Get categories for dropdown
         categories = Category.objects.filter(user=request.user).order_by("name")
