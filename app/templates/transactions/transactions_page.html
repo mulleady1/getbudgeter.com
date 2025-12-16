@@ -13,9 +13,105 @@
       <link rel="stylesheet" href="{% static 'css/transactions_page.css' %}?v={{ UI_VERSION }}" />
     </head>
   {% endif %}
-
   {% csrf_token %}
-  
+
+  <script>
+    function init() {
+      // Clear all checkboxes on page load to prevent browser restoration
+      any("#transactions-table input[type='checkbox']").run((cb) => (cb.checked = false))
+
+      const selectAllCheckbox = me("#select-all")
+      const selectedCountSpan = me("#selected-count")
+      const bulkActionBar = me("#bulk-action-bar")
+      const bulkCategorySelect = me("#bulk-category")
+      const applyButton = me("#bulk-apply")
+      const cancelButton = me("#bulk-cancel")
+
+      function updateBulkActionBar() {
+        const checkboxes = any(".transaction-checkbox")
+        const checkedCheckboxes = any(".transaction-checkbox:checked")
+        const count = checkedCheckboxes.length
+
+        if (count > 0) {
+          bulkActionBar.style.display = "flex"
+          selectedCountSpan.textContent = `${count} selected`
+        } else {
+          bulkActionBar.style.display = "none"
+          bulkCategorySelect.value = ""
+        }
+
+        // Update select-all checkbox state
+        if (count === 0) {
+          selectAllCheckbox.checked = false
+          selectAllCheckbox.indeterminate = false
+        } else if (count === checkboxes.length) {
+          selectAllCheckbox.checked = true
+          selectAllCheckbox.indeterminate = false
+        } else {
+          selectAllCheckbox.checked = false
+          selectAllCheckbox.indeterminate = true
+        }
+
+        // Enable/disable apply button
+        applyButton.disabled = !bulkCategorySelect.value
+      }
+
+      // Select all checkbox
+      selectAllCheckbox.on("change", function () {
+        const checkboxes = any(".transaction-checkbox")
+        checkboxes.run((cb) => (cb.checked = this.checked))
+        updateBulkActionBar()
+      })
+
+      // Individual checkboxes
+      me("body").on("change", function (e) {
+        if (e.target.classList.contains("transaction-checkbox")) {
+          updateBulkActionBar()
+        }
+      })
+
+      // Category select change
+      bulkCategorySelect.on("change", function () {
+        if (this.value === "__add_new__") {
+          // Load new category dialog via htmx
+          htmx.ajax("GET", "/transactions/categories/new", {
+            target: "body",
+            swap: "beforeend",
+          })
+          this.value = "" // Reset select
+          applyButton.disabled = true
+        } else if (this.value === "__manage__") {
+          // Load manage categories dialog via htmx
+          htmx.ajax("GET", "/transactions/categories", {
+            target: "body",
+            swap: "beforeend",
+          })
+          this.value = "" // Reset select
+          applyButton.disabled = true
+        } else {
+          applyButton.disabled = !this.value
+        }
+      })
+
+      // Cancel button
+      cancelButton.on("click", function () {
+        const checkboxes = any(".transaction-checkbox")
+        checkboxes.run((cb) => (cb.checked = false))
+        selectAllCheckbox.checked = false
+        updateBulkActionBar()
+      })
+    }
+
+    function resetCheckboxes() {
+      any("#transactions-table input[type='checkbox']").run((cb) => (cb.checked = false))
+      me("#select-all").checked = false
+      me("#bulk-action-bar").style.display = "none"
+    }
+
+    onloadAdd(init)
+    me("body").on("htmx:load", init)
+  </script>
+
   <div id="transactions-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <span></span>
@@ -28,7 +124,10 @@
     <div id="transaction-list">
       {% if transactions or search_query or selected_category %}
         <!-- Search Bar -->
-        <div class="search-filter-container" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start;">
+        <div
+          class="search-filter-container"
+          style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: flex-start;"
+        >
           <div style="display: flex; gap: 1rem; align-items: flex-start; flex: 1;">
             <div style="flex: 1; max-width: 300px;">
               <div style="position: relative;">
@@ -49,15 +148,6 @@
                 >
                   <wa-icon slot="end" name="magnifying-glass"></wa-icon>
                 </wa-input>
-                <script>
-                  function resetCheckboxes() {
-                    document
-                      .querySelectorAll("#transactions-table input[type='checkbox']")
-                      .forEach((cb) => (cb.checked = false))
-                    document.getElementById("select-all").checked = false
-                    document.getElementById("bulk-action-bar").style.display = "none"
-                  }
-                </script>
               </div>
               {% partialdef query-count inline %}
                 {% if search_query %}
@@ -108,21 +198,21 @@
                 <wa-option value="__manage__">Manage...</wa-option>
               </wa-select>
               <wa-button
-                id="apply-bulk-category"
+                id="bulk-apply"
                 disabled
                 hx-post="/transactions/bulk-categorize"
                 hx-swap="none"
                 hx-on::config-request="
-                const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
+                const checkedBoxes = any('.transaction-checkbox:checked');
                 const transactionIds = Array.from(checkedBoxes).map(cb => cb.value).join(',');
-                const categoryId = document.getElementById('bulk-category').value;
+                const categoryId = me('#bulk-category').value;
                 event.detail.parameters.transaction_ids = transactionIds;
                 event.detail.parameters.category_id = categoryId;
               "
               >
                 Apply
               </wa-button>
-              <wa-button id="cancel-bulk-selection" appearance="plain"> Cancel </wa-button>
+              <wa-button id="bulk-cancel" appearance="plain"> Cancel </wa-button>
             </div>
           </div>
         </div>
@@ -193,7 +283,8 @@
             {% partial transaction-row %}
           {% endfor %}
           {% if has_more %}
-            <tr id="infinite-scroll-trigger"
+            <tr
+              id="infinite-scroll-trigger"
               hx-get="/transactions?page={{ page|add:1 }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}"
               hx-trigger="revealed"
               hx-swap="outerHTML"
@@ -243,96 +334,6 @@
             </td>
           </tr>
         {% endpartialdef transaction-row %}
-
-          <script>
-            ;(function () {
-              // Clear all checkboxes on page load to prevent browser restoration
-              document
-                .querySelectorAll("#transactions-table input[type='checkbox']")
-                .forEach((cb) => (cb.checked = false))
-
-              const selectAllCheckbox = document.getElementById("select-all")
-              const bulkActionBar = document.getElementById("bulk-action-bar")
-              const selectedCountSpan = document.getElementById("selected-count")
-              const bulkCategorySelect = document.getElementById("bulk-category")
-              const applyButton = document.getElementById("apply-bulk-category")
-              const cancelButton = document.getElementById("cancel-bulk-selection")
-
-              function updateBulkActionBar() {
-                const checkboxes = document.querySelectorAll(".transaction-checkbox")
-                const checkedCheckboxes = document.querySelectorAll(".transaction-checkbox:checked")
-                const count = checkedCheckboxes.length
-
-                if (count > 0) {
-                  bulkActionBar.style.display = "flex"
-                  selectedCountSpan.textContent = `${count} selected`
-                } else {
-                  bulkActionBar.style.display = "none"
-                  bulkCategorySelect.value = ""
-                }
-
-                // Update select-all checkbox state
-                if (count === 0) {
-                  selectAllCheckbox.checked = false
-                  selectAllCheckbox.indeterminate = false
-                } else if (count === checkboxes.length) {
-                  selectAllCheckbox.checked = true
-                  selectAllCheckbox.indeterminate = false
-                } else {
-                  selectAllCheckbox.checked = false
-                  selectAllCheckbox.indeterminate = true
-                }
-
-                // Enable/disable apply button
-                applyButton.disabled = !bulkCategorySelect.value
-              }
-
-              // Select all checkbox
-              selectAllCheckbox.addEventListener("change", function () {
-                const checkboxes = document.querySelectorAll(".transaction-checkbox")
-                checkboxes.forEach((cb) => (cb.checked = this.checked))
-                updateBulkActionBar()
-              })
-
-              // Individual checkboxes
-              document.addEventListener("change", function (e) {
-                if (e.target.classList.contains("transaction-checkbox")) {
-                  updateBulkActionBar()
-                }
-              })
-
-              // Category select change
-              bulkCategorySelect.addEventListener("change", function () {
-                if (this.value === "__add_new__") {
-                  // Load new category dialog via htmx
-                  htmx.ajax("GET", "/transactions/categories/new", {
-                    target: "body",
-                    swap: "beforeend",
-                  })
-                  this.value = "" // Reset select
-                  applyButton.disabled = true
-                } else if (this.value === "__manage__") {
-                  // Load manage categories dialog via htmx
-                  htmx.ajax("GET", "/transactions/categories", {
-                    target: "body",
-                    swap: "beforeend",
-                  })
-                  this.value = "" // Reset select
-                  applyButton.disabled = true
-                } else {
-                  applyButton.disabled = !this.value
-                }
-              })
-
-              // Cancel button
-              cancelButton.addEventListener("click", function () {
-                const checkboxes = document.querySelectorAll(".transaction-checkbox")
-                checkboxes.forEach((cb) => (cb.checked = false))
-                selectAllCheckbox.checked = false
-                updateBulkActionBar()
-              })
-            })()
-          </script>
       {% else %}
         <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
       {% endif %}
