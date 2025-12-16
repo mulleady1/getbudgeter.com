@@ -60,7 +60,7 @@
 
       if (firstRun) {
         // Individual checkboxes
-        me("body").on("change", function (e) {
+        me("#transactions-page").on("change", function (e) {
           if (e.target.classList.contains("transaction-checkbox")) {
             updateBulkActionBar()
           }
@@ -114,19 +114,15 @@
       me("#bulk-action-bar").style.display = "none"
     }
 
-    onloadAdd(() => init())
-    
-    if (!document._didAddTransactionsPageOnLoad) {
-      document._didAddTransactionsPageOnLoad = true
-
-      me("body").on("htmx:load", (e) => {
-        var el = e.detail.elt
-        if (el.id === "transactions-table" || (el.tagName === "MAIN" && el.querySelector("#transactions-table") && !el._initialized)) {
-          el._initialized = true
+    setTimeout(() => {
+      init()
+      
+      me("#transactions-page").on("htmx:load", (e) => {
+        if (e.detail.elt.id === "transactions-table") {
           init()
         }
       })
-    }
+    }, 500)
   </script>
 
   <div id="transactions-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
