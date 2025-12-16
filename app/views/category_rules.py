@@ -3,6 +3,7 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.db.models.functions import Lower
 from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
@@ -27,30 +28,26 @@ class CategoryRuleListView(LoginRequiredMixin, View):
 
         # Get user-specific rules with appropriate ordering
         if group_by_category:
-            # Sort by category name, then keyword
+            # Sort by category name, then keyword (case-insensitive)
             rules_queryset = (
                 CategoryRule.objects.filter(user=request.user)
                 .select_related("category")
-                .order_by("category__name", "keyword")
+                .order_by(Lower("category__name"), Lower("keyword"))
             )
         else:
-            # Default: sort by keyword only
-            rules_queryset = CategoryRule.objects.filter(user=request.user).select_related("category").order_by("keyword")
+            # Default: sort by keyword only (case-insensitive)
+            rules_queryset = CategoryRule.objects.filter(user=request.user).select_related("category").order_by(Lower("keyword"))
 
         # Apply search filter if provided
         if search_query:
-            rules_queryset = rules_queryset.filter(
-                keyword__icontains=search_query
-            ) | rules_queryset.filter(
-                category__name__icontains=search_query
-            )
+            rules_queryset = rules_queryset.filter(keyword__icontains=search_query)
 
         # Paginate rules with page size of 50
         paginator = Paginator(rules_queryset, 50)
         page_obj = paginator.get_page(page_number)
 
         # Get categories for dropdown
-        categories = Category.objects.filter(user=request.user).order_by("name")
+        categories = Category.objects.filter(user=request.user).order_by(Lower("name"))
 
         # Determine template based on request type
         if request.htmx and request.GET.get("page"):
