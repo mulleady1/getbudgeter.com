@@ -46,7 +46,7 @@
       <canvas id="merchant-chart"></canvas>
       <script>
         // Delay chart initialization to ensure canvas is properly sized
-        setTimeout(() => {
+        function createMerchantChart() {
           // Destroy existing chart if it exists
           const existingChart = Chart.getChart('merchant-chart')
           if (existingChart) {
@@ -95,7 +95,9 @@
               }
             }
           })
-        }, 100)
+        }
+
+        waitFor(() => typeof window.Chart !== 'undefined').then(() => createMerchantChart())
       </script>
     </div>
   {% else %}

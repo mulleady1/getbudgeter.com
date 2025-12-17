@@ -29,10 +29,10 @@
 
       // Show/hide bulk action bar
       if (count > 0) {
-        bulkBar.style.display = "flex"
+        bulkBar.style.maxHeight = "200px"
         selectedCount.textContent = `${count} selected`
       } else {
-        bulkBar.style.display = "none"
+        bulkBar.style.maxHeight = "0"
         bulkCategory.value = ""
       }
 
@@ -53,16 +53,16 @@
     }
 
     function resetCheckboxes() {
-      any("#transactions-table input[type='checkbox']").run((cb) => (cb.checked = false))
+      any("#transactions-table .transaction-checkbox").run((cb) => (cb.checked = false))
       me("#select-all").checked = false
-      me("#bulk-action-bar").style.display = "none"
+      me("#bulk-action-bar").style.maxHeight = "0"
     }
   </script>
 
   <div
     id="transactions-page"
     style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;"
-    hx-on:load="setTimeout(() => any('#transactions-table input[type=checkbox]').run(cb => cb.checked = false), 100)"
+    hx-on:load="any('#transactions-table .transaction-checkbox').run(cb => cb.checked = false)"
   >
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <span></span>
@@ -136,99 +136,75 @@
           </div>
 
           <!-- Bulk Action Bar -->
-          <div id="bulk-action-bar" style="display: none; align-items: center; gap: 1rem;">
-            <span id="selected-count" style="font-weight: 500;">0 selected</span>
-            <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-              <wa-select
-                id="bulk-category"
-                hx-on:change="
-                  if (this.value === '__add_new__') {
-                    htmx.ajax('GET', '/transactions/categories/new', { target: 'body', swap: 'beforeend' });
-                    this.value = '';
-                    me('#bulk-apply').disabled = true;
-                  } else if (this.value === '__manage__') {
-                    htmx.ajax('GET', '/transactions/categories', { target: 'body', swap: 'beforeend' });
-                    this.value = '';
-                    me('#bulk-apply').disabled = true;
-                  } else {
-                    me('#bulk-apply').disabled = !this.value;
-                  }
-                "
-              >
-                <wa-option value="">Select...</wa-option>
-                {% for category in categories %}
-                  <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
-                {% endfor %}
-                <wa-divider></wa-divider>
-                <wa-option value="__add_new__">New...</wa-option>
-                <wa-option value="__manage__">Manage...</wa-option>
-              </wa-select>
-              <wa-button
-                id="bulk-apply"
-                disabled
-                hx-post="/transactions/bulk-categorize"
-                hx-swap="none"
-                hx-on::config-request="
-                const checkedBoxes = any('.transaction-checkbox:checked');
-                const transactionIds = Array.from(checkedBoxes).map(cb => cb.value).join(',');
-                const categoryId = me('#bulk-category').value;
-                event.detail.parameters.transaction_ids = transactionIds;
-                event.detail.parameters.category_id = categoryId;
-              "
-              >
-                Apply
-              </wa-button>
-              <wa-button
-                id="bulk-cancel"
-                appearance="plain"
-                hx-on:click="any('.transaction-checkbox').run(cb => cb.checked = false); me('#select-all').checked = false; updateBulkBar()"
-              >
-                Cancel
-              </wa-button>
+          <div id="bulk-action-bar" style="max-height: 0; overflow: hidden;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <span id="selected-count" style="font-weight: 500;">0 selected</span>
+              <div style="display: flex; gap: 0.75rem; flex: 1;">
+                <wa-select id="bulk-category">
+                  <script>
+                    me().on("change", e => {
+                      const el = me(e)
+                      const value = el.value
+                      if (value === '__add_new__') {
+                        htmx.ajax('GET', '/transactions/categories/new', { target: 'body', swap: 'beforeend' });
+                        el.value = '';
+                        me('#bulk-apply').disabled = true;
+                      } else if (value === '__manage__') {
+                        htmx.ajax('GET', '/transactions/categories', { target: 'body', swap: 'beforeend' });
+                        el.value = '';
+                        me('#bulk-apply').disabled = true;
+                      } else {
+                        me('#bulk-apply').disabled = !value;
+                      }
+                    })
+                  </script>
+                  <wa-option value="">Select...</wa-option>
+                  {% for category in categories %}
+                    <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
+                  {% endfor %}
+                  <wa-divider></wa-divider>
+                  <wa-option value="__add_new__">New...</wa-option>
+                  <wa-option value="__manage__">Manage...</wa-option>
+                </wa-select>
+                <wa-button
+                  id="bulk-apply"
+                  disabled
+                  hx-post="/transactions/bulk-categorize"
+                  hx-swap="none"
+                  hx-on::config-request="
+                    const checkedBoxes = any('.transaction-checkbox:checked');
+                    const transactionIds = Array.from(checkedBoxes).map(cb => cb.value).join(',');
+                    const categoryId = me('#bulk-category').value;
+                    event.detail.parameters.transaction_ids = transactionIds;
+                    event.detail.parameters.category_id = categoryId;
+                  "
+                >
+                  Apply
+                </wa-button>
+                <wa-button appearance="plain">
+                  <script>
+                    me().on("click", e => {
+                      any('.transaction-checkbox').run(cb => cb.checked = false);
+                      me('#select-all').checked = false;
+                      updateBulkBar();
+                    })
+                  </script>
+                  Cancel
+                </wa-button>
+              </div>
             </div>
           </div>
         </div>
 
-        {% partialdef category-dropdown %}
-          <div style="display: inline-block;">
-            <wa-dropdown class="category-dropdown" placement="bottom-start" distance="4">
-              <span slot="trigger" style="cursor: pointer;">
-                {% if transaction.category %}
-                  <wa-badge
-                    style="--wa-color-fill-loud: {{ transaction.category.color }}; --wa-color-on-loud: {{ transaction.category.get_text_color }};"
-                    >{{ transaction.category.name }}</wa-badge
-                  >
-                {% else %}
-                  <wa-badge variant="neutral">Uncategorized</wa-badge>
-                {% endif %}
-              </span>
-
-              {% for category in categories %}
-                <wa-dropdown-item
-                  hx-get="/transactions/{{ transaction.id }}/token-selection/{{ category.id }}"
-                  hx-target="body"
-                  hx-swap="beforeend"
-                >
-                  {{ category.name }}
-                </wa-dropdown-item>
-              {% endfor %}
-              <wa-divider></wa-divider>
-              <wa-dropdown-item hx-get="/transactions/categories/new" hx-target="body" hx-swap="beforeend">
-                New...
-              </wa-dropdown-item>
-              <wa-dropdown-item hx-get="/transactions/categories" hx-target="body" hx-swap="beforeend">
-                Manage...
-              </wa-dropdown-item>
-            </wa-dropdown>
-          </div>
-        {% endpartialdef category-dropdown %}
-
         {% partialdef transactions-table inline %}
-          <table
-            id="transactions-table"
-            style="width: 100%; border-collapse: collapse;"
-            hx-on:htmx:after-swap="any('#transactions-table input[type=checkbox]').run(cb => cb.checked = false); me('#select-all').checked = false; me('#bulk-action-bar').style.display = 'none'"
-          >
+          <table id="transactions-table" style="width: 100%; border-collapse: collapse;">
+            <script>
+              me().on("htmx:after-swap", e => {
+                any('#transactions-table .transaction-checkbox').run(cb => cb.checked = false);
+                me('#select-all').checked = false;
+                me('#bulk-action-bar').style.display = 'none';
+              })
+            </script>
             <thead>
               <tr style="border-bottom: 2px solid #ddd;">
                 <th style="text-align: left;  width: 40px;">
@@ -238,7 +214,10 @@
                     style="cursor: pointer; width: 18px; height: 18px;"
                     title="Select all"
                     autocomplete="off"
-                    hx-on:change="any('.transaction-checkbox').run(cb => cb.checked = this.checked); updateBulkBar()"
+                    hx-on:change="
+                      any('#transactions-table .transaction-checkbox').run(cb => cb.checked = this.checked);
+                      updateBulkBar()
+                    "
                   />
                 </th>
                 <th style="text-align: left;">Date</th>
@@ -294,8 +273,8 @@
                 type="checkbox"
                 class="anomaly-checkbox"
                 {% if transaction.anomaly %}checked{% endif %}
-                style="cursor: pointer; width: 18px; height: 18px;"
                 autocomplete="off"
+                style="cursor: pointer; width: 18px; height: 18px;"
                 hx-post="/transactions/{{ transaction.id }}/toggle-anomaly"
                 hx-target="closest tr"
                 hx-swap="outerHTML"
@@ -312,6 +291,41 @@
             </td>
           </tr>
         {% endpartialdef transaction-row %}
+
+        {% partialdef category-dropdown %}
+          <div style="display: inline-block;">
+            <wa-dropdown class="category-dropdown" placement="bottom-start" distance="4">
+              <span slot="trigger" style="cursor: pointer;">
+                {% if transaction.category %}
+                  <wa-badge
+                    style="--wa-color-fill-loud: {{ transaction.category.color }}; --wa-color-on-loud: {{ transaction.category.get_text_color }};"
+                    >{{ transaction.category.name }}</wa-badge
+                  >
+                {% else %}
+                  <wa-badge variant="neutral">Uncategorized</wa-badge>
+                {% endif %}
+              </span>
+
+              {% for category in categories %}
+                <wa-dropdown-item
+                  hx-get="/transactions/{{ transaction.id }}/token-selection/{{ category.id }}"
+                  hx-target="body"
+                  hx-swap="beforeend"
+                >
+                  {{ category.name }}
+                </wa-dropdown-item>
+              {% endfor %}
+              <wa-divider></wa-divider>
+              <wa-dropdown-item hx-get="/transactions/categories/new" hx-target="body" hx-swap="beforeend">
+                New...
+              </wa-dropdown-item>
+              <wa-dropdown-item hx-get="/transactions/categories" hx-target="body" hx-swap="beforeend">
+                Manage...
+              </wa-dropdown-item>
+            </wa-dropdown>
+          </div>
+        {% endpartialdef category-dropdown %}
+
       {% else %}
         <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
       {% endif %}

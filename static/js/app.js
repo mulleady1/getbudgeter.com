@@ -145,3 +145,11 @@ function customConfirm(options) {
     }, 100)
   })
 }
+
+async function waitFor(cb) {
+  const max = 100
+  for (let i = 0; i < max; i++) {
+    if (cb()) return
+    await sleep(100)
+  }
+}

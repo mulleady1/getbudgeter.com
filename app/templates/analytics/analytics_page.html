@@ -276,7 +276,7 @@
           </div>
           <canvas id="category-chart"></canvas>
           <script>
-            (() => {
+            function createCategoryChart() {
               const originalData = {{ category_chart_data|safe }}
               const categoryCtx = me('#category-chart').getContext('2d')
               const colors = [
@@ -357,7 +357,9 @@
               me('#category-sort').on('change', (e) => {
                 createChart(e.target.value)
               })
-            })()
+            }
+
+            waitFor(() => typeof window.Chart !== 'undefined').then(() => createCategoryChart())
           </script>
         </div>
       {% endif %}

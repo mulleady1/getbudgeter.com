@@ -10,13 +10,15 @@
   .category-dropdown::part(menu) {
     min-width: 200px;
   }
+
+  #bulk-action-bar {
+    align-self: flex-start;
+  }
 }
 
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
   #transactions-page {
-    padding: 0.5rem 0.5rem 100px !important;
-
     /* Stack search and filter vertically on mobile */
     .search-filter-container {
       flex-direction: column !important;
@@ -41,19 +43,25 @@
 
   /* Bulk action bar mobile adjustments */
   #bulk-action-bar {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    padding: 0.75rem;
-    background: #f5f5f5;
-    border-radius: 8px;
-    gap: 0.75rem !important;
+    width: 100%;
+    transition: max-height 0.2s ease-in-out;
 
     > div {
       flex-direction: column !important;
-      gap: 0.5rem !important;
+      align-items: stretch !important;
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+      gap: 0.75rem !important;
+
+      > div {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+      }
     }
 
     #selected-count {
+      font-size: var(--wa-font-size-s);
       text-align: center;
     }
   }

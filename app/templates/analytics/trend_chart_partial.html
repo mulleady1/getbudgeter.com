@@ -46,7 +46,7 @@
       <canvas id="trend-chart"></canvas>
       <script>
         // Delay chart initialization to ensure canvas is properly sized
-        setTimeout(() => {
+        function createTrendChart() {
           // Destroy existing chart if it exists
           const existingChart = Chart.getChart('trend-chart')
           if (existingChart) {
@@ -97,7 +97,9 @@
               }
             }
           })
-        }, 100)
+        }
+
+        waitFor(() => typeof window.Chart !== 'undefined').then(() => createTrendChart())
       </script>
     </div>
   {% else %}
