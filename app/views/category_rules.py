@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class CategoryRuleListView(LoginRequiredMixin, View):
     def get(self, request):
         # Check if grouping by category is enabled
-        group_by_category = request.GET.get("group_by_category") == "true"
+        group_by_category = request.GET.get("group_by_category") in ["on", "true"]
 
         # Get page number from request
         page_number = request.GET.get("page", 1)
@@ -36,7 +36,9 @@ class CategoryRuleListView(LoginRequiredMixin, View):
             )
         else:
             # Default: sort by keyword only (case-insensitive)
-            rules_queryset = CategoryRule.objects.filter(user=request.user).select_related("category").order_by(Lower("keyword"))
+            rules_queryset = (
+                CategoryRule.objects.filter(user=request.user).select_related("category").order_by(Lower("keyword"))
+            )
 
         # Apply search filter if provided
         if search_query:
@@ -48,6 +50,22 @@ class CategoryRuleListView(LoginRequiredMixin, View):
 
         # Get categories for dropdown
         categories = Category.objects.filter(user=request.user).order_by(Lower("name"))
+
+        # Build query params for checkbox toggle
+        checkbox_params = QueryDict(mutable=True)
+        # Preserve search query across toggle
+        if search_query:
+            checkbox_params["search"] = search_query
+        checkbox_params = checkbox_params.urlencode()
+
+        inf_scroll_params = QueryDict(mutable=True)
+        if page_number:
+            inf_scroll_params["page"] = str(page_obj.next_page_number())
+        if group_by_category:
+            inf_scroll_params["group_by_category"] = "true"
+        if search_query:
+            inf_scroll_params["search"] = search_query
+        inf_scroll_params = inf_scroll_params.urlencode()
 
         # Determine template based on request type
         if request.htmx and request.GET.get("page"):
@@ -65,6 +83,8 @@ class CategoryRuleListView(LoginRequiredMixin, View):
             "categories": categories,
             "group_by_category": group_by_category,
             "search_query": search_query,
+            "checkbox_params": checkbox_params,
+            "inf_scroll_params": inf_scroll_params,
         }
 
         return render(request, template, context)

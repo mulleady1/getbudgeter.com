@@ -85,7 +85,7 @@
     }
   </style>
 
-  <div id="category-rules-page" style="max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem;">
+  <div id="category-rules-page" style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem;">
     <div class="category-rules-header">
       <h1 style="margin: 0; font-size: 1.75rem; font-weight: 600;">Category Rules</h1>
       <wa-button
@@ -166,19 +166,16 @@
                   Toggle all
                 </wa-button>
               {% endif %}
-              <label style="display: flex; align-items: center; cursor: pointer; font-size: 0.9rem;">
-                <input
-                  type="checkbox"
-                  name="group_by_category"
-                  {% if group_by_category %}checked{% endif %}
-                  {% if not group_by_category %}hx-get="/category-rules?group_by_category=true{% if search_query %}&search={{ search_query }}{% endif %}"{% endif %}
-                  {% if group_by_category %}hx-get="/category-rules{% if search_query %}?search={{ search_query }}{% endif %}"{% endif %}
-                  hx-target="closest wa-card"
-                  hx-swap="outerHTML"
-                  style="cursor: pointer;"
-                />
+              <wa-checkbox
+                name="group_by_category"
+                {% if group_by_category %}checked{% endif %}
+                hx-trigger="change"
+                hx-get="/category-rules{% if checkbox_params %}?{{ checkbox_params }}{% endif %}"
+                hx-target="closest wa-card"
+                hx-swap="outerHTML"
+              >
                 Group by category
-              </label>
+              </wa-checkbox>
             </div>
           </div>
 
@@ -239,13 +236,7 @@
                     <div class="category-group" style="display: block;">
                   {% endifchanged %}
                 {% endif %}
-                <div class="rule-grid"
-                  {% if forloop.last and page_obj.has_next %}
-                    hx-get="/category-rules?page={{ page_obj.next_page_number }}{% if group_by_category %}&group_by_category=true{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}"
-                    hx-trigger="revealed"
-                    hx-swap="afterend"
-                  {% endif %}
-                >
+                <div class="rule-grid">
                   <div data-label="Keyword">
                     <wa-input
                       name="keyword"
@@ -292,6 +283,18 @@
                 </div>
               {% endfor %}
               {% if group_by_category and rules %}</div>{% endif %}
+
+              {% if page_obj.has_next %}
+                <div style="text-align: center; padding: 1rem;">
+                  <wa-spinner
+                    hx-get="/category-rules?{{ inf_scroll_params }}"
+                    hx-trigger="revealed"
+                    hx-target="#rules-container"
+                    hx-swap="beforeend"
+                    hx-on::after-request="if (event.detail.successful) this.closest('div').remove()"
+                  ></wa-spinner>
+                </div>
+              {% endif %}
             {% endpartialdef %}
           </div>
         </wa-card>
