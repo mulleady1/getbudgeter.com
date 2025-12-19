@@ -4,7 +4,7 @@
 {% block content %}
   {% csrf_token %}
 
-  <div id="budgets-page" style="max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 100px;">
+  <div id="budgets-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <span></span>
       <wa-button hx-get="/budgets/new" hx-target="body" hx-swap="beforeend">
