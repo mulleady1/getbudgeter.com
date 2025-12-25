@@ -90,7 +90,7 @@ class ReceiptUploadView(LoginRequiredMixin, View):
 
         try:
             # Create initial receipt object to save the image
-            receipt = Receipt(user=request.user, total=Decimal("0.00"), date=None)
+            receipt = Receipt(user=request.user)
             receipt.image = image_file
             receipt.save()
 
