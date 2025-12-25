@@ -15,6 +15,7 @@ from .bills import (
 )
 from .budgets import BudgetEditDeleteView, BudgetListView, new_budget
 from .category_rules import CategoryRuleDetailView, CategoryRuleListView, reprocess_transactions
+from .receipts import ReceiptDetailView, ReceiptListView, ReceiptUploadView, update_receipt_item_category
 from .transactions import (
     CategoryDetailView,
     CategoryListView,
@@ -60,6 +61,11 @@ __all__ = [
     "toggle_anomaly",
     "token_selection_dialog",
     "create_rule_from_token",
+    # Receipts
+    "ReceiptListView",
+    "ReceiptUploadView",
+    "ReceiptDetailView",
+    "update_receipt_item_category",
     # Analytics
     "AnalyticsView",
     "MerchantChartPartialView",

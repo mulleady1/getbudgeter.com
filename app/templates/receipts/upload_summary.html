@@ -1,0 +1,49 @@
+<wa-dialog
+  label="Receipt Uploaded Successfully"
+  class="receipt-upload-summary-dialog"
+  open
+  data-no-autoremove
+  hx-on::wa-hide="this.remove()"
+  style="--wa-size-xl: 600px;"
+>
+  <div style="margin-bottom: 1.5rem;">
+    <wa-alert variant="success" open>
+      <wa-icon slot="icon" name="circle-check"></wa-icon>
+      Your receipt has been successfully uploaded and processed!
+    </wa-alert>
+  </div>
+
+  <div style="background: #f5f5f5; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div>
+        <div style="color: #666; font-size: 0.9rem;">Merchant</div>
+        <div style="font-weight: 500;">{{ receipt.merchant|default:"Unknown" }}</div>
+      </div>
+      <div>
+        <div style="color: #666; font-size: 0.9rem;">Date</div>
+        <div style="font-weight: 500;">{{ receipt.date|date:"M j, Y" }}</div>
+      </div>
+      <div>
+        <div style="color: #666; font-size: 0.9rem;">Total</div>
+        <div style="font-weight: 500; font-size: 1.2rem; color: #388e3c;">${{ receipt.total }}</div>
+      </div>
+      <div>
+        <div style="color: #666; font-size: 0.9rem;">Items Extracted</div>
+        <div style="font-weight: 500;">{{ items_count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+    <wa-button appearance="plain" onclick="me('.receipt-upload-summary-dialog').open = false">Close</wa-button>
+    <wa-button
+      variant="primary"
+      hx-get="{% url 'receipt_detail' receipt.id %}"
+      hx-target="body"
+      hx-swap="beforeend"
+      hx-on::after-request="me('.receipt-upload-summary-dialog').open = false"
+    >
+      View Details
+    </wa-button>
+  </div>
+</wa-dialog>
