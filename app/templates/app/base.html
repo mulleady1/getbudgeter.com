@@ -32,6 +32,7 @@
             <nav class="desktop-nav">
               <a href="{% url 'bills' %}"        class="nav-link {% if request.path|startswith:'/bills' %}active{% endif %}">       <span>Bills</span></a>
               <a href="{% url 'transactions' %}" class="nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}"><span>Transactions</span></a>
+              <a href="{% url 'receipts' %}"     class="nav-link {% if request.path|startswith:'/receipts' %}active{% endif %}">    <span>Receipts</span></a>
               <a href="{% url 'analytics' %}"    class="nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}">   <span>Analytics</span></a>
               <a href="{% url 'budgets' %}"      class="nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}">     <span>Budgets</span></a>
               <wa-dropdown placement="bottom-end">
@@ -68,6 +69,9 @@
                   </a>
                   <a href="{% url 'transactions' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}">
                     Transactions
+                  </a>
+                  <a href="{% url 'receipts' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/receipts' %}active{% endif %}">
+                    Receipts
                   </a>
                   <a href="{% url 'analytics' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}">
                     Analytics
