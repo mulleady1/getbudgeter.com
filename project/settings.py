@@ -37,7 +37,7 @@ SECRET_KEY = "django-insecure-(p3$nbwve@z+wf!&y@0pjhbq7f!d^)id78jac*shkv%_35ns9o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "") == "1"
 
-ALLOWED_HOSTS = ["localhost", "getbudgeter.com"]
+ALLOWED_HOSTS = ["localhost", "getbudgeter.com", "www.getbudgeter.com"]
 
 
 # Application definition
@@ -136,6 +136,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "static_admin"
 
 # Media files (uploads)
 MEDIA_URL = "/media/"
