@@ -177,9 +177,9 @@ class Budget(models.Model):
 class Receipt(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="receipts/%Y/%m/")
-    merchant = models.CharField(max_length=255, blank=True)
-    date = models.DateField(db_index=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    merchant = models.CharField(max_length=255, blank=True, null=True)
+    date = models.DateField(db_index=True, null=True, blank=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     raw_ocr_text = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
