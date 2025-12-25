@@ -21,11 +21,31 @@
 {% endif %}
 
   <div class="analytics-container">
+    <!-- Data Source Toggle -->
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: center;">
+      <wa-select
+        id="data-source-select"
+        name="data_source"
+        value="{% if data_source %}{{ data_source }}{% else %}transactions{% endif %}"
+        style="width: 200px;"
+      >
+        <script>
+          me().on('change', (e) => {
+            const form = me("#date-range-form")
+            form.requestSubmit()
+          })
+        </script>
+        <wa-option value="transactions">Transactions</wa-option>
+        <wa-option value="receipts">Receipts</wa-option>
+      </wa-select>
+    </div>
+
     <!-- Date Range Selector -->
     <form
       id="date-range-form"
       method="get"
     >
+      <input type="hidden" name="data_source" value="{{ data_source|default:'transactions' }}" />
       <script>
         // Set up debounced submit on the form itself
         var form = me()
@@ -244,7 +264,7 @@
     <div id="analytics-content">
       <div class="stats-summary">
         <div class="stat-item">
-          <p class="stat-label">Total Transactions</p>
+          <p class="stat-label">Total {% if data_source == 'receipts' %}Receipts{% else %}Transactions{% endif %}</p>
           <p class="stat-value">{{ total_transactions|intcomma }}</p>
         </div>
         <div class="stat-item">
@@ -368,13 +388,15 @@
         {% include "analytics/trend_chart_partial.html" %}
       </div>
 
-      <div id="merchant-chart-container">
-        {% include "analytics/merchant_chart_partial.html" %}
-      </div>
+      {% if data_source != 'receipts' %}
+        <div id="merchant-chart-container">
+          {% include "analytics/merchant_chart_partial.html" %}
+        </div>
+      {% endif %}
 
       {% if not category_chart_data and not trend_chart_data and not merchant_chart_data %}
         <p class="empty-state">
-          No transaction data available. Upload some transactions to see analytics.
+          No {% if data_source == 'receipts' %}receipt{% else %}transaction{% endif %} data available. Upload some {% if data_source == 'receipts' %}receipts{% else %}transactions{% endif %} to see analytics.
         </p>
       {% endif %}
     </div>

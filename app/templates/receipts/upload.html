@@ -1,0 +1,52 @@
+<wa-dialog
+  label="Upload Receipt"
+  class="receipt-upload-dialog"
+  open
+  data-no-autoremove
+  hx-on::wa-hide="this.remove()"
+  style="--wa-size-xl: 600px;"
+>
+  <form
+    hx-post="{% url 'upload_receipt' %}"
+    hx-target="body"
+    hx-swap="beforeend"
+    hx-encoding="multipart/form-data"
+    hx-on::after-request="if (event.detail.successful) { me('.receipt-upload-dialog').open = false; htmx.ajax('GET', '/receipts', {target:'#receipts-page', swap:'innerHTML'}) }"
+  >
+    {% csrf_token %}
+
+    {% if error %}
+      <wa-alert variant="danger" open style="margin-bottom: 1rem;">
+        <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
+        {{ error }}
+      </wa-alert>
+    {% endif %}
+
+    <div style="margin-bottom: 1.5rem;">
+      <label for="receipt_image" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Receipt Image</label>
+      <input
+        type="file"
+        id="receipt_image"
+        name="receipt_image"
+        accept="image/*"
+        capture="environment"
+        required
+        style="display: block; width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
+      />
+      <p style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+        Supported formats: JPG, PNG, GIF, BMP, TIFF (max 10MB)
+      </p>
+      <p style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
+        The receipt will be automatically processed to extract merchant, date, and items.
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+      <wa-button type="button" appearance="plain" onclick="me('.receipt-upload-dialog').open = false">Cancel</wa-button>
+      <wa-button type="submit" variant="primary">
+        <wa-icon slot="start" name="upload"></wa-icon>
+        Upload
+      </wa-button>
+    </div>
+  </form>
+</wa-dialog>

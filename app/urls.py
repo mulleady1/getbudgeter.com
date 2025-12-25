@@ -31,7 +31,12 @@ urlpatterns = [
     path("transactions/<int:transaction_id>/toggle-anomaly",   views.toggle_anomaly,                    name="toggle_anomaly"),
     path("transactions/<int:transaction_id>/token-selection/<int:category_id>",  views.token_selection_dialog,  name="token_selection_dialog"),
     path("transactions/<int:transaction_id>/create-rule",      views.create_rule_from_token,            name="create_rule_from_token"),
-    
+
+    path("receipts",                                           views.ReceiptListView.as_view(),         name="receipts"),
+    path("receipts/upload",                                    views.ReceiptUploadView.as_view(),       name="upload_receipt"),
+    path("receipts/<int:receipt_id>",                          views.ReceiptDetailView.as_view(),       name="receipt_detail"),
+    path("receipts/items/<int:item_id>/category",              views.update_receipt_item_category,      name="update_receipt_item_category"),
+
     path("category-rules",                                     views.CategoryRuleListView.as_view(),    name="category_rules"),
     path("category-rules/reprocess",                           views.reprocess_transactions,            name="reprocess_transactions"),
     path("category-rules/<int:rule_id>",                       views.CategoryRuleDetailView.as_view(),  name="category_rule_edit_delete"),
