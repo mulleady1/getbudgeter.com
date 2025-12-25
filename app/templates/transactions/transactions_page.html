@@ -101,7 +101,7 @@
                 </wa-input>
               </div>
               {% partialdef query-count inline %}
-                {% if search_query %}
+                {% if search_query or page > 1 %}
                   <div id="query-count" hx-swap-oob="true" style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
                     Showing {{ showing_count }} of {{ total_count }} transactions
                   </div>
@@ -202,7 +202,7 @@
               me().on("htmx:after-swap", e => {
                 any('#transactions-table .transaction-checkbox').run(cb => cb.checked = false);
                 me('#select-all').checked = false;
-                me('#bulk-action-bar').style.display = 'none';
+                me('#bulk-action-bar').style.maxHeight = '0';
               })
             </script>
             <thead>

@@ -92,6 +92,8 @@
         appearance="outlined"
         hx-post="/category-rules/reprocess"
         hx-confirm="This will recategorize all your transactions based on your current rules. Continue?"
+        hx-target="body"
+        hx-swap="beforeend"
       >
         Reprocess transactions
       </wa-button>

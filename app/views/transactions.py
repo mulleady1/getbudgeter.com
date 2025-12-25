@@ -227,7 +227,13 @@ class TransactionListView(LoginRequiredMixin, View):
         # Check if this is an infinite scroll request
         if request.htmx and request.GET.get("page"):
             # Return only transaction rows for infinite scroll
-            return render(request, "transactions/transactions_page.html#transaction-rows", context)
+            table_html = render_to_string(
+                "transactions/transactions_page.html#transaction-rows", context, request=request
+            )
+            query_count_html = render_to_string(
+                "transactions/transactions_page.html#query-count", context, request=request
+            )
+            return HttpResponse(table_html + query_count_html)
         elif request.htmx and not request.htmx.boosted:
             # Return main table + OOB query count
             table_html = render_to_string(

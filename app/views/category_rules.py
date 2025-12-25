@@ -59,7 +59,7 @@ class CategoryRuleListView(LoginRequiredMixin, View):
         checkbox_params = checkbox_params.urlencode()
 
         inf_scroll_params = QueryDict(mutable=True)
-        if page_number:
+        if page_obj.has_next():
             inf_scroll_params["page"] = str(page_obj.next_page_number())
         if group_by_category:
             inf_scroll_params["group_by_category"] = "true"
@@ -216,12 +216,15 @@ def reprocess_transactions(request):
         message = f"Successfully updated {updated_count} of {total_count} transactions."
 
     alert_html = f"""
-    <wa-callout variant="success" open style="margin-bottom: 1rem;">
-      <script>
-        setTimeout(() => me().remove(), 5000)
-      </script>
-      {message}
-    </wa-callout>
+    <div style="position: fixed; top: 60px; right: 50%; transform: translateX(50%);">
+        <wa-callout variant="success" open>
+        <script>
+            var el = me()
+            setTimeout(() => el.remove(), 5000)
+        </script>
+        {message}
+        </wa-callout>
+    </div>
     """
 
     res = HttpResponse(alert_html)
