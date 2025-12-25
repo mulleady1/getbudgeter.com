@@ -1,5 +1,5 @@
 asgiref==3.11.0
-Django==5.1.15
+Django==6.0
 django-htmx==1.15.0
 django-stubs==5.2.7
 django-stubs-ext==5.2.7
