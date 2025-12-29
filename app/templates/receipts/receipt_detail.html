@@ -1,7 +1,7 @@
-<wa-dialog
+<wa-drawer
   label="Receipt Details"
   class="receipt-detail-dialog"
-  style="--wa-size-xl: 800px;"
+  style="--size: 50vw;"
 >
   {% partialdef process-with-ai-success %}
     <wa-callout variant="success" style="margin-bottom: 1rem;">
@@ -56,15 +56,15 @@
     </div>
   </div>
 
-  <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: space-between; border-top: 1px solid #ddd; padding-top: 1rem;">
+  <div slot="footer" style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: space-between; padding-top: 1rem;">
     <wa-button
       variant="primary"
       appearance="outline"
       hx-post="{% url 'process_receipt_with_ai' receipt.id %}"
-      hx-target="closest wa-dialog"
+      hx-target="closest wa-drawer"
       hx-swap="afterbegin"
     >
-      <wa-icon slot="start" name="sparkles"></wa-icon>
+      <wa-icon slot="start" library="tabler" name="sparkles" ></wa-icon>
       Process With AI
     </wa-button>
     <div style="display: flex; gap: 0.5rem;">
@@ -81,7 +81,7 @@
       </wa-button>
     </div>
   </div>
-</wa-dialog>
+</wa-drawer>
 
 {% partialdef item-row %}
   <tr style="border-bottom: 1px solid #eee;">
