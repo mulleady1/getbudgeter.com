@@ -12,12 +12,12 @@
   >
     {% csrf_token %}
 
-    {% if error %}
+    {% partialdef error %}
       <wa-callout variant="danger" open style="margin-bottom: 1rem;">
         <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
         {{ error }}
       </wa-callout>
-    {% endif %}
+    {% endpartialdef error %}
 
     <div style="margin-bottom: 1.5rem;">
       <label for="receipt_image" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Receipt Image</label>

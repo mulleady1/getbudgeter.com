@@ -137,7 +137,7 @@ class ReceiptUploadView(LoginRequiredMixin, View):
         except Exception as e:
             logger.error("Error processing receipt upload: %s", str(e), exc_info=True)
             context = {"error": f"Error processing receipt: {str(e)}"}
-            return render(request, "receipts/upload.html", context)
+            return render(request, "receipts/upload.html#error", context)
 
 
 class ReceiptDetailView(LoginRequiredMixin, View):
