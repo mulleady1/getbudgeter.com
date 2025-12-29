@@ -40,6 +40,15 @@ class ReceiptOCRProcessor:
                 logger.info("Converting image from mode %s to RGB", image.mode)
                 image = image.convert('RGB')
 
+            # Handle MPO and other special formats that pytesseract doesn't recognize
+            # by creating a new standard PIL Image from the data
+            if image.format in ('MPO', 'WEBP') or image.format not in ('JPEG', 'PNG', 'TIFF', 'BMP'):
+                logger.info("Converting from format %s to standard PIL Image", image.format)
+                # Create a new image from the existing one to remove format-specific metadata
+                new_image = Image.new(image.mode, image.size)
+                new_image.putdata(list(image.getdata()))
+                image = new_image
+
             # Perform OCR
             raw_text = pytesseract.image_to_string(image)
 
