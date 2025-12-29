@@ -1,7 +1,7 @@
 <wa-drawer
   label="Receipt Details"
   class="receipt-detail-dialog"
-  style="--size: 50vw;"
+  {% if not is_mobile %}style="--size: 50vw;"{% endif %}
 >
   {% partialdef process-success %}
     <wa-callout variant="success" style="margin-bottom: 1rem;">
@@ -56,8 +56,32 @@
     </div>
   </div>
 
-  <div slot="footer" style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: space-between; padding-top: 1rem;">
-    <div style="display: flex; gap: 0.5rem;">
+  <style>
+    .receipt-footer {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: space-between;
+      padding-top: 1rem;
+    }
+    .receipt-footer-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    @media (max-width: 768px) {
+      .receipt-footer {
+        flex-direction: column;
+      }
+      .receipt-footer-group {
+        flex-direction: column;
+      }
+      .receipt-footer wa-button {
+        width: 100%;
+      }
+    }
+  </style>
+  <div slot="footer" class="receipt-footer">
+    <div class="receipt-footer-group">
       <wa-button
         variant="primary"
         appearance="outline"
@@ -79,7 +103,7 @@
         Process With AI
       </wa-button>
     </div>
-    <div style="display: flex; gap: 0.5rem;">
+    <div class="receipt-footer-group">
       <wa-button appearance="plain" onclick="me('.receipt-detail-dialog').open = false">Close</wa-button>
       <wa-button
         variant="danger"
