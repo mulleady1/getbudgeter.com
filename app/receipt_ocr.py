@@ -33,6 +33,12 @@ class ReceiptOCRProcessor:
         try:
             # Open and preprocess image
             image = Image.open(image_path)
+            logger.info("Opened image: format=%s, mode=%s, size=%s", image.format, image.mode, image.size)
+
+            # Convert to RGB mode if necessary (pytesseract works best with RGB)
+            if image.mode not in ('RGB', 'L'):
+                logger.info("Converting image from mode %s to RGB", image.mode)
+                image = image.convert('RGB')
 
             # Perform OCR
             raw_text = pytesseract.image_to_string(image)
