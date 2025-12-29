@@ -1,3 +1,4 @@
+anthropic==0.75.0
 asgiref==3.11.0
 Django==6.0
 django-htmx==1.15.0
