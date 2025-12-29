@@ -3,12 +3,12 @@
   class="receipt-detail-dialog"
   style="--size: 50vw;"
 >
-  {% partialdef process-with-ai-success %}
+  {% partialdef process-success %}
     <wa-callout variant="success" style="margin-bottom: 1rem;">
       <wa-icon slot="icon" name="check-circle"></wa-icon>
-      Receipt processed successfully with AI! Items and totals have been updated.
+      Receipt processed successfully with {{ processing_method }}! Items and totals have been updated.
     </wa-callout>
-  {% endpartialdef process-with-ai-success %}
+  {% endpartialdef process-success %}
 
   <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
     <!-- Receipt Image -->
@@ -57,16 +57,28 @@
   </div>
 
   <div slot="footer" style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: space-between; padding-top: 1rem;">
-    <wa-button
-      variant="primary"
-      appearance="outline"
-      hx-post="{% url 'process_receipt_with_ai' receipt.id %}"
-      hx-target="closest wa-drawer"
-      hx-swap="afterbegin"
-    >
-      <wa-icon slot="start" library="tabler" name="sparkles" ></wa-icon>
-      Process With AI
-    </wa-button>
+    <div style="display: flex; gap: 0.5rem;">
+      <wa-button
+        variant="primary"
+        appearance="outline"
+        hx-post="{% url 'process_receipt_image' receipt.id %}?type=ocr"
+        hx-target="closest wa-drawer"
+        hx-swap="afterbegin"
+      >
+        <wa-icon slot="start" library="tabler" name="text-scan-2"></wa-icon>
+        Process With OCR
+      </wa-button>
+      <wa-button
+        variant="primary"
+        appearance="outline"
+        hx-post="{% url 'process_receipt_image' receipt.id %}?type=ai"
+        hx-target="closest wa-drawer"
+        hx-swap="afterbegin"
+      >
+        <wa-icon slot="start" library="tabler" name="sparkles" ></wa-icon>
+        Process With AI
+      </wa-button>
+    </div>
     <div style="display: flex; gap: 0.5rem;">
       <wa-button appearance="plain" onclick="me('.receipt-detail-dialog').open = false">Close</wa-button>
       <wa-button

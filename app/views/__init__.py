@@ -19,7 +19,7 @@ from .receipts import (
     ReceiptDetailView,
     ReceiptListView,
     ReceiptUploadView,
-    process_receipt_with_ai,
+    process_receipt_image,
     update_receipt_item_category,
 )
 from .transactions import (
@@ -72,7 +72,7 @@ __all__ = [
     "ReceiptUploadView",
     "ReceiptDetailView",
     "update_receipt_item_category",
-    "process_receipt_with_ai",
+    "process_receipt_image",
     # Analytics
     "AnalyticsView",
     "MerchantChartPartialView",

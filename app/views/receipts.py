@@ -175,39 +175,57 @@ def update_receipt_item_category(request, item_id):
 
 @login_required
 @require_http_methods(["POST"])
-def process_receipt_with_ai(request, receipt_id):
-    """Process a receipt with AI to extract items and totals"""
+def process_receipt_image(request, receipt_id):
+    """Process a receipt image with either OCR or AI based on the type parameter"""
     receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
 
+    # Get the processing type from query parameters (default to 'ocr')
+    processing_type = request.GET.get("type", "ocr")
+
     try:
-        # Check if ANTHROPIC_API_KEY is configured
-        if not os.getenv("ANTHROPIC_API_KEY"):
+        if processing_type == "ai":
+            # Check if ANTHROPIC_API_KEY is configured
+            if not os.getenv("ANTHROPIC_API_KEY"):
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "AI processing is not configured. Please add ANTHROPIC_API_KEY to your environment.",
+                    },
+                    status=500,
+                )
+
+            # Process the receipt with AI
+            ai_processor = AIReceiptProcessor()
+            data = ai_processor.process_receipt(receipt.image.path)
+            processing_method = "AI"
+
+        elif processing_type == "ocr":
+            # Process the receipt with OCR
+            ocr_processor = ReceiptOCRProcessor()
+            data = ocr_processor.process_receipt(receipt.image.path)
+            processing_method = "OCR"
+        else:
             return JsonResponse(
-                {
-                    "success": False,
-                    "error": "AI processing is not configured. Please add ANTHROPIC_API_KEY to your environment.",
-                },
-                status=500,
+                {"success": False, "error": f"Invalid processing type: {processing_type}"},
+                status=400,
             )
 
-        # Process the receipt with AI
-        ai_processor = AIReceiptProcessor()
-        ai_data = ai_processor.process_receipt(receipt.image.path)
-
-        # Update receipt with AI data
-        receipt.merchant = ai_data["merchant"]
-        receipt.date = ai_data["date"]
-        receipt.total = ai_data["total"]
+        # Update receipt with processed data
+        receipt.merchant = data["merchant"]
+        receipt.date = data["date"]
+        receipt.total = data["total"]
+        if processing_type == "ocr":
+            receipt.raw_ocr_text = data["raw_text"]
         receipt.save()
 
-        # Delete existing items and create new ones from AI
+        # Delete existing items and create new ones
         receipt.items.all().delete()
 
         # Create new receipt items with categorization
         categorizer = TransactionCategorizer(request.user)
-        for item_data in ai_data["items"]:
+        for item_data in data["items"]:
             # Try to categorize the item
-            category = categorizer.categorize(merchant=ai_data["merchant"], description=item_data["description"])
+            category = categorizer.categorize(merchant=data["merchant"], description=item_data["description"])
 
             ReceiptItem.objects.create(
                 receipt=receipt,
@@ -217,15 +235,16 @@ def process_receipt_with_ai(request, receipt_id):
             )
 
         logger.info(
-            "User %s processed receipt %s with AI: %d items extracted, total $%s",
+            "User %s processed receipt %s with %s: %d items extracted, total $%s",
             request.user.username,
             receipt_id,
-            len(ai_data["items"]),
+            processing_method,
+            len(data["items"]),
             receipt.total,
         )
 
-        return render(request, "receipts/receipt_detail.html#process-with-ai-success")
+        return render(request, "receipts/receipt_detail.html#process-success", {"processing_method": processing_method})
 
     except Exception as e:
-        logger.error("Error processing receipt %s with AI: %s", receipt_id, str(e), exc_info=True)
+        logger.error("Error processing receipt %s with %s: %s", receipt_id, processing_type.upper(), str(e), exc_info=True)
         return JsonResponse({"success": False, "error": f"Error processing receipt: {str(e)}"}, status=500)
