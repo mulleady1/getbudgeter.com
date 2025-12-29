@@ -1,14 +1,15 @@
 import logging
-from decimal import Decimal
+import os
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 
+from ..ai_receipt_processor import AIReceiptProcessor
 from ..categorization import TransactionCategorizer
 from ..models import Category, Receipt, ReceiptItem
 from ..receipt_ocr import ReceiptOCRProcessor
@@ -109,9 +110,7 @@ class ReceiptUploadView(LoginRequiredMixin, View):
             categorizer = TransactionCategorizer(request.user)
             for item_data in ocr_data["items"]:
                 # Try to categorize the item
-                category = categorizer.categorize(
-                    merchant=ocr_data["merchant"], description=item_data["description"]
-                )
+                category = categorizer.categorize(merchant=ocr_data["merchant"], description=item_data["description"])
 
                 ReceiptItem.objects.create(
                     receipt=receipt,
@@ -146,7 +145,9 @@ class ReceiptDetailView(LoginRequiredMixin, View):
         receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
         items = receipt.items.all()
         categories = Category.objects.filter(user=request.user).order_by("name")
-        return render(request, "receipts/receipt_detail.html", {"receipt": receipt, "items": items, "categories": categories})
+        return render(
+            request, "receipts/receipt_detail.html", {"receipt": receipt, "items": items, "categories": categories}
+        )
 
     def delete(self, request, receipt_id):
         receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
@@ -170,3 +171,61 @@ def update_receipt_item_category(request, item_id):
 
     categories = Category.objects.filter(user=request.user).order_by("name")
     return render(request, "receipts/receipt_detail.html#item-row", {"item": item, "categories": categories})
+
+
+@login_required
+@require_http_methods(["POST"])
+def process_receipt_with_ai(request, receipt_id):
+    """Process a receipt with AI to extract items and totals"""
+    receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
+
+    try:
+        # Check if ANTHROPIC_API_KEY is configured
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "AI processing is not configured. Please add ANTHROPIC_API_KEY to your environment.",
+                },
+                status=500,
+            )
+
+        # Process the receipt with AI
+        ai_processor = AIReceiptProcessor()
+        ai_data = ai_processor.process_receipt(receipt.image.path)
+
+        # Update receipt with AI data
+        receipt.merchant = ai_data["merchant"]
+        receipt.date = ai_data["date"]
+        receipt.total = ai_data["total"]
+        receipt.save()
+
+        # Delete existing items and create new ones from AI
+        receipt.items.all().delete()
+
+        # Create new receipt items with categorization
+        categorizer = TransactionCategorizer(request.user)
+        for item_data in ai_data["items"]:
+            # Try to categorize the item
+            category = categorizer.categorize(merchant=ai_data["merchant"], description=item_data["description"])
+
+            ReceiptItem.objects.create(
+                receipt=receipt,
+                description=item_data["description"],
+                amount=item_data["amount"],
+                category=category,
+            )
+
+        logger.info(
+            "User %s processed receipt %s with AI: %d items extracted, total $%s",
+            request.user.username,
+            receipt_id,
+            len(ai_data["items"]),
+            receipt.total,
+        )
+
+        return render(request, "receipts/receipt_detail.html#process-with-ai-success")
+
+    except Exception as e:
+        logger.error("Error processing receipt %s with AI: %s", receipt_id, str(e), exc_info=True)
+        return JsonResponse({"success": False, "error": f"Error processing receipt: {str(e)}"}, status=500)

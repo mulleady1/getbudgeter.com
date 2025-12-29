@@ -2,7 +2,7 @@
 
 import logging
 import re
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -68,7 +68,7 @@ class ReceiptOCRProcessor:
             return lines[0][:255]  # Limit to 255 chars
         return None
 
-    def _extract_date(self, text: str) -> Optional[datetime]:
+    def _extract_date(self, text: str) -> Optional[date]:
         """Extract date from receipt text"""
         # Common date patterns
         date_patterns = [
@@ -164,7 +164,7 @@ class ReceiptOCRProcessor:
 
         # Fall back to summing items
         if items:
-            return sum(item["amount"] for item in items)
+            return Decimal(sum(item["amount"] for item in items))
 
         # Last resort: find the largest dollar amount in the text
         all_amounts = re.findall(r"\$?(\d+\.\d{2})", text)

@@ -35,6 +35,7 @@ urlpatterns = [
     path("receipts",                                           views.ReceiptListView.as_view(),         name="receipts"),
     path("receipts/upload",                                    views.ReceiptUploadView.as_view(),       name="upload_receipt"),
     path("receipts/<int:receipt_id>",                          views.ReceiptDetailView.as_view(),       name="receipt_detail"),
+    path("receipts/<int:receipt_id>/process-ai",               views.process_receipt_with_ai,           name="process_receipt_with_ai"),
     path("receipts/items/<int:item_id>/category",              views.update_receipt_item_category,      name="update_receipt_item_category"),
 
     path("category-rules",                                     views.CategoryRuleListView.as_view(),    name="category_rules"),

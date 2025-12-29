@@ -1,9 +1,6 @@
 <wa-dialog
   label="Upload Receipt"
   class="receipt-upload-dialog"
-  open
-  data-no-autoremove
-  hx-on::wa-hide="this.remove()"
   style="--wa-size-xl: 600px;"
 >
   <form
@@ -16,10 +13,10 @@
     {% csrf_token %}
 
     {% if error %}
-      <wa-alert variant="danger" open style="margin-bottom: 1rem;">
+      <wa-callout variant="danger" open style="margin-bottom: 1rem;">
         <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
         {{ error }}
-      </wa-alert>
+      </wa-callout>
     {% endif %}
 
     <div style="margin-bottom: 1.5rem;">

@@ -1,11 +1,15 @@
 <wa-dialog
   label="Receipt Details"
   class="receipt-detail-dialog"
-  open
-  data-no-autoremove
-  hx-on::wa-hide="this.remove()"
   style="--wa-size-xl: 800px;"
 >
+  {% partialdef process-with-ai-success %}
+    <wa-callout variant="success" style="margin-bottom: 1rem;">
+      <wa-icon slot="icon" name="check-circle"></wa-icon>
+      Receipt processed successfully with AI! Items and totals have been updated.
+    </wa-callout>
+  {% endpartialdef process-with-ai-success %}
+
   <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
     <!-- Receipt Image -->
     <div>
@@ -52,18 +56,30 @@
     </div>
   </div>
 
-  <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: flex-end; border-top: 1px solid #ddd; padding-top: 1rem;">
-    <wa-button appearance="plain" onclick="me('.receipt-detail-dialog').open = false">Close</wa-button>
+  <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: space-between; border-top: 1px solid #ddd; padding-top: 1rem;">
     <wa-button
-      variant="danger"
-      appearance="plain"
-      hx-delete="{% url 'receipt_detail' receipt.id %}"
-      hx-confirm="Are you sure you want to delete this receipt?"
-      hx-on::after-request="me('.receipt-detail-dialog').open = false; htmx.ajax('GET', '/receipts', {target:'#receipts-page', swap:'innerHTML'})"
+      variant="primary"
+      appearance="outline"
+      hx-post="{% url 'process_receipt_with_ai' receipt.id %}"
+      hx-target="closest wa-dialog"
+      hx-swap="afterbegin"
     >
-      <wa-icon slot="start" name="trash"></wa-icon>
-      Delete Receipt
+      <wa-icon slot="start" name="sparkles"></wa-icon>
+      Process With AI
     </wa-button>
+    <div style="display: flex; gap: 0.5rem;">
+      <wa-button appearance="plain" onclick="me('.receipt-detail-dialog').open = false">Close</wa-button>
+      <wa-button
+        variant="danger"
+        appearance="plain"
+        hx-delete="{% url 'receipt_detail' receipt.id %}"
+        hx-confirm="Are you sure you want to delete this receipt?"
+        hx-on::after-request="me('.receipt-detail-dialog').open = false; htmx.ajax('GET', '/receipts', {target:'#receipts-page', swap:'innerHTML'})"
+      >
+        <wa-icon slot="start" name="trash"></wa-icon>
+        Delete Receipt
+      </wa-button>
+    </div>
   </div>
 </wa-dialog>
 

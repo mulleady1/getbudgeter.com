@@ -15,7 +15,13 @@ from .bills import (
 )
 from .budgets import BudgetEditDeleteView, BudgetListView, new_budget
 from .category_rules import CategoryRuleDetailView, CategoryRuleListView, reprocess_transactions
-from .receipts import ReceiptDetailView, ReceiptListView, ReceiptUploadView, update_receipt_item_category
+from .receipts import (
+    ReceiptDetailView,
+    ReceiptListView,
+    ReceiptUploadView,
+    process_receipt_with_ai,
+    update_receipt_item_category,
+)
 from .transactions import (
     CategoryDetailView,
     CategoryListView,
@@ -66,6 +72,7 @@ __all__ = [
     "ReceiptUploadView",
     "ReceiptDetailView",
     "update_receipt_item_category",
+    "process_receipt_with_ai",
     # Analytics
     "AnalyticsView",
     "MerchantChartPartialView",

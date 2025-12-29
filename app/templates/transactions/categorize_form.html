@@ -1,4 +1,4 @@
-<wa-dialog label="Categorize Transaction" style="--width: 500px;" open>
+<wa-dialog label="Categorize Transaction" style="--width: 500px;">
   <form hx-put="/transactions/{{ transaction.id }}" hx-swap="outerHTML">
     {% csrf_token %}
 
