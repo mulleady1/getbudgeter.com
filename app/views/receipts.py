@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
 from django_htmx.http import trigger_client_event
@@ -134,7 +135,7 @@ class ReceiptUploadView(LoginRequiredMixin, View):
             }
 
             res = render(request, "receipts/upload_summary.html", context)
-            trigger_client_event(res, 'reload-receipts')
+            trigger_client_event(res, "reload-receipts")
             return res
 
         except Exception as e:
@@ -147,9 +148,12 @@ class ReceiptDetailView(LoginRequiredMixin, View):
     def get(self, request, receipt_id):
         receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
         items = receipt.items.all()
+        item_count = items.count()
         categories = Category.objects.filter(user=request.user).order_by("name")
         return render(
-            request, "receipts/receipt_detail.html", {"receipt": receipt, "items": items, "categories": categories}
+            request,
+            "receipts/receipt_detail.html",
+            {"receipt": receipt, "items": items, "categories": categories, "item_count": item_count},
         )
 
     def delete(self, request, receipt_id):
@@ -246,8 +250,28 @@ def process_receipt_image(request, receipt_id):
             receipt.total,
         )
 
-        return render(request, "receipts/receipt_detail.html#process-success", {"processing_method": processing_method})
+        dialog_html = render_to_string(
+            "receipts/receipt_detail.html#dialog-content",
+            context={
+                "process_success": True,
+                "processing_method": processing_method,
+                "receipt": receipt,
+                "items": data["items"],
+                "item_count": len(data["items"]),
+            },
+            request=request,
+        )
+
+        list_item_html = render_to_string(
+            "receipts/receipts_page.html#receipt-row",
+            context={"receipt": receipt, "swap": True},
+            request=request,
+        )
+
+        return HttpResponse(dialog_html + list_item_html)
 
     except Exception as e:
-        logger.error("Error processing receipt %s with %s: %s", receipt_id, processing_type.upper(), str(e), exc_info=True)
+        logger.error(
+            "Error processing receipt %s with %s: %s", receipt_id, processing_type.upper(), str(e), exc_info=True
+        )
         return JsonResponse({"success": False, "error": f"Error processing receipt: {str(e)}"}, status=500)
