@@ -1,0 +1,28 @@
+#receipts-page {
+}
+
+.receipt-detail-dialog {
+  .receipt-footer {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    padding-top: 1rem;
+    width: 100%;
+  }
+  .receipt-footer-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+  @media (max-width: 768px) {
+    .receipt-footer {
+      flex-direction: column;
+    }
+    .receipt-footer-group {
+      flex-direction: column;
+    }
+    .receipt-footer wa-button {
+      width: 100%;
+    }
+  }
+}

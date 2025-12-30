@@ -1,5 +1,5 @@
-<wa-dialog label="Upload CSV">
-  <form hx-post="{% url 'upload_csv' %}" hx-encoding="multipart/form-data" hx-swap="outerHTML">
+<wa-drawer label="Upload CSV" {% if not is_mobile %}style="--size: 50vw;"{% endif %}>
+  <form id="transaction-upload-form" hx-post="/transactions/upload" hx-encoding="multipart/form-data" hx-swap="outerHTML">
     {% csrf_token %}
 
     {% if error %}
@@ -26,9 +26,10 @@
       </p>
     </div>
 
-    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
-      <wa-button appearance="outlined" onclick="this.closest('wa-dialog').open = false">Cancel</wa-button>
-      <wa-button type="submit">Upload</wa-button>
-    </div>
   </form>
-</wa-dialog>
+  
+  <div slot="footer" style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
+    <wa-button form="transaction-upload-form" type="submit">Upload</wa-button>
+  </div>
+</wa-drawer>

@@ -1,14 +1,14 @@
-<wa-dialog
+<wa-drawer
   label="Upload Receipt"
   class="receipt-upload-dialog"
-  style="--wa-size-xl: 600px;"
+  {% if not is_mobile %}style="--size: 50vw;"{% endif %}
 >
   <form
-    hx-post="{% url 'upload_receipt' %}"
+    id="receipt-upload-form"
+    hx-post="/receipts/upload"
     hx-target="body"
     hx-swap="beforeend"
     hx-encoding="multipart/form-data"
-    hx-on::after-request="if (event.detail.successful) { me('.receipt-upload-dialog').open = false; htmx.ajax('GET', '/receipts', {target:'#receipts-page', swap:'innerHTML'}) }"
   >
     {% csrf_token %}
 
@@ -37,12 +37,13 @@
       </p>
     </div>
 
-    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-      <wa-button type="button" appearance="plain" onclick="me('.receipt-upload-dialog').open = false">Cancel</wa-button>
-      <wa-button type="submit" variant="primary">
-        <wa-icon slot="start" name="upload"></wa-icon>
-        Upload
-      </wa-button>
-    </div>
   </form>
-</wa-dialog>
+
+  <div slot="footer" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+    <wa-button type="button" appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
+    <wa-button form="receipt-upload-form" type="submit" variant="primary">
+      <wa-icon slot="start" name="upload"></wa-icon>
+      Upload
+    </wa-button>
+  </div>
+</wa-drawer>

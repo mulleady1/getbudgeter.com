@@ -8,6 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
+from django_htmx.http import trigger_client_event
 
 from ..ai_receipt_processor import AIReceiptProcessor
 from ..categorization import TransactionCategorizer
@@ -132,7 +133,9 @@ class ReceiptUploadView(LoginRequiredMixin, View):
                 "items_count": len(ocr_data["items"]),
             }
 
-            return render(request, "receipts/upload_summary.html", context)
+            res = render(request, "receipts/upload_summary.html", context)
+            trigger_client_event(res, 'reload-receipts')
+            return res
 
         except Exception as e:
             logger.error("Error processing receipt upload: %s", str(e), exc_info=True)

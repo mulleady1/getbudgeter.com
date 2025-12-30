@@ -1,4 +1,4 @@
-<wa-drawer
+<wa-drawer  
   label="Receipt Details"
   class="receipt-detail-dialog"
   {% if not is_mobile %}style="--size: 50vw;"{% endif %}
@@ -56,37 +56,11 @@
     </div>
   </div>
 
-  <style>
-    .receipt-footer {
-      margin-top: 1.5rem;
-      display: flex;
-      gap: 0.5rem;
-      justify-content: space-between;
-      padding-top: 1rem;
-      width: 100%;
-    }
-    .receipt-footer-group {
-      display: flex;
-      gap: 0.5rem;
-    }
-    @media (max-width: 768px) {
-      .receipt-footer {
-        flex-direction: column;
-      }
-      .receipt-footer-group {
-        flex-direction: column;
-      }
-      .receipt-footer wa-button {
-        width: 100%;
-      }
-    }
-  </style>
   <div slot="footer" class="receipt-footer">
     <div class="receipt-footer-group">
       <wa-button
-        variant="primary"
-        appearance="outline"
-        hx-post="{% url 'process_receipt_image' receipt.id %}?type=ocr"
+        appearance="outlined"
+        hx-post="/receipts/{{ receipt.id }}/process-image?type=ocr"
         hx-target="closest wa-drawer"
         hx-swap="afterbegin"
       >
@@ -94,28 +68,27 @@
         Process With OCR
       </wa-button>
       <wa-button
-        variant="primary"
-        appearance="outline"
-        hx-post="{% url 'process_receipt_image' receipt.id %}?type=ai"
+        appearance="outlined"
+        hx-post="/receipts/{{ receipt.id }}/process-image?type=ai"
         hx-target="closest wa-drawer"
         hx-swap="afterbegin"
       >
         <wa-icon slot="start" library="tabler" name="sparkles" ></wa-icon>
         Process With AI
       </wa-button>
-    </div>
-    <div class="receipt-footer-group">
-      <wa-button appearance="plain" onclick="me('.receipt-detail-dialog').open = false">Close</wa-button>
       <wa-button
         variant="danger"
-        appearance="plain"
-        hx-delete="{% url 'receipt_detail' receipt.id %}"
+        appearance="filled-outlined"
+        hx-delete="/receipts/{{ receipt.id }}"
         hx-confirm="Are you sure you want to delete this receipt?"
         hx-on::after-request="me('.receipt-detail-dialog').open = false; htmx.ajax('GET', '/receipts', {target:'#receipts-page', swap:'innerHTML'})"
       >
         <wa-icon slot="start" name="trash"></wa-icon>
-        Delete Receipt
+        Delete
       </wa-button>
+    </div>
+    <div class="receipt-footer-group">
+      <wa-button appearance="plain" onclick="me('.receipt-detail-dialog').open = false">Close</wa-button>
     </div>
   </div>
 </wa-drawer>
@@ -137,7 +110,7 @@
 
         {% for category in categories %}
           <wa-dropdown-item
-            hx-put="{% url 'update_receipt_item_category' item.id %}"
+            hx-put="/receipts/items/{{ item.id }}/category"
             hx-target="closest tr"
             hx-swap="outerHTML"
             hx-vals='{"category": "{{ category.id }}"}'
