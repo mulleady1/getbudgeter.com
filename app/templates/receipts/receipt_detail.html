@@ -84,7 +84,6 @@
         appearance="filled-outlined"
         hx-delete="/receipts/{{ receipt.id }}"
         hx-confirm="Are you sure you want to delete this receipt?"
-        hx-on::after-request="me('.receipt-detail-dialog').open = false; htmx.ajax('GET', '/receipts', {target:'#receipts-page', swap:'innerHTML'})"
       >
         <wa-icon slot="start" name="trash"></wa-icon>
         Delete

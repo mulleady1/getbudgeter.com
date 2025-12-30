@@ -39,7 +39,7 @@
                   with-clear
                   hx-get="/receipts"
                   hx-trigger="keyup changed delay:300ms, search, wa-clear"
-                  hx-target="#receipts-page"
+                  hx-target="#receipts-grid"
                   hx-swap="innerHTML"
                   hx-push-url="true"
                 >
@@ -60,8 +60,6 @@
           id="receipts-grid"
           hx-get="/receipts"
           hx-trigger="reload-receipts from:body"
-          hx-select="#receipts-grid"
-          hx-disinherit="hx-select"
           style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;"
         >
           {% partialdef receipt-rows inline %}

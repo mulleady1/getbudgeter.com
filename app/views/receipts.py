@@ -63,7 +63,7 @@ class ReceiptListView(LoginRequiredMixin, View):
         }
 
         # Check if this is an infinite scroll request
-        if request.htmx and request.GET.get("page"):
+        if request.htmx and (request.GET.get("page") or not request.htmx.boosted):
             return render(request, "receipts/receipts_page.html#receipt-rows", context)
         else:
             return render(request, "receipts/receipts_page.html", context)
@@ -159,7 +159,9 @@ class ReceiptDetailView(LoginRequiredMixin, View):
     def delete(self, request, receipt_id):
         receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
         receipt.delete()
-        return HttpResponse()
+        res = HttpResponse()
+        trigger_client_event(res, "reload-receipts")
+        return res
 
 
 @login_required
