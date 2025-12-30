@@ -323,7 +323,7 @@ def new_category_dialog(request):
 def token_selection_dialog(request, transaction_id, category_id):
     """Return the token selection dialog for creating a category rule"""
     transaction = get_object_or_404(Transaction, id=transaction_id, user=request.user)
-    category = get_object_or_404(Category, id=category_id, user=request.user)
+    get_object_or_404(Category, id=category_id, user=request.user)
 
     # Split the transaction description into tokens (on whitespace)
     text = transaction.description

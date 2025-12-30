@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.generic import View
 
-from ..models import Category, Receipt, ReceiptItem, Transaction
+from ..models import Category, Receipt, Transaction
 
 
 class AnalyticsView(LoginRequiredMixin, View):
@@ -132,15 +132,9 @@ class AnalyticsView(LoginRequiredMixin, View):
         if mode == "custom":
             # Use custom dates if provided
             start_date = (
-                datetime.strptime(start_date_str, "%Y-%m-%d").date()
-                if start_date_str
-                else today.replace(day=1)
+                datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else today.replace(day=1)
             )
-            end_date = (
-                datetime.strptime(end_date_str, "%Y-%m-%d").date()
-                if end_date_str
-                else today
-            )
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() if end_date_str else today
         elif mode == "year":
             # Parse year input (format: YYYY)
             if year:
@@ -295,15 +289,9 @@ class MerchantChartPartialView(LoginRequiredMixin, View):
         # Calculate date range based on mode (same logic as main analytics view)
         if mode == "custom":
             start_date = (
-                datetime.strptime(start_date_str, "%Y-%m-%d").date()
-                if start_date_str
-                else today.replace(day=1)
+                datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else today.replace(day=1)
             )
-            end_date = (
-                datetime.strptime(end_date_str, "%Y-%m-%d").date()
-                if end_date_str
-                else today
-            )
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() if end_date_str else today
         elif mode == "year":
             if year:
                 try:
@@ -377,15 +365,9 @@ class TrendChartPartialView(LoginRequiredMixin, View):
         # Calculate date range based on mode (same logic as main analytics view)
         if mode == "custom":
             start_date = (
-                datetime.strptime(start_date_str, "%Y-%m-%d").date()
-                if start_date_str
-                else today.replace(day=1)
+                datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else today.replace(day=1)
             )
-            end_date = (
-                datetime.strptime(end_date_str, "%Y-%m-%d").date()
-                if end_date_str
-                else today
-            )
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() if end_date_str else today
         elif mode == "year":
             if year:
                 try:

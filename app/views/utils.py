@@ -79,7 +79,7 @@ def get_random_color():
     # Convert HSL to RGB
     h = hue / 360
     s = saturation / 100
-    l = lightness / 100
+    l = lightness / 100  # noqa: E741
 
     def hue_to_rgb(p, q, t):
         if t < 0:
