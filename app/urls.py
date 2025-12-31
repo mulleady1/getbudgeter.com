@@ -36,6 +36,9 @@ urlpatterns = [
     path("receipts/upload",                                    views.ReceiptUploadView.as_view(),       name="upload_receipt"),
     path("receipts/<int:receipt_id>",                          views.ReceiptDetailView.as_view(),       name="receipt_detail"),
     path("receipts/<int:receipt_id>/process-image",            views.process_receipt_image,             name="process_receipt_image"),
+    path("receipts/<int:receipt_id>/merchant/edit",            views.edit_receipt_merchant,             name="edit_receipt_merchant"),
+    path("receipts/<int:receipt_id>/merchant",                 views.update_receipt_merchant,           name="update_receipt_merchant"),
+    path("receipts/<int:receipt_id>/merchant/cancel",          views.cancel_edit_merchant,              name="cancel_edit_merchant"),
     path("receipts/items/<int:item_id>/category",              views.update_receipt_item_category,      name="update_receipt_item_category"),
 
     path("category-rules",                                     views.CategoryRuleListView.as_view(),    name="category_rules"),

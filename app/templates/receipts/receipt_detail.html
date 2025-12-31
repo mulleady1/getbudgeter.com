@@ -1,11 +1,6 @@
-<wa-drawer  
-  label="Receipt Details"
-  class="receipt-detail-dialog"
-  {% if not is_mobile %}style="--size: 50vw;"{% endif %}
->
+<wa-drawer label="Receipt Details" class="receipt-detail-dialog" {% if not is_mobile %}style="--size: 50vw;"{% endif %}>
   {% partialdef dialog-content inline %}
     <div class="receipt-detail-content">
-        
       {% if process_success %}
         <wa-callout variant="success" style="margin-bottom: 1rem;">
           <wa-icon slot="icon" name="check-circle"></wa-icon>
@@ -18,14 +13,16 @@
         <div>
           <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
             {% if receipt.image %}
-              <img src="{{ receipt.image.url }}" alt="Receipt" style="width: 100%; height: auto; max-height: 50vh; object-fit: cover; display: block;" />
+              <img
+                src="{{ receipt.image.url }}"
+                alt="Receipt"
+                style="width: 100%; height: auto; max-height: 50vh; object-fit: cover; display: block;"
+              />
             {% endif %}
           </div>
           <div style="margin-top: 1rem;">
             <div style="font-weight: 600; margin-bottom: 0.5rem;">Receipt Info</div>
-            <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
-              <span style="color: #666;">Merchant:</span> {{ receipt.merchant|default:"Unknown" }}
-            </div>
+            {% partial merchant-field %}
             <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
               <span style="color: #666;">Date:</span> {{ receipt.date|date:"M j, Y" }}
             </div>
@@ -76,7 +73,7 @@
         hx-post="/receipts/{{ receipt.id }}/process-image?type=ai"
         hx-target=".receipt-detail-content"
       >
-        <wa-icon slot="start" library="tabler" name="sparkles" ></wa-icon>
+        <wa-icon slot="start" library="tabler" name="sparkles"></wa-icon>
         Process With AI
       </wa-button>
       <wa-button
@@ -104,7 +101,8 @@
           {% if item.category %}
             <wa-badge
               style="--wa-color-fill-loud: {{ item.category.color }}; --wa-color-on-loud: {{ item.category.get_text_color }};"
-            >{{ item.category.name }}</wa-badge>
+              >{{ item.category.name }}</wa-badge
+            >
           {% else %}
             <wa-badge variant="neutral">Uncategorized</wa-badge>
           {% endif %}
@@ -125,3 +123,48 @@
     <td style="text-align: right; padding: 0.5rem; font-weight: 500; color: #388e3c;">${{ item.amount }}</td>
   </tr>
 {% endpartialdef item-row %}
+
+{% partialdef merchant-field %}
+  <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+    <span style="color: #666;">Merchant:</span>
+    <span
+      hx-get="/receipts/{{ receipt.id }}/merchant/edit"
+      hx-target="this"
+      hx-swap="outerHTML"
+      style="cursor: pointer; padding: 0.25rem; border-radius: 4px; display: inline-block;"
+      onmouseover="this.style.backgroundColor='#f0f0f0'"
+      onmouseout="this.style.backgroundColor='transparent'"
+    >
+      {{ receipt.merchant|default:"Unknown" }}
+    </span>
+  </div>
+{% endpartialdef merchant-field %}
+
+{% partialdef merchant-edit-form %}
+  <form
+    hx-put="/receipts/{{ receipt.id }}/merchant"
+    hx-target="closest div"
+    hx-swap="outerHTML"
+    style="display: inline-flex; gap: 0.5rem; align-items: center;"
+  >
+    <wa-input
+      name="merchant"
+      value="{{ receipt.merchant|default:'' }}"
+      style="width: 200px; display: inline-block;"
+      autofocus
+    ></wa-input>
+    <wa-button type="submit" appearance="plain" size="small">
+      <wa-icon name="check"></wa-icon>
+    </wa-button>
+    <wa-button
+      type="button"
+      appearance="plain"
+      size="small"
+      hx-get="/receipts/{{ receipt.id }}/merchant/cancel"
+      hx-target="closest div"
+      hx-swap="outerHTML"
+    >
+      <wa-icon name="x"></wa-icon>
+    </wa-button>
+  </form>
+{% endpartialdef merchant-edit-form %}

@@ -183,6 +183,38 @@ def update_receipt_item_category(request, item_id):
 
 
 @login_required
+@require_http_methods(["GET"])
+def edit_receipt_merchant(request, receipt_id):
+    """Show the merchant edit form"""
+    receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
+    return render(request, "receipts/receipt_detail.html#merchant-edit-form", {"receipt": receipt})
+
+
+@login_required
+@require_http_methods(["PUT"])
+def update_receipt_merchant(request, receipt_id):
+    """Update the merchant name of a receipt"""
+    from django.http import QueryDict
+
+    receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
+    data = QueryDict(request.body)
+    merchant = data.get("merchant", "").strip()
+
+    receipt.merchant = merchant if merchant else None
+    receipt.save()
+
+    return render(request, "receipts/receipt_detail.html#merchant-field", {"receipt": receipt})
+
+
+@login_required
+@require_http_methods(["GET"])
+def cancel_edit_merchant(request, receipt_id):
+    """Cancel editing the merchant name"""
+    receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
+    return render(request, "receipts/receipt_detail.html#merchant-field", {"receipt": receipt})
+
+
+@login_required
 @require_http_methods(["POST"])
 def process_receipt_image(request, receipt_id):
     """Process a receipt image with either OCR or AI based on the type parameter"""

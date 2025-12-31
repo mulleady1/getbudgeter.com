@@ -13,39 +13,15 @@
 
 {% block content %}
 
-{% if request.htmx %}
-  <head>
-    <link rel="stylesheet" href="{% static 'css/analytics_page.css' %}?v={{ UI_VERSION }}" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  </head>
-{% endif %}
+  {% if request.htmx %}
+    <head>
+      <link rel="stylesheet" href="{% static 'css/analytics_page.css' %}?v={{ UI_VERSION }}" />
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    </head>
+  {% endif %}
 
   <div class="analytics-container">
-    <!-- Data Source Toggle -->
-    <div style="margin-bottom: 1.5rem; display: flex; justify-content: center;">
-      <wa-select
-        id="data-source-select"
-        name="data_source"
-        value="{% if data_source %}{{ data_source }}{% else %}transactions{% endif %}"
-        style="width: 200px;"
-      >
-        <script>
-          me().on('change', (e) => {
-            const form = me("#date-range-form")
-            form.requestSubmit()
-          })
-        </script>
-        <wa-option value="transactions">Transactions</wa-option>
-        <wa-option value="receipts">Receipts</wa-option>
-      </wa-select>
-    </div>
-
-    <!-- Date Range Selector -->
-    <form
-      id="date-range-form"
-      method="get"
-    >
-      <input type="hidden" name="data_source" value="{{ data_source|default:'transactions' }}" />
+    <form id="date-range-form" method="get">
       <script>
         // Set up debounced submit on the form itself
         var form = me()
@@ -56,6 +32,25 @@
       </script>
 
       <div class="form-fields">
+        <!--
+        <wa-select
+          label="Data Source"
+          id="data-source-select"
+          name="data_source"
+          value="{% if data_source %}{{ data_source }}{% else %}transactions{% endif %}"
+          style="width: 200px;"
+        >
+          <script>
+            me().on("change", (e) => {
+              const form = me("#date-range-form")
+              form.requestSubmit()
+            })
+          </script>
+          <wa-option value="transactions">Transactions</wa-option>
+          <wa-option value="receipts">Receipts</wa-option>
+        </wa-select>
+        -->
+
         <!-- Mode Selection -->
         <div class="mode-selector">
           <wa-select
@@ -65,7 +60,7 @@
             value="{% if mode %}{{ mode }}{% else %}month{% endif %}"
           >
             <script>
-              me().on('change', (e) => {
+              me().on("change", e => {
                 const mode = e.target.value
                 const form = me("#date-range-form")
                 const monthContainer = me("#month-input-container")
@@ -102,12 +97,16 @@
         <!-- Month Input -->
         <div
           id="month-input-container"
-          style="display: {% if mode == 'month' %}flex{% else %}none{% endif %};"
+          {% if mode == 'month' %}
+            style="display: flex;"
+          {% else %}
+            style="display: none;"
+          {% endif %}
         >
           <div class="month-arrow-btn">
             <wa-button size="small" appearance="plain" type="button">
               <script>
-                me().on('click', () => {
+                me().on("click", () => {
                   const form = me("#date-range-form")
                   const monthInput = me("#month-input")
                   const currentValue = monthInput.value
@@ -131,15 +130,9 @@
           </div>
 
           <div class="month-input-wrapper">
-            <wa-input
-              label="Month"
-              type="month"
-              id="month-input"
-              name="month"
-              value="{{ month }}"
-            >
+            <wa-input label="Month" type="month" id="month-input" name="month" value="{{ month }}">
               <script>
-                me().on('change', () => {
+                me().on("change", () => {
                   me("#date-range-form").debouncedSubmit()
                 })
               </script>
@@ -149,7 +142,7 @@
           <div class="month-arrow-btn">
             <wa-button size="small" appearance="plain" type="button">
               <script>
-                me().on('click', () => {
+                me().on("click", () => {
                   const form = me("#date-range-form")
                   const monthInput = me("#month-input")
                   const currentValue = monthInput.value
@@ -176,12 +169,16 @@
         <!-- Year Input -->
         <div
           id="year-input-container"
-          style="display: {% if mode == 'year' %}flex{% else %}none{% endif %};"
+          {% if mode == 'year' %}
+            style="display: flex;"
+          {% else %}
+            style="display: none;"
+          {% endif %}
         >
           <div class="month-arrow-btn">
             <wa-button size="small" appearance="plain" type="button">
               <script>
-                me().on('click', () => {
+                me().on("click", () => {
                   const form = me("#date-range-form")
                   const yearInput = me("#year-input")
                   const currentValue = parseInt(yearInput.value)
@@ -196,17 +193,9 @@
           </div>
 
           <div class="month-input-wrapper">
-            <wa-input
-              label="Year"
-              type="number"
-              id="year-input"
-              name="year"
-              value="{{ year }}"
-              min="2000"
-              max="2099"
-            >
+            <wa-input label="Year" type="number" id="year-input" name="year" value="{{ year }}" min="2000" max="2099">
               <script>
-                me().on('change', () => {
+                me().on("change", () => {
                   me("#date-range-form").debouncedSubmit()
                 })
               </script>
@@ -216,7 +205,7 @@
           <div class="month-arrow-btn">
             <wa-button size="small" appearance="plain" type="button">
               <script>
-                me().on('click', () => {
+                me().on("click", () => {
                   const form = me("#date-range-form")
                   const yearInput = me("#year-input")
                   const currentValue = parseInt(yearInput.value)
@@ -234,7 +223,11 @@
         <!-- Custom Date Range Inputs -->
         <div
           id="custom-dates"
-          style="display: {% if mode == 'custom' %}flex{% else %}none{% endif %};"
+          {% if mode == 'custom' %}
+            style="display: flex;"
+          {% else %}
+            style="display: none;"
+          {% endif %}
         >
           <wa-input
             label="Start Date"
@@ -254,7 +247,11 @@
 
         <div
           id="apply-button"
-          style="display: {% if mode == 'custom' %}flex{% else %}none{% endif %};"
+          {% if mode == 'custom' %}
+            style="display: flex;"
+          {% else %}
+            style="display: none;"
+          {% endif %}
         >
           <wa-button type="submit">Apply</wa-button>
         </div>
@@ -269,27 +266,18 @@
         </div>
         <div class="stat-item">
           <p class="stat-label">Total Spent</p>
-          <p class="stat-value negative">
-            {{ total_spent|currency }}
-          </p>
+          <p class="stat-value negative">{{ total_spent|currency }}</p>
         </div>
         <div class="stat-item">
           <p class="stat-label">Date Range</p>
-          <p class="stat-value">
-            {{ start_date|date:"n/j/Y" }} - {{ end_date|date:"n/j/Y" }}
-          </p>
+          <p class="stat-value">{{ start_date|date:"n/j/Y" }} - {{ end_date|date:"n/j/Y" }}</p>
         </div>
       </div>
 
       {% if category_chart_data %}
         <div class="chart-container category-chart-section" style="padding-bottom: 3rem;">
           <div class="chart-filter">
-            <wa-select
-              id="category-sort"
-              name="category-sort"
-              size="small"
-              value="amount"
-            >
+            <wa-select id="category-sort" name="category-sort" size="small" value="amount">
               <wa-option value="name">Sort by Name</wa-option>
               <wa-option value="amount">Sort by Amount</wa-option>
             </wa-select>
@@ -298,10 +286,18 @@
           <script>
             function createCategoryChart() {
               const originalData = {{ category_chart_data|safe }}
-              const categoryCtx = me('#category-chart').getContext('2d')
+              const categoryCtx = me("#category-chart").getContext("2d")
               const colors = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+                "#FF6384",
+                "#36A2EB",
+                "#FFCE56",
+                "#4BC0C0",
+                "#9966FF",
+                "#FF9F40",
+                "#FF6384",
+                "#C9CBCF",
+                "#4BC0C0",
+                "#FF6384"
               ]
 
               let categoryChart = null
@@ -314,7 +310,7 @@
                 }))
 
                 // Sort based on selection
-                if (sortBy === 'name') {
+                if (sortBy === "name") {
                   pairs.sort((a, b) => a.label.localeCompare(b.label))
                 } else {
                   pairs.sort((a, b) => b.value - a.value)
@@ -336,13 +332,15 @@
                 const sortedData = sortData(sortBy)
 
                 categoryChart = new Chart(categoryCtx, {
-                  type: 'pie',
+                  type: "pie",
                   data: {
                     labels: sortedData.labels,
-                    datasets: [{
-                      data: sortedData.data,
-                      backgroundColor: colors
-                    }]
+                    datasets: [
+                      {
+                        data: sortedData.data,
+                        backgroundColor: colors
+                      }
+                    ]
                   },
                   options: {
                     responsive: true,
@@ -350,18 +348,22 @@
                     plugins: {
                       title: {
                         display: true,
-                        text: 'Spending by Category',
+                        text: "Spending by Category",
                         font: { size: 16 }
                       },
                       legend: {
-                        position: 'bottom'
+                        position: "bottom"
                       },
                       tooltip: {
                         callbacks: {
-                          label: (context) => {
-                            const label = context.label || ''
+                          label: context => {
+                            const label = context.label || ""
                             const value = context.parsed || 0
-                            return label + ': $' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                            return (
+                              label +
+                              ": $" +
+                              value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                            )
                           }
                         }
                       }
@@ -371,32 +373,29 @@
               }
 
               // Initial chart with amount sort
-              createChart('amount')
+              createChart("amount")
 
               // Listen for sort changes
-              me('#category-sort').on('change', (e) => {
+              me("#category-sort").on("change", e => {
                 createChart(e.target.value)
               })
             }
 
-            waitFor(() => typeof window.Chart !== 'undefined').then(() => createCategoryChart())
+            waitFor(() => typeof window.Chart !== "undefined").then(() => createCategoryChart())
           </script>
         </div>
       {% endif %}
 
-      <div id="trend-chart-container">
-        {% include "analytics/trend_chart_partial.html" %}
-      </div>
+      <div id="trend-chart-container">{% include "analytics/trend_chart_partial.html" %}</div>
 
       {% if data_source != 'receipts' %}
-        <div id="merchant-chart-container">
-          {% include "analytics/merchant_chart_partial.html" %}
-        </div>
+        <div id="merchant-chart-container">{% include "analytics/merchant_chart_partial.html" %}</div>
       {% endif %}
 
       {% if not category_chart_data and not trend_chart_data and not merchant_chart_data %}
         <p class="empty-state">
-          No {% if data_source == 'receipts' %}receipt{% else %}transaction{% endif %} data available. Upload some {% if data_source == 'receipts' %}receipts{% else %}transactions{% endif %} to see analytics.
+          No {% if data_source == 'receipts' %}receipt{% else %}transaction{% endif %} data available. Upload some
+          {% if data_source == 'receipts' %}receipts{% else %}transactions{% endif %} to see analytics.
         </p>
       {% endif %}
     </div>

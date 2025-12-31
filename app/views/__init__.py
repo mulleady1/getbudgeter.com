@@ -19,8 +19,11 @@ from .receipts import (
     ReceiptDetailView,
     ReceiptListView,
     ReceiptUploadView,
+    cancel_edit_merchant,
+    edit_receipt_merchant,
     process_receipt_image,
     update_receipt_item_category,
+    update_receipt_merchant,
 )
 from .transactions import (
     CategoryDetailView,
@@ -73,6 +76,9 @@ __all__ = [
     "ReceiptDetailView",
     "update_receipt_item_category",
     "process_receipt_image",
+    "edit_receipt_merchant",
+    "update_receipt_merchant",
+    "cancel_edit_merchant",
     # Analytics
     "AnalyticsView",
     "MerchantChartPartialView",
