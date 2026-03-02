@@ -114,12 +114,6 @@
   }
 
   #transactions-table {
-    /* Hide description column on mobile - too much info */
-    th:nth-child(4),
-    td:nth-child(4) {
-      display: none;
-    }
-
     /* Make table scrollable horizontally */
     display: block;
     overflow-x: auto;
@@ -142,11 +136,6 @@
     th:nth-child(2),
     td:nth-child(2) {
       width: 80px;
-    }
-
-    th:nth-child(3),
-    td:nth-child(3) {
-      width: 220px;
     }
 
     th:nth-child(5),
