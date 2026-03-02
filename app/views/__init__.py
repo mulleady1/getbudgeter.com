@@ -33,6 +33,7 @@ from .transactions import (
     UploadCSVView,
     bulk_categorize_transactions,
     create_rule_from_token,
+    get_filter_options,
     new_category_dialog,
     toggle_anomaly,
     token_selection_dialog,
@@ -70,6 +71,7 @@ __all__ = [
     "toggle_anomaly",
     "token_selection_dialog",
     "create_rule_from_token",
+    "get_filter_options",
     # Receipts
     "ReceiptListView",
     "ReceiptUploadView",

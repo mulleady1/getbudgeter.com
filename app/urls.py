@@ -24,6 +24,7 @@ urlpatterns = [
     path("transactions",                                       views.TransactionListView.as_view(),     name="transactions"),
     path("transactions/upload",                                views.UploadCSVView.as_view(),           name="upload_csv"),
     path("transactions/bulk-categorize",                       views.bulk_categorize_transactions,      name="bulk_categorize_transactions"),
+    path("transactions/filter-options/<str:filter_type>",      views.get_filter_options,                name="filter_options"),
     path("transactions/categories",                            views.CategoryListView.as_view(),        name="category_list_create"),
     path("transactions/categories/new",                        views.new_category_dialog,               name="new_category_dialog"),
     path("transactions/categories/<int:category_id>",          views.CategoryDetailView.as_view(),      name="category_edit_delete"),

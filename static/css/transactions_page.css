@@ -2,9 +2,18 @@
   th,
   td {
     padding: 0.4em;
+    vertical-align: middle;
+  }
+
+  tbody td {
     input[type="checkbox"] {
       transform: translateY(3px);
     }
+  }
+
+  th:nth-child(3),
+  td:nth-child(3) {
+    display: none;
   }
 
   .category-dropdown::part(menu) {
@@ -13,6 +22,36 @@
 
   #bulk-action-bar {
     align-self: flex-start;
+  }
+
+  .filter-trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #bbb;
+  }
+
+  .filter-trigger:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #666;
+  }
+
+  .filter-trigger.active {
+    color: var(--wa-color-primary, #0066cc);
+  }
+
+  .excel-filter-container label {
+    display: block;
+    transition: background 0.1s;
+  }
+
+  .excel-filter-container label:hover {
+    background: rgba(0, 0, 0, 0.03);
   }
 }
 
@@ -38,6 +77,14 @@
       wa-input {
         max-width: 100% !important;
       }
+    }
+
+    .excel-filter-container {
+      width: 280px !important;
+    }
+
+    .filter-checkbox-list {
+      max-height: 200px !important;
     }
   }
 

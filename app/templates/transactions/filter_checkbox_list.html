@@ -1,0 +1,10 @@
+{% for item in items %}
+  <label class="{{ filter_type }}-checkbox-item"
+         style="display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.5rem; border-bottom: 1px solid #f0f0f0; cursor: pointer; min-width: 0;">
+    <input type="checkbox"
+           value="{{ item }}"
+           {% if item in selected_items %}checked{% endif %}
+           style="flex-shrink: 0;">
+    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item }}</span>
+  </label>
+{% endfor %}

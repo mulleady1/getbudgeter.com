@@ -172,7 +172,12 @@ class TransactionListView(LoginRequiredMixin, View):
         # Get filter parameters
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
+        date_mode = request.GET.get("date_mode", "range")
         category_id = request.GET.get("category")
+        merchants = [m for m in request.GET.get("merchants", "").split(",") if m]
+        descriptions = [d for d in request.GET.get("descriptions", "").split(",") if d]
+        amount_min = request.GET.get("amount_min")
+        amount_max = request.GET.get("amount_max")
         search_query = request.GET.get("q", "").strip()
         page = int(request.GET.get("page", "1"))
 
@@ -183,16 +188,37 @@ class TransactionListView(LoginRequiredMixin, View):
         # Base queryset
         transactions = Transaction.objects.filter(user=request.user).select_related("category").order_by("-date", "-id")
 
-        # Apply filters
+        # Apply date filters based on mode
         if start_date:
-            transactions = transactions.filter(date__gte=start_date)
-        if end_date:
-            transactions = transactions.filter(date__lte=end_date)
+            if date_mode == "on":
+                transactions = transactions.filter(date=start_date)
+            elif date_mode == "before":
+                transactions = transactions.filter(date__lt=start_date)
+            elif date_mode == "after":
+                transactions = transactions.filter(date__gt=start_date)
+            elif date_mode == "range" and end_date:
+                transactions = transactions.filter(date__gte=start_date, date__lte=end_date)
+
+        # Apply category filter
         if category_id:
             if category_id == "uncategorized":
                 transactions = transactions.filter(category__isnull=True)
             else:
                 transactions = transactions.filter(category_id=category_id)
+
+        # Apply merchant filter
+        if merchants:
+            transactions = transactions.filter(merchant__in=merchants)
+
+        # Apply description filter
+        if descriptions:
+            transactions = transactions.filter(description__in=descriptions)
+
+        # Apply amount filter
+        if amount_min:
+            transactions = transactions.filter(amount__gte=amount_min)
+        if amount_max:
+            transactions = transactions.filter(amount__lte=amount_max)
 
         # Apply search filter
         if search_query:
@@ -222,6 +248,17 @@ class TransactionListView(LoginRequiredMixin, View):
             "showing_count": min(offset + len(paginated_transactions), total_count),
             "page": page,
             "has_more": has_more,
+            "active_filters": {
+                "merchants": merchants,
+                "descriptions": descriptions,
+                "category": category_id,
+                "start_date": start_date,
+                "end_date": end_date,
+                "date_mode": date_mode,
+                "amount_min": amount_min,
+                "amount_max": amount_max,
+            },
+            "has_active_filters": any([merchants, descriptions, category_id, start_date, end_date, amount_min, amount_max]),
         }
 
         # Check if this is an infinite scroll request
@@ -451,3 +488,37 @@ def toggle_anomaly(request, transaction_id):
         "transactions/transactions_page.html#transaction-row",
         {"transaction": transaction, "categories": categories},
     )
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_filter_options(request, filter_type):
+    """Returns unique values for merchant/description checkbox lists."""
+    if filter_type == "merchants":
+        values = (
+            Transaction.objects.filter(user=request.user)
+            .values_list("merchant", flat=True)
+            .distinct()
+            .order_by("merchant")
+        )
+        values = [v for v in values if v]
+        selected = [m for m in request.GET.get("merchants", "").split(",") if m]
+
+    elif filter_type == "descriptions":
+        values = (
+            Transaction.objects.filter(user=request.user)
+            .values_list("description", flat=True)
+            .distinct()
+            .order_by("description")
+        )
+        values = [v for v in values if v]
+        selected = [d for d in request.GET.get("descriptions", "").split(",") if d]
+    else:
+        return JsonResponse({"error": "Invalid filter type"}, status=400)
+
+    # No active selection means all are selected (unfiltered state)
+    if not selected:
+        selected = values
+
+    context = {"items": values, "selected_items": selected, "filter_type": filter_type}
+    return render(request, "transactions/filter_checkbox_list.html", context)
