@@ -104,6 +104,31 @@
       padding: 1px 0;
     }
 
+    .edit-actions {
+      display: none;
+      margin-left: auto;
+      gap: 4px;
+    }
+    &[data-edit-mode="true"] .edit-actions {
+      display: flex;
+    }
+
+    .reorder-btn {
+      display: flex;
+      align-items: center;
+      height: auto;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #888;
+      line-height: 1;
+      &:disabled {
+        visibility: hidden;
+        pointer-events: none;
+      }
+    }
+
     wa-dropdown wa-button::part(base) {
       width: 30px;
       height: 30px;

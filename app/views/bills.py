@@ -195,12 +195,13 @@ class BillLinkEditDeleteView(LoginRequiredMixin, View):
         link.url = data.get("url")
         link.save()
         links = BillLink.objects.filter(user=request.user)
-        return render(request, "bills/bill_links.html", {"links": links})
+        return render(request, "bills/bill_links.html", {"links": links, "edit_mode": True})
 
     def delete(self, request, link_id):
         link = get_object_or_404(BillLink, id=link_id, user=request.user)
         link.delete()
-        return HttpResponse()
+        links = BillLink.objects.filter(user=request.user)
+        return render(request, "bills/bill_links.html", {"links": links, "edit_mode": True})
 
 
 @login_required
@@ -234,4 +235,4 @@ def reorder_bill_link(request, link_id, direction):
         other_link.save()
 
     links = BillLink.objects.filter(user=request.user)
-    return render(request, "bills/bill_links.html", {"links": links})
+    return render(request, "bills/bill_links.html", {"links": links, "edit_mode": True})
