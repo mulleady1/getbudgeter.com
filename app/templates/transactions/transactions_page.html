@@ -731,15 +731,7 @@
                 hx-swap="outerHTML"
               />
             </td>
-            <td
-              style="text-align: right; font-weight: 500; {% if transaction.amount < 0 %}
-                color: #d32f2f;
-              {% else %}
-                color: #388e3c;
-              {% endif %}"
-            >
-              {{ transaction.amount|currency }}
-            </td>
+            <td style="text-align: right;">{{ transaction.amount|currency }}</td>
           </tr>
         {% endpartialdef transaction-row %}
 
