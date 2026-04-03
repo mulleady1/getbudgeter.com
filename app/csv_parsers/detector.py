@@ -3,11 +3,12 @@ from io import TextIOWrapper
 from typing import Optional, Type
 
 from .base import BaseCSVParser
+from .bofa import BofAParser
 from .capital_one import CapitalOneParser
 from .citi import CitiParser
 
 # List of all available parsers
-PARSERS = [CitiParser, CapitalOneParser]
+PARSERS = [CitiParser, CapitalOneParser, BofAParser]
 
 
 def detect_bank_from_csv(csv_file) -> Optional[Type[BaseCSVParser]]:

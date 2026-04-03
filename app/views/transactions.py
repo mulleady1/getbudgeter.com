@@ -75,7 +75,7 @@ class UploadCSVView(LoginRequiredMixin, View):
         bank_type = request.POST.get("bank_type", "").strip()
 
         # Validate file type
-        if not csv_file.name.endswith(".csv"):
+        if not csv_file.name.lower().endswith(".csv"):
             context = {"error": "Please upload a CSV file"}
             return render(request, "transactions/upload.html", context)
 
@@ -258,7 +258,9 @@ class TransactionListView(LoginRequiredMixin, View):
                 "amount_min": amount_min,
                 "amount_max": amount_max,
             },
-            "has_active_filters": any([merchants, descriptions, category_id, start_date, end_date, amount_min, amount_max]),
+            "has_active_filters": any(
+                [merchants, descriptions, category_id, start_date, end_date, amount_min, amount_max]
+            ),
         }
 
         # Check if this is an infinite scroll request
