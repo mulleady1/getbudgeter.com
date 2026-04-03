@@ -6,6 +6,7 @@ from urllib.parse import parse_qs, urlparse
 from django.shortcuts import render
 from django.utils import timezone
 
+from ..csv_parsers.bofa import BofAParser
 from ..csv_parsers.capital_one import CapitalOneParser
 from ..csv_parsers.citi import CitiParser
 from ..models import Bill
@@ -60,6 +61,7 @@ def get_bills(request):
 def get_parser_class(bank_type: str):
     """Map bank type string to parser class"""
     mapping = {
+        "bofa": BofAParser,
         "citi": CitiParser,
         "capital_one": CapitalOneParser,
     }
