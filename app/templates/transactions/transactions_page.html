@@ -350,230 +350,232 @@
         </form>
 
         {% partialdef transactions-table inline %}
-          <table id="transactions-table" style="width: 100%; border-collapse: collapse;">
-            <script>
-              me().on("htmx:after-swap", e => {
-                any('#transactions-table .transaction-checkbox').run(cb => cb.checked = false);
-                me('#select-all').checked = false;
-                me('#bulk-action-bar').style.maxHeight = '0';
-              })
-            </script>
-            <thead>
-              <tr style="border-bottom: 2px solid #ddd;">
-                <th style="width: 40px;">
-                  <div style="display: flex; align-items: center;">
-                    <input
-                      type="checkbox"
-                      id="select-all"
-                      style="cursor: pointer; width: 18px; height: 18px;"
-                      title="Select all"
-                      autocomplete="off"
-                      hx-on:change="
-                        any('#transactions-table .transaction-checkbox').run(cb => cb.checked = this.checked);
-                        updateBulkBar()
-                      "
-                    />
-                  </div>
-                </th>
-                <th style="text-align: left;">
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span>Date</span>
-                    <button type="button" id="date-filter-trigger" class="filter-trigger {% if active_filters.start_date %}active{% endif %}">
-                      <wa-icon name="filter"></wa-icon>
-                    </button>
-                  </div>
-                </th>
-                <th style="text-align: left;">
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span>Merchant</span>
-                    <button type="button" id="merchant-filter-trigger" class="filter-trigger {% if active_filters.merchants %}active{% endif %}">
-                      <wa-icon name="filter"></wa-icon>
-                    </button>
-                  </div>
-                </th>
-                <th style="text-align: left;">
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span>Description</span>
-                    <button type="button" id="description-filter-trigger" class="filter-trigger {% if active_filters.descriptions %}active{% endif %}">
-                      <wa-icon name="filter"></wa-icon>
-                    </button>
-                  </div>
-                </th>
-                <th style="text-align: left;">
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span>Category</span>
-                    <button type="button" id="category-filter-trigger" class="filter-trigger {% if active_filters.category %}active{% endif %}">
-                      <wa-icon name="filter"></wa-icon>
-                    </button>
-                  </div>
-                </th>
-                <th style="width: 80px;">
-                  <div style="display: flex; align-items: center; justify-content: center;">Anomaly</div>
-                </th>
-                <th style="text-align: right;">
-                  <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end;">
-                    <span>Amount</span>
-                    <button type="button" id="amount-filter-trigger" class="filter-trigger {% if active_filters.amount_min or active_filters.amount_max %}active{% endif %}">
-                      <wa-icon name="filter"></wa-icon>
-                    </button>
-                  </div>
-                </th>
-              </tr>
-            </thead>
+          <div style="overflow-x: auto;">
+            <table id="transactions-table" style="width: 100%; border-collapse: collapse; min-width: 600px;">
+              <script>
+                me().on("htmx:after-swap", e => {
+                  any('#transactions-table .transaction-checkbox').run(cb => cb.checked = false);
+                  me('#select-all').checked = false;
+                  me('#bulk-action-bar').style.maxHeight = '0';
+                })
+              </script>
+              <thead>
+                <tr style="border-bottom: 2px solid #ddd;">
+                  <th style="width: 40px;">
+                    <div style="display: flex; align-items: center;">
+                      <input
+                        type="checkbox"
+                        id="select-all"
+                        style="cursor: pointer; width: 18px; height: 18px;"
+                        title="Select all"
+                        autocomplete="off"
+                        hx-on:change="
+                          any('#transactions-table .transaction-checkbox').run(cb => cb.checked = this.checked);
+                          updateBulkBar()
+                        "
+                      />
+                    </div>
+                  </th>
+                  <th style="text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <span>Date</span>
+                      <button type="button" id="date-filter-trigger" class="filter-trigger {% if active_filters.start_date %}active{% endif %}">
+                        <wa-icon name="filter"></wa-icon>
+                      </button>
+                    </div>
+                  </th>
+                  <th style="text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <span>Merchant</span>
+                      <button type="button" id="merchant-filter-trigger" class="filter-trigger {% if active_filters.merchants %}active{% endif %}">
+                        <wa-icon name="filter"></wa-icon>
+                      </button>
+                    </div>
+                  </th>
+                  <th style="text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <span>Description</span>
+                      <button type="button" id="description-filter-trigger" class="filter-trigger {% if active_filters.descriptions %}active{% endif %}">
+                        <wa-icon name="filter"></wa-icon>
+                      </button>
+                    </div>
+                  </th>
+                  <th style="text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                      <span>Category</span>
+                      <button type="button" id="category-filter-trigger" class="filter-trigger {% if active_filters.category %}active{% endif %}">
+                        <wa-icon name="filter"></wa-icon>
+                      </button>
+                    </div>
+                  </th>
+                  <th style="width: 80px;">
+                    <div style="display: flex; align-items: center; justify-content: center;">Anomaly</div>
+                  </th>
+                  <th style="text-align: right;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end;">
+                      <span>Amount</span>
+                      <button type="button" id="amount-filter-trigger" class="filter-trigger {% if active_filters.amount_min or active_filters.amount_max %}active{% endif %}">
+                        <wa-icon name="filter"></wa-icon>
+                      </button>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
 
-            <!-- Date Filter Popover -->
-            <wa-popover for="date-filter-trigger" placement="bottom-start">
-              <div style="width: 280px; padding: 1rem;">
-                <wa-select id="date-filter-mode" style="margin-bottom: 0.75rem;" value="{{ active_filters.date_mode|default:'range' }}">
-                  <wa-option value="on">On date</wa-option>
-                  <wa-option value="before">Before</wa-option>
-                  <wa-option value="after">After</wa-option>
-                  <wa-option value="range">Date range</wa-option>
-                </wa-select>
+              <!-- Date Filter Popover -->
+              <wa-popover for="date-filter-trigger" placement="bottom-start">
+                <div style="width: 280px; padding: 1rem;">
+                  <wa-select id="date-filter-mode" style="margin-bottom: 0.75rem;" value="{{ active_filters.date_mode|default:'range' }}">
+                    <wa-option value="on">On date</wa-option>
+                    <wa-option value="before">Before</wa-option>
+                    <wa-option value="after">After</wa-option>
+                    <wa-option value="range">Date range</wa-option>
+                  </wa-select>
 
-                <wa-input type="date" id="date-from" name="start_date" style="margin-bottom: 0.5rem;" value="{{ active_filters.start_date|default:'' }}"></wa-input>
-                <wa-input type="date" id="date-to" name="end_date" value="{{ active_filters.end_date|default:'' }}"
-                  {% if active_filters.date_mode and active_filters.date_mode != 'range' %}style="display:none"{% endif %}></wa-input>
+                  <wa-input type="date" id="date-from" name="start_date" style="margin-bottom: 0.5rem;" value="{{ active_filters.start_date|default:'' }}"></wa-input>
+                  <wa-input type="date" id="date-to" name="end_date" value="{{ active_filters.end_date|default:'' }}"
+                    {% if active_filters.date_mode and active_filters.date_mode != 'range' %}style="display:none"{% endif %}></wa-input>
 
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                  <wa-button appearance="plain" size="small" onclick="clearDateFilter()" data-popover="close">Clear</wa-button>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
-                    <wa-button size="small" onclick="applyDateFilter()" data-popover="close">Apply</wa-button>
-                  </div>
-                </div>
-              </div>
-            </wa-popover>
-
-            <!-- Merchant Filter Popover (Excel-style) -->
-            <wa-popover for="merchant-filter-trigger" placement="bottom-start">
-              <div class="excel-filter-container" style="width: 300px; padding: 1rem;">
-                <wa-input
-                  type="search"
-                  id="merchant-filter-search"
-                  placeholder="Search merchants..."
-                  with-clear
-                  style="margin-bottom: 0.75rem;">
-                  <wa-icon slot="end" name="magnifying-glass"></wa-icon>
-                </wa-input>
-
-                <div class="filter-checkbox-list"
-                     style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;">
-                  <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
-                    <input type="checkbox" id="select-all-merchants" checked>
-                    <strong>(Select All)</strong>
-                  </label>
-
-                  <div id="merchant-checkbox-list"
-                       hx-get="/transactions/filter-options/merchants"
-                       hx-trigger="load"
-                       hx-include="#transaction-filters"
-                       hx-swap="innerHTML">
-                    Loading...
+                  <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
+                    <wa-button appearance="plain" size="small" onclick="clearDateFilter()" data-popover="close">Clear</wa-button>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
+                      <wa-button size="small" onclick="applyDateFilter()" data-popover="close">Apply</wa-button>
+                    </div>
                   </div>
                 </div>
+              </wa-popover>
 
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                  <wa-button appearance="plain" size="small" onclick="clearMerchantFilter()" data-popover="close">Clear</wa-button>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
-                    <wa-button size="small" onclick="applyMerchantFilter()" data-popover="close">Apply</wa-button>
+              <!-- Merchant Filter Popover (Excel-style) -->
+              <wa-popover for="merchant-filter-trigger" placement="bottom-start">
+                <div class="excel-filter-container" style="width: 300px; padding: 1rem;">
+                  <wa-input
+                    type="search"
+                    id="merchant-filter-search"
+                    placeholder="Search merchants..."
+                    with-clear
+                    style="margin-bottom: 0.75rem;">
+                    <wa-icon slot="end" name="magnifying-glass"></wa-icon>
+                  </wa-input>
+
+                  <div class="filter-checkbox-list"
+                      style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;">
+                    <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
+                      <input type="checkbox" id="select-all-merchants" checked>
+                      <strong>(Select All)</strong>
+                    </label>
+
+                    <div id="merchant-checkbox-list"
+                        hx-get="/transactions/filter-options/merchants"
+                        hx-trigger="load"
+                        hx-include="#transaction-filters"
+                        hx-swap="innerHTML">
+                      Loading...
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
+                    <wa-button appearance="plain" size="small" onclick="clearMerchantFilter()" data-popover="close">Clear</wa-button>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
+                      <wa-button size="small" onclick="applyMerchantFilter()" data-popover="close">Apply</wa-button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </wa-popover>
+              </wa-popover>
 
-            <!-- Description Filter Popover (Excel-style) -->
-            <wa-popover for="description-filter-trigger" placement="bottom-start">
-              <div class="excel-filter-container" style="width: 300px; padding: 1rem;">
-                <wa-input
-                  type="search"
-                  id="description-filter-search"
-                  placeholder="Search descriptions..."
-                  with-clear
-                  style="margin-bottom: 0.75rem;">
-                  <wa-icon slot="end" name="magnifying-glass"></wa-icon>
-                </wa-input>
+              <!-- Description Filter Popover (Excel-style) -->
+              <wa-popover for="description-filter-trigger" placement="bottom-start">
+                <div class="excel-filter-container" style="width: 300px; padding: 1rem;">
+                  <wa-input
+                    type="search"
+                    id="description-filter-search"
+                    placeholder="Search descriptions..."
+                    with-clear
+                    style="margin-bottom: 0.75rem;">
+                    <wa-icon slot="end" name="magnifying-glass"></wa-icon>
+                  </wa-input>
 
-                <div class="filter-checkbox-list"
-                     style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;">
-                  <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
-                    <input type="checkbox" id="select-all-descriptions" checked>
-                    <strong>(Select All)</strong>
-                  </label>
+                  <div class="filter-checkbox-list"
+                      style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;">
+                    <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
+                      <input type="checkbox" id="select-all-descriptions" checked>
+                      <strong>(Select All)</strong>
+                    </label>
 
-                  <div id="description-checkbox-list"
-                       hx-get="/transactions/filter-options/descriptions"
-                       hx-trigger="load"
-                       hx-include="#transaction-filters"
-                       hx-swap="innerHTML">
-                    Loading...
+                    <div id="description-checkbox-list"
+                        hx-get="/transactions/filter-options/descriptions"
+                        hx-trigger="load"
+                        hx-include="#transaction-filters"
+                        hx-swap="innerHTML">
+                      Loading...
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
+                    <wa-button appearance="plain" size="small" onclick="clearDescriptionFilter()" data-popover="close">Clear</wa-button>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
+                      <wa-button size="small" onclick="applyDescriptionFilter()" data-popover="close">Apply</wa-button>
+                    </div>
                   </div>
                 </div>
+              </wa-popover>
 
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                  <wa-button appearance="plain" size="small" onclick="clearDescriptionFilter()" data-popover="close">Clear</wa-button>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
-                    <wa-button size="small" onclick="applyDescriptionFilter()" data-popover="close">Apply</wa-button>
+              <!-- Category Filter Popover -->
+              <wa-popover for="category-filter-trigger" placement="bottom-start">
+                <div style="width: 250px; padding: 1rem;">
+                  <wa-select
+                    id="category-filter-inline"
+                    name="category"
+                    placeholder="All categories"
+                    value="{{ selected_category|default:'' }}"
+                    style="margin-bottom: 0.75rem;">
+                    <wa-option value="">All categories</wa-option>
+                    <wa-option value="uncategorized">Uncategorized</wa-option>
+                    <wa-divider></wa-divider>
+                    {% for category in categories %}
+                      <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
+                    {% endfor %}
+                  </wa-select>
+
+                  <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
+                    <wa-button appearance="plain" size="small" onclick="clearCategoryFilter()" data-popover="close">Clear</wa-button>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
+                      <wa-button size="small" onclick="applyCategoryFilter()" data-popover="close">Apply</wa-button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </wa-popover>
+              </wa-popover>
 
-            <!-- Category Filter Popover -->
-            <wa-popover for="category-filter-trigger" placement="bottom-start">
-              <div style="width: 250px; padding: 1rem;">
-                <wa-select
-                  id="category-filter-inline"
-                  name="category"
-                  placeholder="All categories"
-                  value="{{ selected_category|default:'' }}"
-                  style="margin-bottom: 0.75rem;">
-                  <wa-option value="">All categories</wa-option>
-                  <wa-option value="uncategorized">Uncategorized</wa-option>
-                  <wa-divider></wa-divider>
-                  {% for category in categories %}
-                    <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
-                  {% endfor %}
-                </wa-select>
+              <!-- Amount Filter Popover -->
+              <wa-popover for="amount-filter-trigger" placement="bottom-start">
+                <div style="width: 280px; padding: 1rem;">
+                  <div style="margin-bottom: 0.75rem;">
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Minimum</label>
+                    <wa-input type="number" id="amount-min" placeholder="0.00" step="0.01" value="{{ active_filters.amount_min|default:'' }}"></wa-input>
+                  </div>
+                  <div style="margin-bottom: 0.75rem;">
+                    <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Maximum</label>
+                    <wa-input type="number" id="amount-max" placeholder="0.00" step="0.01" value="{{ active_filters.amount_max|default:'' }}"></wa-input>
+                  </div>
 
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                  <wa-button appearance="plain" size="small" onclick="clearCategoryFilter()" data-popover="close">Clear</wa-button>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
-                    <wa-button size="small" onclick="applyCategoryFilter()" data-popover="close">Apply</wa-button>
+                  <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
+                    <wa-button appearance="plain" size="small" onclick="clearAmountFilter()" data-popover="close">Clear</wa-button>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
+                      <wa-button size="small" onclick="applyAmountFilter()" data-popover="close">Apply</wa-button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </wa-popover>
+              </wa-popover>
 
-            <!-- Amount Filter Popover -->
-            <wa-popover for="amount-filter-trigger" placement="bottom-start">
-              <div style="width: 280px; padding: 1rem;">
-                <div style="margin-bottom: 0.75rem;">
-                  <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Minimum</label>
-                  <wa-input type="number" id="amount-min" placeholder="0.00" step="0.01" value="{{ active_filters.amount_min|default:'' }}"></wa-input>
-                </div>
-                <div style="margin-bottom: 0.75rem;">
-                  <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Maximum</label>
-                  <wa-input type="number" id="amount-max" placeholder="0.00" step="0.01" value="{{ active_filters.amount_max|default:'' }}"></wa-input>
-                </div>
-
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                  <wa-button appearance="plain" size="small" onclick="clearAmountFilter()" data-popover="close">Clear</wa-button>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
-                    <wa-button size="small" onclick="applyAmountFilter()" data-popover="close">Apply</wa-button>
-                  </div>
-                </div>
-              </div>
-            </wa-popover>
-
-            <tbody id="transactions-tbody">
-              {% partial transaction-rows %}
-            </tbody>
-          </table>
+              <tbody id="transactions-tbody">
+                {% partial transaction-rows %}
+              </tbody>
+            </table>
+          </div>
         {% endpartialdef transactions-table %}
 
         {% partialdef transaction-rows %}
