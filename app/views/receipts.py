@@ -86,9 +86,9 @@ class ReceiptUploadView(LoginRequiredMixin, View):
             context = {"error": "Please upload a valid image file (JPG, PNG, GIF, BMP, TIFF)"}
             return render(request, "receipts/upload.html", context)
 
-        # Validate file size (10MB max)
-        if image_file.size > 10 * 1024 * 1024:
-            context = {"error": "File size must be less than 10MB"}
+        # Validate file size (5MB max — Anthropic API limit)
+        if image_file.size > 5 * 1024 * 1024:
+            context = {"error": "File size must be less than 5MB"}
             return render(request, "receipts/upload.html", context)
 
         try:
