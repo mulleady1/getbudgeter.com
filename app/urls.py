@@ -19,6 +19,7 @@ urlpatterns = [
     path("bills/links/<int:link_id>",                          views.BillLinkEditDeleteView.as_view(),  name="edit_delete_bill_link"),
     path("bills/links/<int:link_id>/reorder/<str:direction>",  views.reorder_bill_link,                 name="reorder_bill_link"),
     path("bills/<int:bill_id>",                                views.BillEditDeleteView.as_view(),      name="edit_delete_bill"),
+    path("bills/<int:bill_id>/amount",                         views.update_bill_amount,                name="update_bill_amount"),
     path("bills/<int:bill_id>/toggle",                         views.toggle_paid,                       name="toggle_paid"),
     
     path("transactions",                                       views.TransactionListView.as_view(),     name="transactions"),

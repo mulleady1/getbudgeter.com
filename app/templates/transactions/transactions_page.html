@@ -53,7 +53,7 @@
     }
 
     function resetCheckboxes() {
-      any("#transactions-table .transaction-checkbox").run((cb) => (cb.checked = false))
+      any("#transactions-table .transaction-checkbox").run(cb => (cb.checked = false))
       me("#select-all").checked = false
       me("#bulk-action-bar").style.maxHeight = "0"
     }
@@ -77,29 +77,29 @@
     }
 
     // Sync (Select All) after checkbox lists reload via HTMX
-    document.addEventListener('htmx:afterSwap', function(event) {
-      if (event.detail.target.id === 'merchant-checkbox-list') {
-        syncSelectAll('#select-all-merchants', 'merchants-checkbox-item')
+    document.addEventListener("htmx:afterSwap", function (event) {
+      if (event.detail.target.id === "merchant-checkbox-list") {
+        syncSelectAll("#select-all-merchants", "merchants-checkbox-item")
       }
-      if (event.detail.target.id === 'description-checkbox-list') {
-        syncSelectAll('#select-all-descriptions', 'descriptions-checkbox-item')
+      if (event.detail.target.id === "description-checkbox-list") {
+        syncSelectAll("#select-all-descriptions", "descriptions-checkbox-item")
       }
     })
 
     // Apply filter functions
     function applyMerchantFilter() {
-      const selected = Array.from(any('.merchants-checkbox-item input:checked'))
-        .filter(cb => cb.closest('.merchants-checkbox-item').style.display !== 'none')
+      const selected = Array.from(any(".merchants-checkbox-item input:checked"))
+        .filter(cb => cb.closest(".merchants-checkbox-item").style.display !== "none")
         .map(cb => cb.value)
-      me('#filter-merchants').value = selected.join(',')
+      me("#filter-merchants").value = selected.join(",")
       triggerFilterUpdate()
     }
 
     function applyDescriptionFilter() {
-      const selected = Array.from(any('.descriptions-checkbox-item input:checked'))
-        .filter(cb => cb.closest('.descriptions-checkbox-item').style.display !== 'none')
+      const selected = Array.from(any(".descriptions-checkbox-item input:checked"))
+        .filter(cb => cb.closest(".descriptions-checkbox-item").style.display !== "none")
         .map(cb => cb.value)
-      me('#filter-descriptions').value = selected.join(',')
+      me("#filter-descriptions").value = selected.join(",")
       triggerFilterUpdate()
     }
 
@@ -117,36 +117,36 @@
 
     // Clear filter functions
     function clearDateFilter() {
-      me('#filter-start-date').value = ''
-      me('#filter-end-date').value = ''
-      me('#filter-date-mode').value = 'range'
+      me("#filter-start-date").value = ""
+      me("#filter-end-date").value = ""
+      me("#filter-date-mode").value = "range"
       triggerFilterUpdate()
     }
 
     function clearCategoryFilter() {
-      me('#filter-category').value = ''
+      me("#filter-category").value = ""
       triggerFilterUpdate()
     }
 
     function clearAmountFilter() {
-      me('#filter-amount-min').value = ''
-      me('#filter-amount-max').value = ''
+      me("#filter-amount-min").value = ""
+      me("#filter-amount-max").value = ""
       triggerFilterUpdate()
     }
 
     function clearMerchantFilter() {
-      me('#filter-merchants').value = ''
+      me("#filter-merchants").value = ""
       triggerFilterUpdate()
     }
 
     function clearDescriptionFilter() {
-      me('#filter-descriptions').value = ''
+      me("#filter-descriptions").value = ""
       triggerFilterUpdate()
     }
 
     // Trigger HTMX update — fires the search input's hx-get (which has hx-push-url="true")
     function triggerFilterUpdate() {
-      document.body.dispatchEvent(new Event('reload-transactions'))
+      document.body.dispatchEvent(new Event("reload-transactions"))
     }
 
     // Document-level event delegation for filter sync.
@@ -156,70 +156,84 @@
     // gives us the wa-input's id. e.composedPath()[0] gives the internal <input> for reliable
     // value reading before any async web component property updates.
     function composedValue(e) {
-      return e.composedPath().find(el => el instanceof HTMLInputElement)?.value ?? e.target?.value ?? ''
+      return e.composedPath().find(el => el instanceof HTMLInputElement)?.value ?? e.target?.value ?? ""
     }
 
-    document.addEventListener('change', function(e) {
+    document.addEventListener("change", function (e) {
       const id = e.target?.id
-      if (id === 'date-filter-mode') {
+      if (id === "date-filter-mode") {
         const val = e.target.value
-        document.querySelectorAll('#date-to').forEach(el => { el.style.display = val === 'range' ? '' : 'none' })
-        document.getElementById('filter-date-mode').value = val
-      } else if (id === 'date-from') {
-        document.getElementById('filter-start-date').value = composedValue(e)
-      } else if (id === 'date-to') {
-        document.getElementById('filter-end-date').value = composedValue(e)
-      } else if (id === 'category-filter-inline') {
-        document.getElementById('filter-category').value = e.target.value
-      } else if (id === 'select-all-merchants') {
+        document.querySelectorAll("#date-to").forEach(el => {
+          el.style.display = val === "range" ? "" : "none"
+        })
+        document.getElementById("filter-date-mode").value = val
+      } else if (id === "date-from") {
+        document.getElementById("filter-start-date").value = composedValue(e)
+      } else if (id === "date-to") {
+        document.getElementById("filter-end-date").value = composedValue(e)
+      } else if (id === "category-filter-inline") {
+        document.getElementById("filter-category").value = e.target.value
+      } else if (id === "select-all-merchants") {
         const checked = e.target.checked
-        any('.merchants-checkbox-item input[type=checkbox]').run(cb => {
-          if (cb.closest('.merchants-checkbox-item').style.display !== 'none') cb.checked = checked
+        any(".merchants-checkbox-item input[type=checkbox]").run(cb => {
+          if (cb.closest(".merchants-checkbox-item").style.display !== "none") cb.checked = checked
         })
-      } else if (id === 'select-all-descriptions') {
+      } else if (id === "select-all-descriptions") {
         const checked = e.target.checked
-        any('.descriptions-checkbox-item input[type=checkbox]').run(cb => {
-          if (cb.closest('.descriptions-checkbox-item').style.display !== 'none') cb.checked = checked
+        any(".descriptions-checkbox-item input[type=checkbox]").run(cb => {
+          if (cb.closest(".descriptions-checkbox-item").style.display !== "none") cb.checked = checked
         })
       }
     })
 
-    document.addEventListener('input', function(e) {
+    document.addEventListener("input", function (e) {
       const id = e.target?.id
-      if (id === 'merchant-filter-search') {
-        const q = (composedValue(e) || '').toLowerCase()
-        any('.merchants-checkbox-item').run(item => {
-          item.style.display = item.textContent.trim().toLowerCase().includes(q) ? '' : 'none'
+      if (id === "merchant-filter-search") {
+        const q = (composedValue(e) || "").toLowerCase()
+        any(".merchants-checkbox-item").run(item => {
+          item.style.display = item.textContent.trim().toLowerCase().includes(q) ? "" : "none"
         })
-      } else if (id === 'description-filter-search') {
-        const q = (composedValue(e) || '').toLowerCase()
-        any('.descriptions-checkbox-item').run(item => {
-          item.style.display = item.textContent.trim().toLowerCase().includes(q) ? '' : 'none'
+      } else if (id === "description-filter-search") {
+        const q = (composedValue(e) || "").toLowerCase()
+        any(".descriptions-checkbox-item").run(item => {
+          item.style.display = item.textContent.trim().toLowerCase().includes(q) ? "" : "none"
         })
-      } else if (id === 'amount-min') {
-        document.getElementById('filter-amount-min').value = composedValue(e)
-      } else if (id === 'amount-max') {
-        document.getElementById('filter-amount-max').value = composedValue(e)
+      } else if (id === "amount-min") {
+        document.getElementById("filter-amount-min").value = composedValue(e)
+      } else if (id === "amount-max") {
+        document.getElementById("filter-amount-max").value = composedValue(e)
       }
     })
 
-    document.addEventListener('wa-after-show', function(e) {
-      const forAttr = e.target?.getAttribute?.('for')
-      if (forAttr === 'merchant-filter-trigger') {
-        document.getElementById('merchant-filter-search')?.focus()
-      } else if (forAttr === 'description-filter-trigger') {
-        document.getElementById('description-filter-search')?.focus()
+    document.addEventListener("wa-after-show", function (e) {
+      const forAttr = e.target?.getAttribute?.("for")
+      if (forAttr === "merchant-filter-trigger") {
+        document.getElementById("merchant-filter-search")?.focus()
+      } else if (forAttr === "description-filter-trigger") {
+        document.getElementById("description-filter-search")?.focus()
       }
     })
 
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Enter') return
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter") return
       const id = e.target?.id
-      const closePopover = () => { const p = document.querySelector('wa-popover[open]'); if (p) p.open = false }
-      if (id === 'date-from' || id === 'date-to') { applyDateFilter(); closePopover() }
-      else if (id === 'merchant-filter-search') { applyMerchantFilter(); closePopover() }
-      else if (id === 'description-filter-search') { applyDescriptionFilter(); closePopover() }
-      else if (id === 'amount-min' || id === 'amount-max') { applyAmountFilter(); closePopover() }
+      const closePopover = () => {
+        const p = document.querySelector("wa-popover[open]")
+        if (p) p.open = false
+      }
+      if (id === "date-from" || id === "date-to") {
+        applyDateFilter()
+        closePopover()
+      } else if (id === "merchant-filter-search") {
+        applyMerchantFilter()
+        closePopover()
+      } else if (id === "description-filter-search") {
+        applyDescriptionFilter()
+        closePopover()
+      } else if (id === "amount-min" || id === "amount-max") {
+        applyAmountFilter()
+        closePopover()
+      }
     })
   </script>
 
@@ -286,16 +300,16 @@
                     me().on("change", e => {
                       const el = me(e)
                       const value = el.value
-                      if (value === '__add_new__') {
-                        htmx.ajax('GET', '/transactions/categories/new', { target: 'body', swap: 'beforeend' });
-                        el.value = '';
-                        me('#bulk-apply').disabled = true;
-                      } else if (value === '__manage__') {
-                        htmx.ajax('GET', '/transactions/categories', { target: 'body', swap: 'beforeend' });
-                        el.value = '';
-                        me('#bulk-apply').disabled = true;
+                      if (value === "__add_new__") {
+                        htmx.ajax("GET", "/transactions/categories/new", { target: "body", swap: "beforeend" })
+                        el.value = ""
+                        me("#bulk-apply").disabled = true
+                      } else if (value === "__manage__") {
+                        htmx.ajax("GET", "/transactions/categories", { target: "body", swap: "beforeend" })
+                        el.value = ""
+                        me("#bulk-apply").disabled = true
                       } else {
-                        me('#bulk-apply').disabled = !value;
+                        me("#bulk-apply").disabled = !value
                       }
                     })
                   </script>
@@ -325,9 +339,9 @@
                 <wa-button appearance="plain">
                   <script>
                     me().on("click", e => {
-                      any('.transaction-checkbox').run(cb => cb.checked = false);
-                      me('#select-all').checked = false;
-                      updateBulkBar();
+                      any(".transaction-checkbox").run(cb => (cb.checked = false))
+                      me("#select-all").checked = false
+                      updateBulkBar()
                     })
                   </script>
                   Cancel
@@ -339,14 +353,39 @@
 
         <!-- Hidden filter form to maintain all filter state -->
         <form id="transaction-filters" style="display: none;">
-          <input type="hidden" name="merchants" id="filter-merchants" value="{{ active_filters.merchants|join:',' }}">
-          <input type="hidden" name="descriptions" id="filter-descriptions" value="{{ active_filters.descriptions|join:',' }}">
-          <input type="hidden" name="category" id="filter-category" value="{{ active_filters.category|default:'' }}">
-          <input type="hidden" name="start_date" id="filter-start-date" value="{{ active_filters.start_date|default:'' }}">
-          <input type="hidden" name="end_date" id="filter-end-date" value="{{ active_filters.end_date|default:'' }}">
-          <input type="hidden" name="date_mode" id="filter-date-mode" value="{{ active_filters.date_mode|default:'range' }}">
-          <input type="hidden" name="amount_min" id="filter-amount-min" value="{{ active_filters.amount_min|default:'' }}">
-          <input type="hidden" name="amount_max" id="filter-amount-max" value="{{ active_filters.amount_max|default:'' }}">
+          <input type="hidden" name="merchants" id="filter-merchants" value="{{ active_filters.merchants|join:',' }}" />
+          <input
+            type="hidden"
+            name="descriptions"
+            id="filter-descriptions"
+            value="{{ active_filters.descriptions|join:',' }}"
+          />
+          <input type="hidden" name="category" id="filter-category" value="{{ active_filters.category|default:'' }}" />
+          <input
+            type="hidden"
+            name="start_date"
+            id="filter-start-date"
+            value="{{ active_filters.start_date|default:'' }}"
+          />
+          <input type="hidden" name="end_date" id="filter-end-date" value="{{ active_filters.end_date|default:'' }}" />
+          <input
+            type="hidden"
+            name="date_mode"
+            id="filter-date-mode"
+            value="{{ active_filters.date_mode|default:'range' }}"
+          />
+          <input
+            type="hidden"
+            name="amount_min"
+            id="filter-amount-min"
+            value="{{ active_filters.amount_min|default:'' }}"
+          />
+          <input
+            type="hidden"
+            name="amount_max"
+            id="filter-amount-max"
+            value="{{ active_filters.amount_max|default:'' }}"
+          />
         </form>
 
         {% partialdef transactions-table inline %}
@@ -354,9 +393,9 @@
             <table id="transactions-table" style="width: 100%; border-collapse: collapse; min-width: 600px;">
               <script>
                 me().on("htmx:after-swap", e => {
-                  any('#transactions-table .transaction-checkbox').run(cb => cb.checked = false);
-                  me('#select-all').checked = false;
-                  me('#bulk-action-bar').style.maxHeight = '0';
+                  any("#transactions-table .transaction-checkbox").run(cb => (cb.checked = false))
+                  me("#select-all").checked = false
+                  me("#bulk-action-bar").style.maxHeight = "0"
                 })
               </script>
               <thead>
@@ -379,7 +418,11 @@
                   <th style="text-align: left;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                       <span>Date</span>
-                      <button type="button" id="date-filter-trigger" class="filter-trigger {% if active_filters.start_date %}active{% endif %}">
+                      <button
+                        type="button"
+                        id="date-filter-trigger"
+                        class="filter-trigger {% if active_filters.start_date %}active{% endif %}"
+                      >
                         <wa-icon name="filter"></wa-icon>
                       </button>
                     </div>
@@ -387,7 +430,11 @@
                   <th style="text-align: left;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                       <span>Merchant</span>
-                      <button type="button" id="merchant-filter-trigger" class="filter-trigger {% if active_filters.merchants %}active{% endif %}">
+                      <button
+                        type="button"
+                        id="merchant-filter-trigger"
+                        class="filter-trigger {% if active_filters.merchants %}active{% endif %}"
+                      >
                         <wa-icon name="filter"></wa-icon>
                       </button>
                     </div>
@@ -395,7 +442,11 @@
                   <th style="text-align: left;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                       <span>Description</span>
-                      <button type="button" id="description-filter-trigger" class="filter-trigger {% if active_filters.descriptions %}active{% endif %}">
+                      <button
+                        type="button"
+                        id="description-filter-trigger"
+                        class="filter-trigger {% if active_filters.descriptions %}active{% endif %}"
+                      >
                         <wa-icon name="filter"></wa-icon>
                       </button>
                     </div>
@@ -403,7 +454,11 @@
                   <th style="text-align: left;">
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                       <span>Category</span>
-                      <button type="button" id="category-filter-trigger" class="filter-trigger {% if active_filters.category %}active{% endif %}">
+                      <button
+                        type="button"
+                        id="category-filter-trigger"
+                        class="filter-trigger {% if active_filters.category %}active{% endif %}"
+                      >
                         <wa-icon name="filter"></wa-icon>
                       </button>
                     </div>
@@ -414,7 +469,11 @@
                   <th style="text-align: right;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end;">
                       <span>Amount</span>
-                      <button type="button" id="amount-filter-trigger" class="filter-trigger {% if active_filters.amount_min or active_filters.amount_max %}active{% endif %}">
+                      <button
+                        type="button"
+                        id="amount-filter-trigger"
+                        class="filter-trigger {% if active_filters.amount_min or active_filters.amount_max %}active{% endif %}"
+                      >
                         <wa-icon name="filter"></wa-icon>
                       </button>
                     </div>
@@ -425,19 +484,36 @@
               <!-- Date Filter Popover -->
               <wa-popover for="date-filter-trigger" placement="bottom-start">
                 <div style="width: 280px; padding: 1rem;">
-                  <wa-select id="date-filter-mode" style="margin-bottom: 0.75rem;" value="{{ active_filters.date_mode|default:'range' }}">
+                  <wa-select
+                    id="date-filter-mode"
+                    style="margin-bottom: 0.75rem;"
+                    value="{{ active_filters.date_mode|default:'range' }}"
+                  >
                     <wa-option value="on">On date</wa-option>
                     <wa-option value="before">Before</wa-option>
                     <wa-option value="after">After</wa-option>
                     <wa-option value="range">Date range</wa-option>
                   </wa-select>
 
-                  <wa-input type="date" id="date-from" name="start_date" style="margin-bottom: 0.5rem;" value="{{ active_filters.start_date|default:'' }}"></wa-input>
-                  <wa-input type="date" id="date-to" name="end_date" value="{{ active_filters.end_date|default:'' }}"
-                    {% if active_filters.date_mode and active_filters.date_mode != 'range' %}style="display:none"{% endif %}></wa-input>
+                  <wa-input
+                    type="date"
+                    id="date-from"
+                    name="start_date"
+                    style="margin-bottom: 0.5rem;"
+                    value="{{ active_filters.start_date|default:'' }}"
+                  ></wa-input>
+                  <wa-input
+                    type="date"
+                    id="date-to"
+                    name="end_date"
+                    value="{{ active_filters.end_date|default:'' }}"
+                    {% if active_filters.date_mode and active_filters.date_mode != 'range' %}style="display:none"{% endif %}
+                  ></wa-input>
 
                   <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                    <wa-button appearance="plain" size="small" onclick="clearDateFilter()" data-popover="close">Clear</wa-button>
+                    <wa-button appearance="plain" size="small" onclick="clearDateFilter()" data-popover="close"
+                      >Clear</wa-button
+                    >
                     <div style="display: flex; gap: 0.5rem;">
                       <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
                       <wa-button size="small" onclick="applyDateFilter()" data-popover="close">Apply</wa-button>
@@ -454,28 +530,35 @@
                     id="merchant-filter-search"
                     placeholder="Search merchants..."
                     with-clear
-                    style="margin-bottom: 0.75rem;">
+                    style="margin-bottom: 0.75rem;"
+                  >
                     <wa-icon slot="end" name="magnifying-glass"></wa-icon>
                   </wa-input>
 
-                  <div class="filter-checkbox-list"
-                      style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;">
+                  <div
+                    class="filter-checkbox-list"
+                    style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;"
+                  >
                     <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
-                      <input type="checkbox" id="select-all-merchants" checked>
+                      <input type="checkbox" id="select-all-merchants" checked />
                       <strong>(Select All)</strong>
                     </label>
 
-                    <div id="merchant-checkbox-list"
-                        hx-get="/transactions/filter-options/merchants"
-                        hx-trigger="load"
-                        hx-include="#transaction-filters"
-                        hx-swap="innerHTML">
+                    <div
+                      id="merchant-checkbox-list"
+                      hx-get="/transactions/filter-options/merchants"
+                      hx-trigger="load"
+                      hx-include="#transaction-filters"
+                      hx-swap="innerHTML"
+                    >
                       Loading...
                     </div>
                   </div>
 
                   <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                    <wa-button appearance="plain" size="small" onclick="clearMerchantFilter()" data-popover="close">Clear</wa-button>
+                    <wa-button appearance="plain" size="small" onclick="clearMerchantFilter()" data-popover="close"
+                      >Clear</wa-button
+                    >
                     <div style="display: flex; gap: 0.5rem;">
                       <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
                       <wa-button size="small" onclick="applyMerchantFilter()" data-popover="close">Apply</wa-button>
@@ -492,28 +575,35 @@
                     id="description-filter-search"
                     placeholder="Search descriptions..."
                     with-clear
-                    style="margin-bottom: 0.75rem;">
+                    style="margin-bottom: 0.75rem;"
+                  >
                     <wa-icon slot="end" name="magnifying-glass"></wa-icon>
                   </wa-input>
 
-                  <div class="filter-checkbox-list"
-                      style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;">
+                  <div
+                    class="filter-checkbox-list"
+                    style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;"
+                  >
                     <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
-                      <input type="checkbox" id="select-all-descriptions" checked>
+                      <input type="checkbox" id="select-all-descriptions" checked />
                       <strong>(Select All)</strong>
                     </label>
 
-                    <div id="description-checkbox-list"
-                        hx-get="/transactions/filter-options/descriptions"
-                        hx-trigger="load"
-                        hx-include="#transaction-filters"
-                        hx-swap="innerHTML">
+                    <div
+                      id="description-checkbox-list"
+                      hx-get="/transactions/filter-options/descriptions"
+                      hx-trigger="load"
+                      hx-include="#transaction-filters"
+                      hx-swap="innerHTML"
+                    >
                       Loading...
                     </div>
                   </div>
 
                   <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                    <wa-button appearance="plain" size="small" onclick="clearDescriptionFilter()" data-popover="close">Clear</wa-button>
+                    <wa-button appearance="plain" size="small" onclick="clearDescriptionFilter()" data-popover="close"
+                      >Clear</wa-button
+                    >
                     <div style="display: flex; gap: 0.5rem;">
                       <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
                       <wa-button size="small" onclick="applyDescriptionFilter()" data-popover="close">Apply</wa-button>
@@ -530,7 +620,8 @@
                     name="category"
                     placeholder="All categories"
                     value="{{ selected_category|default:'' }}"
-                    style="margin-bottom: 0.75rem;">
+                    style="margin-bottom: 0.75rem;"
+                  >
                     <wa-option value="">All categories</wa-option>
                     <wa-option value="uncategorized">Uncategorized</wa-option>
                     <wa-divider></wa-divider>
@@ -540,7 +631,9 @@
                   </wa-select>
 
                   <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                    <wa-button appearance="plain" size="small" onclick="clearCategoryFilter()" data-popover="close">Clear</wa-button>
+                    <wa-button appearance="plain" size="small" onclick="clearCategoryFilter()" data-popover="close"
+                      >Clear</wa-button
+                    >
                     <div style="display: flex; gap: 0.5rem;">
                       <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
                       <wa-button size="small" onclick="applyCategoryFilter()" data-popover="close">Apply</wa-button>
@@ -554,15 +647,29 @@
                 <div style="width: 280px; padding: 1rem;">
                   <div style="margin-bottom: 0.75rem;">
                     <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Minimum</label>
-                    <wa-input type="number" id="amount-min" placeholder="0.00" step="0.01" value="{{ active_filters.amount_min|default:'' }}"></wa-input>
+                    <wa-input
+                      type="number"
+                      id="amount-min"
+                      placeholder="0.00"
+                      step="1"
+                      value="{{ active_filters.amount_min|default:'' }}"
+                    ></wa-input>
                   </div>
                   <div style="margin-bottom: 0.75rem;">
                     <label style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Maximum</label>
-                    <wa-input type="number" id="amount-max" placeholder="0.00" step="0.01" value="{{ active_filters.amount_max|default:'' }}"></wa-input>
+                    <wa-input
+                      type="number"
+                      id="amount-max"
+                      placeholder="0.00"
+                      step="1"
+                      value="{{ active_filters.amount_max|default:'' }}"
+                    ></wa-input>
                   </div>
 
                   <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: space-between;">
-                    <wa-button appearance="plain" size="small" onclick="clearAmountFilter()" data-popover="close">Clear</wa-button>
+                    <wa-button appearance="plain" size="small" onclick="clearAmountFilter()" data-popover="close"
+                      >Clear</wa-button
+                    >
                     <div style="display: flex; gap: 0.5rem;">
                       <wa-button appearance="plain" size="small" data-popover="close">Cancel</wa-button>
                       <wa-button size="small" onclick="applyAmountFilter()" data-popover="close">Apply</wa-button>
@@ -669,7 +776,6 @@
             </wa-dropdown>
           </div>
         {% endpartialdef category-dropdown %}
-
       {% else %}
         <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
       {% endif %}

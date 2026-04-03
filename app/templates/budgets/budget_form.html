@@ -8,7 +8,7 @@
     hx-swap="outerHTML"
   >
     {% csrf_token %}
-    
+
     <div style="margin-bottom: 1rem;">
       <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Category</label>
       <select
@@ -33,7 +33,7 @@
         type="number"
         name="amount"
         id="amount"
-        step="0.01"
+        step="1"
         required
         {% if budget %}value="{{ budget.amount }}"{% endif %}
       ></wa-input>

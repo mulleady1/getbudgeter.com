@@ -76,6 +76,18 @@ def new_bill(request):
 
 
 @login_required
+@require_http_methods(["PATCH"])
+def update_bill_amount(request, bill_id):
+    data = QueryDict(request.body)
+    bill = get_object_or_404(Bill, id=bill_id, user=request.user)
+    bill.amount = data.get("amount")
+    bill.save()
+    response = render(request, "bills/bills_page.html#bill-amount", {"bill": bill})
+    response["HX-Trigger"] = "bills-changed"
+    return response
+
+
+@login_required
 @require_http_methods(["POST"])
 def toggle_paid(request, bill_id):
     bill = get_object_or_404(Bill, id=bill_id, user=request.user)

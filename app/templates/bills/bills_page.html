@@ -13,8 +13,29 @@
       <link rel="stylesheet" href="{% static 'css/bills_page.css' %}?v={{ UI_VERSION }}" />
     </head>
   {% endif %}
-
   {% csrf_token %}
+
+  <style>
+    .amount-display {
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 1px 4px;
+      margin: -1px -4px;
+      transition: background 0.15s;
+    }
+    .amount-display:hover {
+      background: rgba(0, 0, 0, 0.07);
+    }
+    .amount-inline-edit {
+      display: flex;
+      align-items: center;
+    }
+    .amount-input {
+      width: 10ch;
+      --wa-form-control-padding-block: 0.5em;
+      --wa-form-control-padding-inline: 0.4em;
+    }
+  </style>
 
   <div id="bills-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <script>
@@ -95,9 +116,62 @@
                     {% endif %}
                   </div>
 
-                  <div>
-                    <span>{{ bill.amount|currency }}</span>
-                  </div>
+                  {% partialdef bill-amount inline %}
+                    <div id="amount-edit-{{ bill.id }}" class="amount-inline-edit">
+                      <span class="amount-display" title="Click to edit">{{ bill.amount|currency }}</span>
+                      <wa-input
+                        class="amount-input"
+                        type="number"
+                        step="1"
+                        min="0"
+                        name="amount"
+                        value="{{ bill.amount }}"
+                        data-original="{{ bill.amount }}"
+                        style="display:none;"
+                        hx-patch="/bills/{{ bill.id }}/amount"
+                        hx-target="#amount-edit-{{ bill.id }}"
+                        hx-swap="outerHTML"
+                        hx-trigger="amount-submit"
+                      ></wa-input>
+                      <script type="module">
+                        const span = me("#amount-edit-{{ bill.id }} .amount-display")
+                        const input = me("#amount-edit-{{ bill.id }} .amount-input")
+
+                        span.on("click", () => {
+                          span.styles({ display: "none" })
+                          input.styles({ display: "flex" })
+                          input.focus()
+                          input.select()
+                        })
+
+                        const cancel = () => {
+                          span.styles({ display: "" })
+                          input.styles({ display: "none" })
+                          input.value = input.dataset.original
+                        }
+
+                        const submit = () => {
+                          if (input.value === input.dataset.original) {
+                            cancel()
+                            return
+                          }
+                          htmx.trigger(input, "amount-submit")
+                        }
+
+                        input.on("keydown", e => {
+                          if (e.key === "Escape") cancel()
+                          else if (e.key === "Enter") {
+                            e.preventDefault()
+                            submit()
+                          }
+                        })
+
+                        input.on("focusout", () => {
+                          if (input.style.display !== "none") submit()
+                        })
+                      </script>
+                    </div>
+                  {% endpartialdef bill-amount %}
 
                   <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <wa-checkbox

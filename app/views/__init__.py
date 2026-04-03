@@ -12,6 +12,7 @@ from .bills import (
     new_bill_link,
     reorder_bill_link,
     toggle_paid,
+    update_bill_amount,
 )
 from .budgets import BudgetEditDeleteView, BudgetListView, new_budget
 from .category_rules import CategoryRuleDetailView, CategoryRuleListView, reprocess_transactions
@@ -57,6 +58,7 @@ __all__ = [
     "BillLinkEditDeleteView",
     "new_bill_link",
     "reorder_bill_link",
+    "update_bill_amount",
     # Transactions
     "UploadCSVView",
     "TransactionListView",
