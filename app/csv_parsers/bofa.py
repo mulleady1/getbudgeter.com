@@ -30,7 +30,7 @@ class BofAParser(BaseCSVParser):
                 amount_str = row.get("Amount", "").strip().replace(",", "")
                 if not amount_str:
                     continue
-                amount = Decimal(amount_str)
+                amount = -Decimal(amount_str)
 
                 description = row.get("Payee", "").strip()
                 if not description:

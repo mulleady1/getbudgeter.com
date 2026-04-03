@@ -1,5 +1,10 @@
 <wa-drawer label="Upload CSV" {% if not is_mobile %}style="--size: 50vw;"{% endif %}>
-  <form id="transaction-upload-form" hx-post="/transactions/upload" hx-encoding="multipart/form-data" hx-swap="outerHTML">
+  <form
+    id="transaction-upload-form"
+    hx-post="/transactions/upload"
+    hx-encoding="multipart/form-data"
+    hx-swap="outerHTML"
+  >
     {% csrf_token %}
 
     {% if error %}
@@ -26,9 +31,8 @@
         Supported formats: Bank of America, Capital One, Citi (max 5MB)
       </p>
     </div>
-
   </form>
-  
+
   <div slot="footer" style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
     <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
     <wa-button form="transaction-upload-form" type="submit">Upload</wa-button>
