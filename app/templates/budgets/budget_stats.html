@@ -1,0 +1,24 @@
+{% load myfilters %}
+<div class="budget-stats">
+  {% if showing_defaults %}
+    <p style="font-size: 0.78rem; color: #9ca3af; margin: 0 0 0.75rem 0;">defaults</p>
+  {% endif %}
+  <div class="stat-row">
+    <span class="stat-label">Budgeted</span>
+    <span class="stat-value">{{ total_budgeted|currency }}</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">Spent</span>
+    <span class="stat-value">{{ total_spent|currency }}</span>
+  </div>
+  <div class="stat-row">
+    <span class="stat-label">Remaining</span>
+    <span class="stat-value{% if total_remaining < 0 %} over{% endif %}">{{ total_remaining|currency }}</span>
+  </div>
+  {% if total_budgeted > 0 %}
+    <div class="overall-bar-container">
+      <div class="overall-bar{% if total_remaining < 0 %} over{% endif %}" style="width: {{ overall_pct }}%;"></div>
+    </div>
+    <div class="overall-label">{{ overall_pct }}% of budget used</div>
+  {% endif %}
+</div>

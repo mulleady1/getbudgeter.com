@@ -1,49 +1,56 @@
-<wa-dialog label="{% if budget %}Edit Budget{% else %}Add Budget{% endif %}" style="--width: 500px;">
+<wa-drawer
+  {% if budget.id %}
+    label="Edit Budget"
+  {% else %}
+    label="Add Budget"
+  {% endif %}
+>
   <form
-    {% if budget %}
+    id="budget-form"
+    {% if budget.id %}
       hx-put="/budgets/{{ budget.id }}"
     {% else %}
       hx-post="/budgets"
     {% endif %}
+    hx-target="#budget-list"
     hx-swap="outerHTML"
+    style="display: flex; flex-direction: column; gap: 1rem;"
   >
     {% csrf_token %}
 
-    <div style="margin-bottom: 1rem;">
-      <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Category</label>
-      <select
-        name="category"
-        id="category"
-        required
-        style="width: 100%; padding: 0.5rem;"
-        {% if budget %}disabled{% endif %}
-      >
+    <div>
+      <label for="category" style="display: block; font-weight: 500;">Category</label>
+      <select id="category" name="category" required {% if budget.id %}disabled{% endif %} style="width: 100%;">
         <option value="">Select category...</option>
         {% for category in categories %}
-          <option value="{{ category.id }}" {% if budget and budget.category_id == category.id %}selected{% endif %}>
+          <option value="{{ category.id }}" {% if budget.category_id == category.id %}selected{% endif %}>
             {{ category.name }}
           </option>
         {% endfor %}
       </select>
     </div>
 
-    <div style="margin-bottom: 1rem;">
-      <wa-input
-        label="Budget Amount"
-        type="number"
-        name="amount"
-        id="amount"
-        step="1"
-        required
-        {% if budget %}value="{{ budget.amount }}"{% endif %}
-      ></wa-input>
-    </div>
+    <wa-input
+      label="Budget Amount"
+      type="number"
+      name="amount"
+      step="1"
+      min="0"
+      required
+      {% if budget %}value="{{ budget.amount }}"{% endif %}
+      style="width: 100%;"
+    ></wa-input>
 
-    <input type="hidden" name="month" value="{{ budget.month|date:'Y-m'|default:current_month|date:'Y-m' }}" />
-
-    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
-      <wa-button appearance="outlined" onclick="this.closest('wa-dialog').open = false">Cancel</wa-button>
-      <wa-button type="submit">Save</wa-button>
-    </div>
   </form>
-</wa-dialog>
+
+  <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <wa-button
+      appearance="outlined"
+      onclick="this.closest('wa-drawer').open = false"
+      style="margin-top: 1rem; width: 100%;"
+    >
+      Cancel
+    </wa-button>
+    <wa-button type="submit" form="budget-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>
+  </div>
+</wa-drawer>

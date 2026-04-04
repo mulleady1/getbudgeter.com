@@ -53,5 +53,6 @@ urlpatterns = [
     
     path("budgets",                                            views.BudgetListView.as_view(),          name="budgets"),
     path("budgets/new",                                        views.new_budget,                        name="new_budget"),
+    path("budgets/stats",                                      views.budget_stats,                      name="budget_stats"),
     path("budgets/<int:budget_id>",                            views.BudgetEditDeleteView.as_view(),    name="edit_delete_budget"),
 ]

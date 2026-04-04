@@ -1,0 +1,193 @@
+#budgets-page {
+  .header {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .month-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (min-width: 768px) {
+    #budget-list {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+  }
+
+  .budget-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .budget-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.15s;
+
+    &:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    &.over-budget {
+      border-color: #fca5a5;
+      background: #fff9f9;
+    }
+  }
+
+  .budget-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .category-chip {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .budget-card:hover .card-actions {
+    opacity: 1;
+  }
+
+  .budget-amounts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .amount-item {
+    display: flex;
+    flex-direction: column;
+
+    &.over .amount-value {
+      color: #dc2626;
+      font-weight: 600;
+    }
+  }
+
+  .amount-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin-bottom: 0.1rem;
+  }
+
+  .amount-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .progress-bar-container {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 0.3rem;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: #6366f1;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+
+    &.over {
+      background: #dc2626;
+    }
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: right;
+  }
+
+  .tile-container {
+    flex-shrink: 0;
+    width: 220px;
+  }
+}
+
+/* Budget stats tile */
+.budget-stats {
+  padding: 20px 25px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f3f4f6;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .stat-value {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .stat-value.over {
+    color: #dc2626;
+  }
+
+  .overall-bar-container {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .overall-bar {
+    height: 100%;
+    background: #6366f1;
+    border-radius: 999px;
+
+    &.over {
+      background: #dc2626;
+    }
+  }
+
+  .overall-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: right;
+  }
+}
