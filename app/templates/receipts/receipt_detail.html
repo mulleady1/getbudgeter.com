@@ -1,7 +1,27 @@
-<wa-drawer label="Receipt Details" class="receipt-detail-dialog" {% if not is_mobile %}style="--size: 50vw;"{% endif %}>
+<wa-drawer
+  label="Receipt Details"
+  class="receipt-detail-dialog"
+  {% if not is_mobile %}style="--size: 50vw;"{% endif %}
+  {% if open %}open{% endif %}
+>
   {% partialdef dialog-content inline %}
-    <div class="receipt-detail-content">
-      {% if process_success %}
+    <div
+      class="receipt-detail-content"
+      {% if receipt.status == 'PENDING' %}
+        hx-get="/receipts/{{ receipt.id }}/status" hx-trigger="every 2s" hx-target="this" hx-swap="outerHTML"
+      {% endif %}
+    >
+      {% if receipt.status == 'PENDING' %}
+        <wa-callout variant="primary" style="margin-bottom: 1rem;">
+          <wa-spinner slot="icon"></wa-spinner>
+          Processing&hellip;
+        </wa-callout>
+      {% elif receipt.status == 'FAILED' %}
+        <wa-callout variant="danger" style="margin-bottom: 1rem;">
+          <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
+          Processing failed. You can retry using the button below.
+        </wa-callout>
+      {% elif process_success %}
         <wa-callout variant="success" style="margin-bottom: 1rem;">
           <wa-icon slot="icon" name="check-circle"></wa-icon>
           Receipt processed successfully with {{ processing_method }}! Items and totals have been updated.

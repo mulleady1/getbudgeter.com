@@ -1,6 +1,10 @@
 <div id="bill-links-container" {% if edit_mode %}data-edit-mode="true"{% endif %}>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 0.5rem;">
-    <h3 style="margin: 0; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Other accounts</h3>
+    <h3
+      style="margin: 0; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;"
+    >
+      Other accounts
+    </h3>
     <wa-dropdown placement="bottom-end">
       <wa-button slot="trigger" variant="neutral" appearance="plain"
         ><wa-icon name="ellipsis-vertical"></wa-icon
@@ -60,9 +64,9 @@
                 appearance="plain"
                 variant="danger"
                 hx-delete="/bills/links/{{ link.id }}"
-                hx-trigger="confirmed"
                 hx-target="#bill-links-container"
                 hx-swap="outerHTML"
+                hx-trigger="confirmed"
                 onclick="customConfirm().then(yes => { if (yes) { htmx.trigger(this, 'confirmed'); } })"
               >
                 <wa-icon name="trash" label="Delete"></wa-icon>

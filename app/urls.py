@@ -38,6 +38,7 @@ urlpatterns = [
     path("receipts/upload",                                    views.ReceiptUploadView.as_view(),       name="upload_receipt"),
     path("receipts/<int:receipt_id>",                          views.ReceiptDetailView.as_view(),       name="receipt_detail"),
     path("receipts/<int:receipt_id>/process-image",            views.process_receipt_image,             name="process_receipt_image"),
+    path("receipts/<int:receipt_id>/status",                   views.receipt_status,                    name="receipt_status"),
     path("receipts/<int:receipt_id>/merchant/edit",            views.edit_receipt_merchant,             name="edit_receipt_merchant"),
     path("receipts/<int:receipt_id>/merchant",                 views.update_receipt_merchant,           name="update_receipt_merchant"),
     path("receipts/<int:receipt_id>/merchant/cancel",          views.cancel_edit_merchant,              name="cancel_edit_merchant"),

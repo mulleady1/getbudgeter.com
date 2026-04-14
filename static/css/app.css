@@ -151,6 +151,10 @@ a[hx-get] {
   }
 }
 
+.form-error {
+  margin-bottom: 1rem;
+}
+
 .htmx-progress-bar {
   position: fixed;
   opacity: 0;

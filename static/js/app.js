@@ -1,111 +1,70 @@
-/**
- * HTMX extension for CSRF token injection.
- */
-htmx.defineExtension("csrf", {
-  onEvent: function (name, evt) {
-    if (name === "htmx:configRequest") {
-      const target = evt.target
-      const modal = target.closest("wa-dialog, wa-drawer")
-
-      // First try to find CSRF token inside the modal (if we're in one)
-      let csrfInput = modal?.querySelector("input[name=csrfmiddlewaretoken]")
-
-      // Fall back to document-level token
-      if (!csrfInput) {
-        csrfInput = document.querySelector("input[name=csrfmiddlewaretoken]")
-      }
-
-      if (csrfInput) {
-        evt.detail.headers["X-CSRFToken"] = csrfInput.value
-      }
-    }
-  },
+// Inject CSRF token into every htmx request.
+htmx.on("htmx:config:request", evt => {
+  const source = evt.detail.ctx.sourceElement
+  const dialog = source.closest("wa-dialog, wa-drawer")
+  const csrfInput =
+    dialog?.querySelector("input[name=csrfmiddlewaretoken]") ??
+    document.querySelector("input[name=csrfmiddlewaretoken]")
+  if (csrfInput) {
+    evt.detail.ctx.request.headers["X-CSRFToken"] = csrfInput.value
+  }
 })
 
-/**
- * HTMX extension for disabling submit buttons and showing a spinner.
- */
-htmx.defineExtension("button-spinner", {
-  onEvent: function (name, event) {
-    if (name === "htmx:load") {
-      const parent = event.target
+// Disable buttons and show spinners while a request is in flight.
+htmx.on("htmx:before:request", evt => {
+  const source = evt.detail.ctx.sourceElement
+  const form = source.closest("form")
+  const dialog = source.closest("wa-dialog, wa-drawer")
+  const container = dialog ?? form
+  container?.querySelectorAll('button[type="submit"], wa-button[type="submit"]').forEach(el => {
+    el.disabled = true
+    el.loading = true
+  })
 
-      // Process form submit buttons.
-
-      const elts = parent.querySelectorAll('button[type="submit"], wa-button[type="submit"]')
-
-      const enableSubmitButtons = () => {
-        elts.forEach((elt) => {
-          elt.disabled = false
-          elt.loading = false
-        })
-      }
-
-      const disableSubmitButtons = (event) => {
-        elts.forEach((elt) => {
-          elt.disabled = true
-          elt.loading = true
-        })
-      }
-
-      if (elts.length > 0) {
-        parent.addEventListener("htmx:beforeRequest", disableSubmitButtons)
-        parent.addEventListener("htmx:afterRequest", enableSubmitButtons)
-      }
-
-      // Process hx-[verb] elements.
-
-      const eltTypes = ["button", "wa-button", "wa-dropdown-item"]
-      const hxVerbs = ["get", "post", "put", "patch", "delete"]
-      const selector = eltTypes.map((eltType) => hxVerbs.map((verb) => `${eltType}[hx-${verb}]`).join(", ")).join(", ")
-      const elts2 = parent.querySelectorAll(selector)
-      for (const elt of elts2) {
-        elt.addEventListener("htmx:beforeRequest", () => {
-          elt.disabled = true
-          elt.loading = true
-        })
-        elt.addEventListener("htmx:afterRequest", () => {
-          elt.disabled = false
-          elt.loading = false
-        })
-      }
-    }
-  },
+  if (source.matches("form")) {
+    source.querySelectorAll(".form-error").forEach(el => el.remove())
+  } else if (source.matches("button, wa-button, wa-dropdown-item")) {
+    source.disabled = true
+    source.loading = true
+  }
 })
 
-/**
- * HTMX extension for auto-opening and auto-closing dialogs and drawers.
- */
-htmx.defineExtension("show-hide-dialogs", {
-  onEvent: function (name, evt) {
-    const target = evt.target
+// Re-enable buttons and hide spinners after a request is processed.
+// Also, auto-close dialogs/drawers on successful form submission.
+htmx.on("htmx:after:request", evt => {
+  const source = evt.detail.ctx.sourceElement
+  const form = source.closest("form")
+  const dialog = source.closest("wa-dialog, wa-drawer")
+  const container = dialog ?? form
 
-    // Auto-open dialogs/drawers after they're loaded into the DOM
-    if (name === "htmx:load") {
-      const dialog = target.matches("wa-dialog, wa-drawer") ? target : target.querySelector("wa-dialog, wa-drawer")
+  // Re-enable buttons
+  container?.querySelectorAll('button[type="submit"], wa-button[type="submit"]').forEach(el => {
+    el.disabled = false
+    el.loading = false
+  })
+  if (source.matches("button, wa-button, wa-dropdown-item")) {
+    source.disabled = false
+    source.loading = false
+  }
 
-      if (dialog) {
-        // Auto-open after a brief delay (unless it already has the 'open' attribute)
-        if (!dialog.hasAttribute("open") && !dialog.hasAttribute("data-no-autoopen")) {
-          setTimeout(() => (dialog.open = true), 100)
-        }
+  // Close dialogs
+  if (dialog && evt.detail.ctx.response?.raw?.ok && source.matches("form")) {
+    dialog.open = false
+  }
+})
 
-        // Auto-cleanup when dialog closes
-        if (!dialog.hasAttribute("data-no-autoremove")) {
-          dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })
-        }
-      }
-    }
+// Auto-open and auto-cleanup dialogs/drawers.
+htmx.on("htmx:after:process", evt => {
+  const elt = evt.target
+  const dialog = elt.matches?.("wa-dialog, wa-drawer") ? elt : elt.querySelector("wa-dialog, wa-drawer")
+  if (!dialog) return
 
-    // Auto-close dialogs/drawers on successful form submissions
-    if (name === "htmx:afterRequest") {
-      const dialog = target.closest("wa-dialog, wa-drawer")
-
-      if (dialog && evt.detail.successful && target.matches("form")) {
-        dialog.open = false
-      }
-    }
-  },
+  if (!dialog.hasAttribute("open") && !dialog.hasAttribute("data-no-autoopen")) {
+    setTimeout(() => (dialog.open = true), 100)
+  }
+  if (!dialog.hasAttribute("data-no-autoremove")) {
+    dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })
+  }
 })
 
 function customConfirm(options) {
@@ -114,7 +73,7 @@ function customConfirm(options) {
   const confirmButtonText = options?.confirmButtonText || "Confirm"
   const cancelButtonText = options?.cancelButtonText || "Cancel"
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     let yes = false
     const div = document.createElement("div")
     div.innerHTML = `

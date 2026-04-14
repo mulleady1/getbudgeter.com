@@ -1,8 +1,10 @@
 import logging
 import os
+import threading
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -17,6 +19,42 @@ from ..models import Category, Receipt, ReceiptItem
 from ..receipt_ocr import ReceiptOCRProcessor
 
 logger = logging.getLogger(__name__)
+
+
+def _process_receipt_background(receipt_id):
+    """Run AI receipt processing in a background thread."""
+    try:
+        receipt = Receipt.objects.select_related("user").get(id=receipt_id)
+        ai_processor = AIReceiptProcessor()
+        data = ai_processor.process_receipt(receipt.image.path)
+
+        receipt.merchant = data["merchant"]
+        receipt.date = data["date"]
+        receipt.total = data["total"]
+        receipt.status = Receipt.READY
+        receipt.save()
+
+        categorizer = TransactionCategorizer(receipt.user)
+        for item_data in data["items"]:
+            category = categorizer.categorize(merchant=data["merchant"], description=item_data["description"])
+            ReceiptItem.objects.create(
+                receipt=receipt,
+                description=item_data["description"],
+                amount=item_data["amount"],
+                category=category,
+            )
+
+        logger.info(
+            "Background processing complete for receipt %s: %d items, total $%s",
+            receipt_id,
+            len(data["items"]),
+            receipt.total,
+        )
+    except Exception as e:
+        logger.error("Background receipt processing failed for receipt %s: %s", receipt_id, e, exc_info=True)
+        Receipt.objects.filter(id=receipt_id).update(status=Receipt.FAILED)
+    finally:
+        connection.close()
 
 
 class ReceiptListView(LoginRequiredMixin, View):
@@ -64,7 +102,7 @@ class ReceiptListView(LoginRequiredMixin, View):
 
         # Check if this is an infinite scroll request
         if request.htmx and (request.GET.get("page") or not request.htmx.boosted):
-            return render(request, "receipts/receipts_page.html#receipt-rows", context)
+            return render(request, "receipts/receipts_page.html#receipt-grid-items", context)
         else:
             return render(request, "receipts/receipts_page.html", context)
 
@@ -83,60 +121,40 @@ class ReceiptUploadView(LoginRequiredMixin, View):
         # Validate file type
         allowed_extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"]
         if not any(image_file.name.lower().endswith(ext) for ext in allowed_extensions):
-            context = {"error": "Please upload a valid image file (JPG, PNG, GIF, BMP, TIFF)"}
-            return render(request, "receipts/upload.html", context)
+            error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>Please upload a valid image file (JPG, PNG, GIF, BMP, TIFF)</wa-callout>"
+            return HttpResponse(error, status=400)
 
         # Validate file size (5MB max — Anthropic API limit)
         if image_file.size > 5 * 1024 * 1024:
-            context = {"error": "File size must be less than 5MB"}
-            return render(request, "receipts/upload.html", context)
+            error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>File size must be less than 5MB</wa-callout>"
+            return HttpResponse(error, status=400)
 
         try:
-            # Create initial receipt object to save the image
-            receipt = Receipt(user=request.user)
+            # Save the image and kick off background AI processing
+            receipt = Receipt(user=request.user, status=Receipt.PENDING)
             receipt.image = image_file
             receipt.save()
 
-            # Process the image with OCR
-            ocr_processor = ReceiptOCRProcessor()
-            ocr_data = ocr_processor.process_receipt(receipt.image.path)
-
-            # Update receipt with OCR data
-            receipt.raw_ocr_text = ocr_data["raw_text"]
-            receipt.merchant = ocr_data["merchant"]
-            receipt.date = ocr_data["date"]
-            receipt.total = ocr_data["total"]
-            receipt.save()
-
-            # Create receipt items
-            categorizer = TransactionCategorizer(request.user)
-            for item_data in ocr_data["items"]:
-                # Try to categorize the item
-                category = categorizer.categorize(merchant=ocr_data["merchant"], description=item_data["description"])
-
-                ReceiptItem.objects.create(
-                    receipt=receipt,
-                    description=item_data["description"],
-                    amount=item_data["amount"],
-                    category=category,
-                )
+            threading.Thread(target=_process_receipt_background, args=(receipt.id,), daemon=True).start()
 
             logger.info(
-                "User %s uploaded receipt: %s items extracted, total $%s",
-                request.user.username,
-                len(ocr_data["items"]),
-                receipt.total,
+                "User %s uploaded receipt %s, AI processing started in background", request.user.username, receipt.id
             )
 
-            context = {
-                "success": True,
-                "receipt": receipt,
-                "items_count": len(ocr_data["items"]),
-            }
+            categories = Category.objects.filter(user=request.user).order_by("name")
+            receipt_detail_html = render_to_string(
+                "receipts/receipt_detail.html",
+                context={"receipt": receipt, "items": [], "categories": categories, "item_count": 0, "open": True},
+                request=request,
+            )
 
-            res = render(request, "receipts/upload_summary.html", context)
-            trigger_client_event(res, "reload-receipts")
-            return res
+            grid_item_html = render_to_string(
+                "receipts/receipts_page.html#receipt-grid-item-partial-prepend",
+                context={"receipt": receipt},
+                request=request,
+            )
+
+            return HttpResponse(receipt_detail_html + grid_item_html)
 
         except Exception as e:
             logger.error("Error processing receipt upload: %s", str(e), exc_info=True)
@@ -162,6 +180,31 @@ class ReceiptDetailView(LoginRequiredMixin, View):
         res = HttpResponse()
         trigger_client_event(res, "reload-receipts")
         return res
+
+
+@login_required
+@require_http_methods(["GET"])
+def receipt_status(request, receipt_id):
+    """Polling endpoint — returns the dialog-content partial while AI is processing."""
+    receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
+    items = receipt.items.all()
+    categories = Category.objects.filter(user=request.user).order_by("name")
+
+    html = render_to_string(
+        "receipts/receipt_detail.html#dialog-content",
+        context={"receipt": receipt, "items": items, "categories": categories, "item_count": items.count()},
+        request=request,
+    )
+
+    if receipt.status == Receipt.READY:
+        grid_item_html = render_to_string(
+            "receipts/receipts_page.html#receipt-grid-item-partial",
+            context={"receipt": receipt},
+            request=request,
+        )
+        html += grid_item_html
+
+    return HttpResponse(html)
 
 
 @login_required
@@ -203,7 +246,17 @@ def update_receipt_merchant(request, receipt_id):
     receipt.merchant = merchant if merchant else None
     receipt.save()
 
-    return render(request, "receipts/receipt_detail.html#merchant-field", {"receipt": receipt})
+    merchant_field_html = render_to_string(
+        "receipts/receipt_detail.html#merchant-field", context={"receipt": receipt}, request=request
+    )
+
+    list_item_html = render_to_string(
+        "receipts/receipts_page.html#receipt-grid-item-partial",
+        context={"receipt": receipt},
+        request=request,
+    )
+
+    return HttpResponse(merchant_field_html + list_item_html)
 
 
 @login_required
@@ -297,8 +350,8 @@ def process_receipt_image(request, receipt_id):
         )
 
         list_item_html = render_to_string(
-            "receipts/receipts_page.html#receipt-row",
-            context={"receipt": receipt, "swap": True},
+            "receipts/receipts_page.html#receipt-grid-item-partial",
+            context={"receipt": receipt},
             request=request,
         )
 

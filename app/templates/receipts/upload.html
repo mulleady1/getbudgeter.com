@@ -1,8 +1,4 @@
-<wa-drawer
-  label="Upload Receipt"
-  class="receipt-upload-dialog"
-  {% if not is_mobile %}style="--size: 50vw;"{% endif %}
->
+<wa-drawer label="Upload Receipt" class="receipt-upload-dialog" {% if not is_mobile %}style="--size: 50vw;"{% endif %}>
   <form
     id="receipt-upload-form"
     hx-post="/receipts/upload"
@@ -30,21 +26,22 @@
         style="display: block; width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
       />
       <script>
-        me('#receipt_image').on('change', function(e) {
+        me("#receipt_image").on("change", function (e) {
           const file = e.target.files[0]
-          const warning = document.getElementById('file-size-warning')
+          const warning = me("#file-size-warning")
+          const submitBtn = me('.receipt-upload-dialog [type="submit"]')
           if (file && file.size > 5 * 1024 * 1024) {
             if (!warning) {
-              const el = document.createElement('p')
-              el.id = 'file-size-warning'
-              el.style.cssText = 'font-size: 0.875rem; color: red; margin-top: 0.25rem;'
+              const el = document.createElement("p")
+              el.id = "file-size-warning"
+              el.style.cssText = "font-size: 0.875rem; color: red; margin-top: 0.25rem;"
               el.textContent = `File is ${(file.size / 1024 / 1024).toFixed(1)}MB — please choose an image under 5MB.`
               e.target.after(el)
             }
-            document.querySelector('#receipt-upload-form [type="submit"]').disabled = true
+            submitBtn.disabled = true
           } else {
             if (warning) warning.remove()
-            document.querySelector('#receipt-upload-form [type="submit"]').disabled = false
+            submitBtn.disabled = false
           }
         })
       </script>
@@ -52,10 +49,10 @@
         Supported formats: JPG, PNG, GIF, BMP, TIFF (max 5MB)
       </p>
       <p style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
-        Take a photo or choose from your library. The receipt will be automatically processed to extract merchant, date, and items.
+        Take a photo or choose from your library. The receipt will be automatically processed to extract merchant, date,
+        and items.
       </p>
     </div>
-
   </form>
 
   <div slot="footer" style="display: flex; gap: 0.5rem; justify-content: flex-end;">

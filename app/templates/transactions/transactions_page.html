@@ -77,11 +77,11 @@
     }
 
     // Sync (Select All) after checkbox lists reload via HTMX
-    document.addEventListener("htmx:afterSwap", function (event) {
-      if (event.detail.target.id === "merchant-checkbox-list") {
+    document.addEventListener("htmx:after:swap", function (event) {
+      if (event.detail.ctx.target.id === "merchant-checkbox-list") {
         syncSelectAll("#select-all-merchants", "merchants-checkbox-item")
       }
-      if (event.detail.target.id === "description-checkbox-list") {
+      if (event.detail.ctx.target.id === "description-checkbox-list") {
         syncSelectAll("#select-all-descriptions", "descriptions-checkbox-item")
       }
     })
@@ -273,20 +273,18 @@
                   hx-swap="outerHTML"
                   hx-push-url="true"
                   hx-include="#transaction-filters"
-                  hx-on::after-request="if (event.detail.successful) resetCheckboxes()"
+                  hx-on:htmx:after:request="if (event.detail.ctx.response?.raw?.ok) resetCheckboxes()"
                 >
                   <wa-icon slot="end" name="magnifying-glass"></wa-icon>
                 </wa-input>
               </div>
-              {% partialdef query-count inline %}
+            
+              <div id="query-count" style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
                 {% if search_query or page > 1 %}
-                  <div id="query-count" hx-swap-oob="true" style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
-                    Showing {{ showing_count }} of {{ total_count }} transactions
-                  </div>
-                {% else %}
-                  <div id="query-count" hx-swap-oob="true"></div>
+                  Showing {{ showing_count }} of {{ total_count }} transactions
                 {% endif %}
-              {% endpartialdef query-count %}
+              </div>
+              
             </div>
           </div>
 
@@ -392,7 +390,7 @@
           <div style="overflow-x: auto;">
             <table id="transactions-table" style="width: 100%; border-collapse: collapse; min-width: 600px;">
               <script>
-                me().on("htmx:after-swap", e => {
+                me().on("htmx:after:swap", e => {
                   any("#transactions-table .transaction-checkbox").run(cb => (cb.checked = false))
                   me("#select-all").checked = false
                   me("#bulk-action-bar").style.maxHeight = "0"
@@ -683,6 +681,15 @@
               </tbody>
             </table>
           </div>
+
+          {% partialdef query-count %}
+            <hx-partial hx-target="#query-count">
+              {% if search_query or page > 1 %}
+                Showing {{ showing_count }} of {{ total_count }} transactions
+              {% endif %}
+            </hx-partial>
+          {% endpartialdef query-count %}
+
         {% endpartialdef transactions-table %}
 
         {% partialdef transaction-rows %}

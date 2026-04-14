@@ -8,3 +8,4 @@ db.sqlite3
 /frontend
 /data
 /static_admin
+/static/js/htmx
