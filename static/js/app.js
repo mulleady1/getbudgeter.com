@@ -49,6 +49,7 @@ htmx.on("htmx:after:request", evt => {
 
   // Close dialogs
   if (dialog && evt.detail.ctx.response?.raw?.ok && source.matches("form")) {
+    console.log("closing dialog, evt=", evt)
     dialog.open = false
   }
 })
@@ -60,7 +61,10 @@ htmx.on("htmx:after:process", evt => {
   if (!dialog) return
 
   if (!dialog.hasAttribute("open") && !dialog.hasAttribute("data-no-autoopen")) {
-    setTimeout(() => (dialog.open = true), 100)
+    setTimeout(() => {
+      console.log("opening dialog, evt=", evt)
+      dialog.open = true
+    }, 100)
   }
   if (!dialog.hasAttribute("data-no-autoremove")) {
     dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })

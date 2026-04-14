@@ -3,7 +3,8 @@
     id="transaction-upload-form"
     hx-post="/transactions/upload"
     hx-encoding="multipart/form-data"
-    hx-swap="outerHTML"
+    hx-target="body"
+    hx-swap="beforeend"
   >
     {% csrf_token %}
 
