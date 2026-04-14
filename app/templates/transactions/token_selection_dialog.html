@@ -1,8 +1,6 @@
 <wa-dialog label="Create Rule" style="--width: 500px;">
   <div style="margin-bottom: 1rem;">
-    <p style="margin-bottom: 1rem; color: #666;">
-      Click on a word to create a category rule for future transactions:
-    </p>
+    <p style="margin-bottom: 1rem; color: #666;">Click on a word to create a category rule for future transactions:</p>
     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
       {% for token in tokens %}
         <wa-button
@@ -10,12 +8,12 @@
           hx-post="/transactions/{{ transaction.id }}/create-rule"
           hx-target="[data-transaction-id='{{ transaction.id }}']"
           hx-swap="outerHTML"
-          hx-on::config-request="
-            event.detail.parameters.token = '{{ token|escapejs }}';
-            event.detail.parameters.category_id = '{{ category_id }}';
+          hx-on::config:request="
+            event.detail.ctx.request.body.append('token', '{{ token|escapejs }}');
+            event.detail.ctx.request.body.append('category_id', '{{ category_id }}');
           "
-          hx-on::after-request="
-            if (event.detail.successful) {
+          hx-on::after:request="
+            if (event.detail.ctx.response?.raw?.ok) {
               this.closest('wa-dialog').open = false;
             }
           "
@@ -28,7 +26,8 @@
 
   <div style="position: relative; margin: 1.5rem 0;">
     <wa-divider></wa-divider>
-    <span style="
+    <span
+      style="
       position: absolute;
       top: 50%;
       left: 50%;
@@ -39,37 +38,23 @@
       font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-    ">or</span>
+    "
+      >or</span
+    >
   </div>
 
-  <div style="margin-bottom: 1rem;">
-    <wa-input
-      label="Custom keyword"
-      value="{{ transaction.description }}"
-      style="width: 100%;"
-    >
+  <form
+    style="margin-bottom: 1rem;"
+    hx-post="/transactions/{{ transaction.id }}/create-rule"
+    hx-target="[data-transaction-id='{{ transaction.id }}']"
+    hx-swap="outerHTML"
+  >
+    <input type="hidden" name="category_id" value="{{ category_id }}" />
+    <wa-input name="token" label="Custom keyword" value="{{ transaction.description }}" style="width: 100%;">
       <div slot="help-text">Or enter a custom keyword for the rule</div>
     </wa-input>
-    <wa-button
-      appearance="primary"
-      style="margin-top: 0.5rem; width: 100%;"
-      hx-post="/transactions/{{ transaction.id }}/create-rule"
-      hx-target="[data-transaction-id='{{ transaction.id }}']"
-      hx-swap="outerHTML"
-      hx-on::config-request="
-        const input = this.previousElementSibling;
-        event.detail.parameters.token = input.value;
-        event.detail.parameters.category_id = '{{ category_id }}';
-      "
-      hx-on::after-request="
-        if (event.detail.successful) {
-          this.closest('wa-dialog').open = false;
-        }
-      "
-    >
-      Create
-    </wa-button>
-  </div>
+    <wa-button type="submit" appearance="primary" style="margin-top: 0.5rem; width: 100%;"> Create </wa-button>
+  </form>
 
   <div style="margin: 2rem 0 1.5rem 0;">
     <wa-divider></wa-divider>
@@ -81,9 +66,9 @@
       hx-put="/transactions/{{ transaction.id }}"
       hx-target="[data-transaction-id='{{ transaction.id }}']"
       hx-swap="outerHTML"
-      hx-on::config-request="event.detail.parameters.category = {{ category_id }}"
-      hx-on::after-request="
-        if (event.detail.successful) {
+      hx-on::config:request="event.detail.ctx.request.body.append('category', {{ category_id }})"
+      hx-on::after:request="
+        if (event.detail.ctx.response?.raw?.ok) {
           this.closest('wa-dialog').open = false;
         }
       "

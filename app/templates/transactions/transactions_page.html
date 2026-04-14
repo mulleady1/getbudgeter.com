@@ -278,13 +278,12 @@
                   <wa-icon slot="end" name="magnifying-glass"></wa-icon>
                 </wa-input>
               </div>
-            
+
               <div id="query-count" style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
                 {% if search_query or page > 1 %}
                   Showing {{ showing_count }} of {{ total_count }} transactions
                 {% endif %}
               </div>
-              
             </div>
           </div>
 
@@ -324,12 +323,12 @@
                   disabled
                   hx-post="/transactions/bulk-categorize"
                   hx-swap="none"
-                  hx-on::config-request="
+                  hx-on::config:request="
                     const checkedBoxes = any('.transaction-checkbox:checked');
                     const transactionIds = Array.from(checkedBoxes).map(cb => cb.value).join(',');
                     const categoryId = me('#bulk-category').value;
-                    event.detail.parameters.transaction_ids = transactionIds;
-                    event.detail.parameters.category_id = categoryId;
+                    event.detail.ctx.request.body.append('transaction_ids', transactionIds);
+                    event.detail.ctx.request.body.append('category_id', categoryId);
                   "
                 >
                   Apply
@@ -689,7 +688,6 @@
               {% endif %}
             </hx-partial>
           {% endpartialdef query-count %}
-
         {% endpartialdef transactions-table %}
 
         {% partialdef transaction-rows %}

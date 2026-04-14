@@ -293,7 +293,7 @@
                     hx-trigger="revealed"
                     hx-target="#rules-container"
                     hx-swap="beforeend"
-                    hx-on::after-request="if (event.detail.successful) this.closest('div').remove()"
+                    hx-on::after:request="if (event.detail.ctx.response?.raw?.ok) this.closest('div').remove()"
                   ></wa-spinner>
                 </div>
               {% endif %}
