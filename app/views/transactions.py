@@ -194,8 +194,12 @@ class TransactionListView(LoginRequiredMixin, View):
                 transactions = transactions.filter(date=start_date)
             elif date_mode == "before":
                 transactions = transactions.filter(date__lt=start_date)
+            elif date_mode == "on_or_before":
+                transactions = transactions.filter(date__lte=start_date)
             elif date_mode == "after":
                 transactions = transactions.filter(date__gt=start_date)
+            elif date_mode == "on_or_after":
+                transactions = transactions.filter(date__gte=start_date)
             elif date_mode == "range" and end_date:
                 transactions = transactions.filter(date__gte=start_date, date__lte=end_date)
 
