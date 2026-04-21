@@ -113,8 +113,7 @@ class ReceiptUploadView(LoginRequiredMixin, View):
 
     def post(self, request):
         if "receipt_image" not in request.FILES:
-            context = {"error": "No image uploaded"}
-            return render(request, "receipts/upload.html", context)
+            return render(request, "form_error.html", {"message": "No image uploaded"}, status=400)
 
         image_file = request.FILES["receipt_image"]
 
@@ -161,8 +160,7 @@ class ReceiptUploadView(LoginRequiredMixin, View):
 
         except Exception as e:
             logger.error("Error processing receipt upload: %s", str(e), exc_info=True)
-            context = {"error": f"Error processing receipt: {str(e)}"}
-            return render(request, "receipts/upload.html#error", context)
+            return render(request, "form_error.html", {"message": f"Error processing receipt: {str(e)}"}, status=500)
 
 
 class ReceiptDetailView(LoginRequiredMixin, View):

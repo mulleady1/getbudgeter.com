@@ -4,79 +4,7 @@
   {% if not is_mobile %}style="--size: 50vw;"{% endif %}
   {% if open %}open{% endif %}
 >
-  {% partialdef dialog-content inline %}
-    <div
-      class="receipt-detail-content"
-      {% if receipt.status == 'PENDING' %}
-        hx-get="/receipts/{{ receipt.id }}/status" hx-trigger="every 2s" hx-target="this" hx-swap="outerHTML"
-      {% endif %}
-    >
-      {% if receipt.status == 'PENDING' %}
-        <wa-callout variant="primary" style="margin-bottom: 1rem;">
-          <wa-spinner slot="icon"></wa-spinner>
-          Processing&hellip;
-        </wa-callout>
-      {% elif receipt.status == 'FAILED' %}
-        <wa-callout variant="danger" style="margin-bottom: 1rem;">
-          <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
-          Processing failed. You can retry using the button below.
-        </wa-callout>
-      {% elif process_success %}
-        <wa-callout variant="success" style="margin-bottom: 1rem;">
-          <wa-icon slot="icon" name="check-circle"></wa-icon>
-          Receipt processed successfully with {{ processing_method }}! Items and totals have been updated.
-        </wa-callout>
-      {% endif %}
-
-      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
-        <!-- Receipt Image -->
-        <div>
-          <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
-            {% if receipt.image %}
-              <img
-                src="{{ receipt.image.url }}"
-                alt="Receipt"
-                style="width: 100%; height: auto; max-height: 50vh; object-fit: cover; display: block;"
-              />
-            {% endif %}
-          </div>
-          <div style="margin-top: 1rem;">
-            <div style="font-weight: 600; margin-bottom: 0.5rem;">Receipt Info</div>
-            {% partial merchant-field %}
-            <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
-              <span style="color: #666;">Date:</span> {{ receipt.date|date:"M j, Y" }}
-            </div>
-            <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
-              <span style="color: #666;">Total:</span> <strong style="color: #388e3c;">${{ receipt.total }}</strong>
-            </div>
-          </div>
-        </div>
-
-        <!-- Receipt Items -->
-        <div>
-          <div style="font-weight: 600; margin-bottom: 1rem;">Items ({{ item_count }})</div>
-          {% if items %}
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead>
-                <tr style="border-bottom: 2px solid #ddd;">
-                  <th style="text-align: left; padding: 0.5rem;">Description</th>
-                  <th style="text-align: left; padding: 0.5rem;">Category</th>
-                  <th style="text-align: right; padding: 0.5rem;">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for item in items %}
-                  {% partial item-row %}
-                {% endfor %}
-              </tbody>
-            </table>
-          {% else %}
-            <p style="color: #666; font-style: italic;">No items extracted from this receipt.</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  {% endpartialdef dialog-content %}
+  {% partial dialog-content %}
 
   <div slot="footer" class="receipt-footer">
     <div class="receipt-footer-group">
@@ -111,6 +39,80 @@
     </div>
   </div>
 </wa-drawer>
+
+{% partialdef dialog-content %}
+<div
+  class="receipt-detail-content"
+  {% if receipt.status == 'PENDING' %}
+    hx-get="/receipts/{{ receipt.id }}/status" hx-trigger="every 2s" hx-target="this" hx-swap="outerHTML"
+  {% endif %}
+>
+  {% if receipt.status == 'PENDING' %}
+    <wa-callout variant="primary" style="margin-bottom: 1rem;">
+      <wa-spinner slot="icon"></wa-spinner>
+      Processing&hellip;
+    </wa-callout>
+  {% elif receipt.status == 'FAILED' %}
+    <wa-callout variant="danger" style="margin-bottom: 1rem;">
+      <wa-icon slot="icon" name="circle-exclamation"></wa-icon>
+      Processing failed. You can retry using the button below.
+    </wa-callout>
+  {% elif process_success %}
+    <wa-callout variant="success" style="margin-bottom: 1rem;">
+      <wa-icon slot="icon" name="check-circle"></wa-icon>
+      Receipt processed successfully with {{ processing_method }}! Items and totals have been updated.
+    </wa-callout>
+  {% endif %}
+
+  <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
+    <!-- Receipt Image -->
+    <div>
+      <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
+        {% if receipt.image %}
+          <img
+            src="{{ receipt.image.url }}"
+            alt="Receipt"
+            style="width: 100%; height: auto; max-height: 50vh; object-fit: cover; display: block;"
+          />
+        {% endif %}
+      </div>
+      <div style="margin-top: 1rem;">
+        <div style="font-weight: 600; margin-bottom: 0.5rem;">Receipt Info</div>
+        {% partial merchant-field %}
+        <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+          <span style="color: #666;">Date:</span> {{ receipt.date|date:"M j, Y" }}
+        </div>
+        <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+          <span style="color: #666;">Total:</span> <strong style="color: #388e3c;">${{ receipt.total }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt Items -->
+    <div>
+      <div style="font-weight: 600; margin-bottom: 1rem;">Items ({{ item_count }})</div>
+      {% if items %}
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid #ddd;">
+              <th style="text-align: left; padding: 0.5rem;">Description</th>
+              <th style="text-align: left; padding: 0.5rem;">Category</th>
+              <th style="text-align: right; padding: 0.5rem;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+              {% partial item-row %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="color: #666; font-style: italic;">No items extracted from this receipt.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endpartialdef dialog-content %}
 
 {% partialdef item-row %}
   <tr style="border-bottom: 1px solid #eee;">

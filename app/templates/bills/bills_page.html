@@ -101,145 +101,143 @@
       </div>
     </div>
 
-    {% partialdef bills-list inline %}
-      <div id="bills-list">
-        <div style="flex: 1 1 70%; min-width: 30vw;">
-          <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0;">
-            {% for bill in bills %}
-              {% partialdef bill-item inline %}
-                <li class="bill-list-item">
-                  <div>
-                    {% if bill.link %}
-                      <a href="{{ bill.link }}" target="_blank">{{ bill.name }}</a>
-                    {% else %}
-                      <span>{{ bill.name }}</span>
-                    {% endif %}
-                  </div>
-
-                  {% partialdef bill-amount inline %}
-                    <div id="amount-edit-{{ bill.id }}" class="amount-inline-edit">
-                      <span class="amount-display" title="Click to edit">{{ bill.amount|currency }}</span>
-                      <wa-input
-                        class="amount-input"
-                        type="number"
-                        step="1"
-                        min="0"
-                        name="amount"
-                        value="{{ bill.amount }}"
-                        data-original="{{ bill.amount }}"
-                        style="display:none;"
-                        hx-patch="/bills/{{ bill.id }}/amount"
-                        hx-target="#amount-edit-{{ bill.id }}"
-                        hx-swap="outerHTML"
-                        hx-trigger="amount-submit"
-                      ></wa-input>
-                      <script type="module">
-                        const span = me("#amount-edit-{{ bill.id }} .amount-display")
-                        const input = me("#amount-edit-{{ bill.id }} .amount-input")
-
-                        span.on("click", () => {
-                          span.styles({ display: "none" })
-                          input.styles({ display: "flex" })
-                          input.focus()
-                          input.select()
-                        })
-
-                        const cancel = () => {
-                          span.styles({ display: "" })
-                          input.styles({ display: "none" })
-                          input.value = input.dataset.original
-                        }
-
-                        const submit = () => {
-                          if (input.value === input.dataset.original) {
-                            cancel()
-                            return
-                          }
-                          htmx.trigger(input, "amount-submit")
-                        }
-
-                        input.on("keydown", e => {
-                          if (e.key === "Escape") cancel()
-                          else if (e.key === "Enter") {
-                            e.preventDefault()
-                            submit()
-                          }
-                        })
-
-                        input.on("focusout", () => {
-                          if (input.style.display !== "none") submit()
-                        })
-                      </script>
-                    </div>
-                  {% endpartialdef bill-amount %}
-
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <wa-checkbox
-                      {% if bill.paid %}checked{% endif %}
-                      hx-post="/bills/{{ bill.id }}/toggle"
-                      hx-target="closest li"
-                      hx-swap="outerHTML"
-                      hx-trigger="change"
-                      >Paid</wa-checkbox
-                    >
-                    {% if not bill.autopay %}
-                      <span style="opacity: 0.6">
-                        <wa-badge appearance="filled" variant="danger">Not Autopay</wa-badge>
-                      </span>
-                    {% endif %}
-                  </div>
-
-                  <div style="display: flex; gap: 0.5rem;">
-                    <wa-button
-                      size="small"
-                      appearance="plain"
-                      hx-get="/bills/{{ bill.id }}"
-                      hx-target="body"
-                      hx-swap="beforeend"
-                    >
-                      <wa-icon name="pencil" label="Edit"></wa-icon>
-                    </wa-button>
-
-                    <wa-button
-                      size="small"
-                      appearance="plain"
-                      variant="danger"
-                      hx-delete="/bills/{{ bill.id }}"
-                      hx-trigger="confirmed"
-                      hx-target="closest li"
-                      hx-swap="outerHTML"
-                      onclick="customConfirm().then(yes => {
-                      if (yes) {
-                        htmx.trigger(this, 'confirmed');
-                      }
-                    })"
-                    >
-                      <wa-icon name="trash" label="Delete"></wa-icon>
-                    </wa-button>
-                  </div>
-                </li>
-              {% endpartialdef bill-item %}
-              {% empty %}
-              <li style="margin: 0;">No bills for this month.</li>
-            {% endfor %}
-          </ul>
-          <div style="padding-bottom: 1rem;">
-            <wa-button hx-get="/bills/new" hx-target="body" hx-swap="beforeend">
-              <wa-icon slot="start" name="plus"></wa-icon>
-              Add Bill
-            </wa-button>
-          </div>
-        </div>
-
-        <div class="tile-container" style="padding-top: 7px;">
-          <div hx-get="/bills/stats" hx-trigger="load, bills-changed from:body"></div>
-          <div
-            hx-get="/bills/links"
-            hx-trigger="load"
-            style="padding: 20px 25px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);"
-          ></div>
-        </div>
-      </div>
-    {% endpartialdef bills-list %}
+    {% partial bills-list %}
   </div>
 {% endblock %}
+
+{% partialdef bills-list %}
+  <div id="bills-list">
+    <div style="flex: 1 1 70%; min-width: 30vw;">
+      <ul style="list-style: none; padding: 0; margin: 0 0 1rem 0;">
+        {% for bill in bills %}
+          {% partial bill-item %}
+          {% empty %}
+          <li style="margin: 0;">No bills for this month.</li>
+        {% endfor %}
+      </ul>
+      <div style="padding-bottom: 1rem;">
+        <wa-button hx-get="/bills/new" hx-target="body" hx-swap="beforeend">
+          <wa-icon slot="start" name="plus"></wa-icon>
+          Add Bill
+        </wa-button>
+      </div>
+    </div>
+
+    <div class="tile-container" style="padding-top: 7px;">
+      <div hx-get="/bills/stats" hx-trigger="load, bills-changed from:body"></div>
+      <div
+        hx-get="/bills/links"
+        hx-trigger="load"
+        style="padding: 20px 25px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);"
+      ></div>
+    </div>
+  </div>
+{% endpartialdef bills-list %}
+
+{% partialdef bill-item %}
+  <li class="bill-list-item">
+    <div>
+      {% if bill.link %}
+        <a href="{{ bill.link }}" target="_blank">{{ bill.name }}</a>
+      {% else %}
+        <span>{{ bill.name }}</span>
+      {% endif %}
+    </div>
+
+    {% partial bill-amount %}
+
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <wa-checkbox
+        {% if bill.paid %}checked{% endif %}
+        hx-post="/bills/{{ bill.id }}/toggle"
+        hx-target="closest li"
+        hx-swap="outerHTML"
+        hx-trigger="change"
+        >Paid</wa-checkbox
+      >
+      {% if not bill.autopay %}
+        <span style="opacity: 0.6">
+          <wa-badge appearance="filled" variant="danger">Not Autopay</wa-badge>
+        </span>
+      {% endif %}
+    </div>
+
+    <div style="display: flex; gap: 0.5rem;">
+      <wa-button size="small" appearance="plain" hx-get="/bills/{{ bill.id }}" hx-target="body" hx-swap="beforeend">
+        <wa-icon name="pencil" label="Edit"></wa-icon>
+      </wa-button>
+
+      <wa-button
+        size="small"
+        appearance="plain"
+        variant="danger"
+        hx-delete="/bills/{{ bill.id }}"
+        hx-trigger="confirmed"
+        hx-target="closest li"
+        hx-swap="outerHTML"
+        onclick="customConfirm().then(yes => {
+        if (yes) { htmx.trigger(this, 'confirmed'); }
+      })"
+      >
+        <wa-icon name="trash" label="Delete"></wa-icon>
+      </wa-button>
+    </div>
+  </li>
+{% endpartialdef bill-item %}
+
+{% partialdef bill-amount %}
+  <div id="amount-edit-{{ bill.id }}" class="amount-inline-edit">
+    <span class="amount-display" title="Click to edit">{{ bill.amount|currency }}</span>
+    <wa-input
+      class="amount-input"
+      type="number"
+      step="1"
+      min="0"
+      name="amount"
+      value="{{ bill.amount }}"
+      data-original="{{ bill.amount }}"
+      style="display:none;"
+      hx-patch="/bills/{{ bill.id }}/amount"
+      hx-target="#amount-edit-{{ bill.id }}"
+      hx-swap="outerHTML"
+      hx-trigger="amount-submit"
+    ></wa-input>
+    <script type="module">
+      const span = me("#amount-edit-{{ bill.id }} .amount-display")
+      const input = me("#amount-edit-{{ bill.id }} .amount-input")
+
+      span.on("click", () => {
+        span.styles({ display: "none" })
+        input.styles({ display: "flex" })
+        input.focus()
+        input.select()
+      })
+
+      const cancel = () => {
+        span.styles({ display: "" })
+        input.styles({ display: "none" })
+        input.value = input.dataset.original
+      }
+
+      const submit = () => {
+        if (input.value === input.dataset.original) {
+          cancel()
+          return
+        }
+        htmx.trigger(input, "amount-submit")
+      }
+
+      input.on("keydown", e => {
+        if (e.key === "Escape") cancel()
+        else if (e.key === "Enter") {
+          e.preventDefault()
+          submit()
+        }
+      })
+
+      input.on("focusout", () => {
+        if (input.style.display !== "none") submit()
+      })
+    </script>
+  </div>
+{% endpartialdef bill-amount %}

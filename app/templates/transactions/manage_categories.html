@@ -1,25 +1,7 @@
 <wa-drawer label="Manage Categories">
   <div class="category-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;">
     {% for category in categories %}
-      {% partialdef category-item inline %}
-        <div style="display: grid; grid-template-columns: 1fr 40px; gap: 1rem; align-items: center;">
-          <wa-input
-            name="name"
-            value="{{ category.name }}"
-            maxlength="100"
-            hx-put="/transactions/categories/{{ category.id }}"
-            hx-trigger="blur"
-          ></wa-input>
-          <wa-button
-            appearance="plain"
-            hx-delete="/transactions/categories/{{ category.id }}"
-            hx-target="closest div"
-            hx-swap="outerHTML"
-          >
-            <wa-icon name="trash"></wa-icon>
-          </wa-button>
-        </div>
-      {% endpartialdef %}
+      {% partial category-item %}
     {% endfor %}
   </div>
 
@@ -41,3 +23,23 @@
     <wa-button appearance="outlined" onclick="this.closest('wa-dialog').open = false">Done</wa-button>
   </div>
 </wa-drawer>
+
+{% partialdef category-item %}
+<div style="display: grid; grid-template-columns: 1fr 40px; gap: 1rem; align-items: center;">
+  <wa-input
+    name="name"
+    value="{{ category.name }}"
+    maxlength="100"
+    hx-put="/transactions/categories/{{ category.id }}"
+    hx-trigger="blur"
+  ></wa-input>
+  <wa-button
+    appearance="plain"
+    hx-delete="/transactions/categories/{{ category.id }}"
+    hx-target="closest div"
+    hx-swap="outerHTML"
+  >
+    <wa-icon name="trash"></wa-icon>
+  </wa-button>
+</div>
+{% endpartialdef category-item %}

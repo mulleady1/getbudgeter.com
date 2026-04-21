@@ -385,9 +385,17 @@
           />
         </form>
 
-        {% partialdef transactions-table inline %}
-          <div style="overflow-x: auto;">
-            <table id="transactions-table" style="width: 100%; border-collapse: collapse; min-width: 600px;">
+        {% partial transactions-table %}
+      {% else %}
+        <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% partialdef transactions-table %}
+<div style="overflow-x: auto;">
+  <table id="transactions-table" style="width: 100%; border-collapse: collapse; min-width: 600px;">
               <script>
                 me().on("htmx:after:swap", e => {
                   any("#transactions-table .transaction-checkbox").run(cb => (cb.checked = false))
@@ -682,102 +690,96 @@
               </tbody>
             </table>
           </div>
+{% endpartialdef transactions-table %}
 
-          {% partialdef query-count %}
-            <hx-partial hx-target="#query-count">
-              {% if search_query or page > 1 %}
-                Showing {{ showing_count }} of {{ total_count }} transactions
-              {% endif %}
-            </hx-partial>
-          {% endpartialdef query-count %}
-        {% endpartialdef transactions-table %}
+{% partialdef query-count %}
+<hx-partial hx-target="#query-count">
+  {% if search_query or page > 1 %}
+    Showing {{ showing_count }} of {{ total_count }} transactions
+  {% endif %}
+</hx-partial>
+{% endpartialdef query-count %}
 
-        {% partialdef transaction-rows %}
-          {% for transaction in transactions %}
-            {% partial transaction-row %}
-          {% endfor %}
-          {% if has_more %}
-            <tr
-              id="infinite-scroll-trigger"
-              hx-get="/transactions?page={{ page|add:1 }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if active_filters.merchants %}&merchants={{ active_filters.merchants|join:',' }}{% endif %}{% if active_filters.descriptions %}&descriptions={{ active_filters.descriptions|join:',' }}{% endif %}{% if active_filters.start_date %}&start_date={{ active_filters.start_date }}{% endif %}{% if active_filters.end_date %}&end_date={{ active_filters.end_date }}{% endif %}{% if active_filters.date_mode %}&date_mode={{ active_filters.date_mode }}{% endif %}{% if active_filters.amount_min %}&amount_min={{ active_filters.amount_min }}{% endif %}{% if active_filters.amount_max %}&amount_max={{ active_filters.amount_max }}{% endif %}"
-              hx-trigger="revealed"
-              hx-swap="outerHTML"
-            >
-              <td colspan="7" style="text-align: center; padding: 1rem; color: #666;">
-                <wa-spinner></wa-spinner> Loading more...
-              </td>
-            </tr>
-          {% endif %}
-        {% endpartialdef transaction-rows %}
+{% partialdef transaction-rows %}
+{% for transaction in transactions %}
+  {% partial transaction-row %}
+{% endfor %}
+{% if has_more %}
+  <tr
+    id="infinite-scroll-trigger"
+    hx-get="/transactions?page={{ page|add:1 }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if active_filters.merchants %}&merchants={{ active_filters.merchants|join:',' }}{% endif %}{% if active_filters.descriptions %}&descriptions={{ active_filters.descriptions|join:',' }}{% endif %}{% if active_filters.start_date %}&start_date={{ active_filters.start_date }}{% endif %}{% if active_filters.end_date %}&end_date={{ active_filters.end_date }}{% endif %}{% if active_filters.date_mode %}&date_mode={{ active_filters.date_mode }}{% endif %}{% if active_filters.amount_min %}&amount_min={{ active_filters.amount_min }}{% endif %}{% if active_filters.amount_max %}&amount_max={{ active_filters.amount_max }}{% endif %}"
+    hx-trigger="revealed"
+    hx-swap="outerHTML"
+  >
+    <td colspan="7" style="text-align: center; padding: 1rem; color: #666;">
+      <wa-spinner></wa-spinner> Loading more...
+    </td>
+  </tr>
+{% endif %}
+{% endpartialdef transaction-rows %}
 
-        {% partialdef transaction-row %}
-          <tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
-            <td style=" width: 40px;">
-              <input
-                type="checkbox"
-                class="transaction-checkbox"
-                value="{{ transaction.id }}"
-                style="cursor: pointer; width: 18px; height: 18px;"
-                autocomplete="off"
-                hx-on:change="updateBulkBar()"
-              />
-            </td>
-            <td>{{ transaction.date|date:"n/j/Y" }}</td>
-            <td>{{ transaction.merchant|truncatechars:30 }}</td>
-            <td>{{ transaction.description|truncatechars:50 }}</td>
-            <td>{% partial category-dropdown %}</td>
-            <td style="text-align: center;">
-              <input
-                type="checkbox"
-                class="anomaly-checkbox"
-                {% if transaction.anomaly %}checked{% endif %}
-                autocomplete="off"
-                style="cursor: pointer; width: 18px; height: 18px;"
-                hx-post="/transactions/{{ transaction.id }}/toggle-anomaly"
-                hx-target="closest tr"
-                hx-swap="outerHTML"
-              />
-            </td>
-            <td style="text-align: right;">{{ transaction.amount|currency }}</td>
-          </tr>
-        {% endpartialdef transaction-row %}
+{% partialdef transaction-row %}
+<tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
+  <td style="width: 40px;">
+    <input
+      type="checkbox"
+      class="transaction-checkbox"
+      value="{{ transaction.id }}"
+      style="cursor: pointer; width: 18px; height: 18px;"
+      autocomplete="off"
+      hx-on:change="updateBulkBar()"
+    />
+  </td>
+  <td>{{ transaction.date|date:"n/j/Y" }}</td>
+  <td>{{ transaction.merchant|truncatechars:30 }}</td>
+  <td>{{ transaction.description|truncatechars:50 }}</td>
+  <td>{% partial category-dropdown %}</td>
+  <td style="text-align: center;">
+    <input
+      type="checkbox"
+      class="anomaly-checkbox"
+      {% if transaction.anomaly %}checked{% endif %}
+      autocomplete="off"
+      style="cursor: pointer; width: 18px; height: 18px;"
+      hx-post="/transactions/{{ transaction.id }}/toggle-anomaly"
+      hx-target="closest tr"
+      hx-swap="outerHTML"
+    />
+  </td>
+  <td style="text-align: right;">{{ transaction.amount|currency }}</td>
+</tr>
+{% endpartialdef transaction-row %}
 
-        {% partialdef category-dropdown %}
-          <div style="display: inline-block;">
-            <wa-dropdown class="category-dropdown" placement="bottom-start" distance="4">
-              <span slot="trigger" style="cursor: pointer;">
-                {% if transaction.category %}
-                  <wa-badge
-                    style="--wa-color-fill-loud: {{ transaction.category.color }}; --wa-color-on-loud: {{ transaction.category.get_text_color }};"
-                    >{{ transaction.category.name }}</wa-badge
-                  >
-                {% else %}
-                  <wa-badge variant="neutral">Uncategorized</wa-badge>
-                {% endif %}
-              </span>
-
-              {% for category in categories %}
-                <wa-dropdown-item
-                  hx-get="/transactions/{{ transaction.id }}/token-selection/{{ category.id }}"
-                  hx-target="body"
-                  hx-swap="beforeend"
-                >
-                  {{ category.name }}
-                </wa-dropdown-item>
-              {% endfor %}
-              <wa-divider></wa-divider>
-              <wa-dropdown-item hx-get="/transactions/categories/new" hx-target="body" hx-swap="beforeend">
-                New...
-              </wa-dropdown-item>
-              <wa-dropdown-item hx-get="/transactions/categories" hx-target="body" hx-swap="beforeend">
-                Manage...
-              </wa-dropdown-item>
-            </wa-dropdown>
-          </div>
-        {% endpartialdef category-dropdown %}
+{% partialdef category-dropdown %}
+<div style="display: inline-block;">
+  <wa-dropdown class="category-dropdown" placement="bottom-start" distance="4">
+    <span slot="trigger" style="cursor: pointer;">
+      {% if transaction.category %}
+        <wa-badge
+          style="--wa-color-fill-loud: {{ transaction.category.color }}; --wa-color-on-loud: {{ transaction.category.get_text_color }};"
+          >{{ transaction.category.name }}</wa-badge
+        >
       {% else %}
-        <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
+        <wa-badge variant="neutral">Uncategorized</wa-badge>
       {% endif %}
-    </div>
-  </div>
-{% endblock %}
+    </span>
+
+    {% for category in categories %}
+      <wa-dropdown-item
+        hx-get="/transactions/{{ transaction.id }}/token-selection/{{ category.id }}"
+        hx-target="body"
+        hx-swap="beforeend"
+      >
+        {{ category.name }}
+      </wa-dropdown-item>
+    {% endfor %}
+    <wa-divider></wa-divider>
+    <wa-dropdown-item hx-get="/transactions/categories/new" hx-target="body" hx-swap="beforeend">
+      New...
+    </wa-dropdown-item>
+    <wa-dropdown-item hx-get="/transactions/categories" hx-target="body" hx-swap="beforeend">
+      Manage...
+    </wa-dropdown-item>
+  </wa-dropdown>
+</div>
+{% endpartialdef category-dropdown %}

@@ -62,23 +62,7 @@
           hx-trigger="reload-receipts from:body"
           style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;"
         >
-          {% partialdef receipt-grid-items inline %}
-            {% for receipt in receipts %}
-              {% partial receipt-grid-item %}
-            {% endfor %}
-
-            {% if has_more %}
-              <div
-                id="infinite-scroll-trigger"
-                hx-get="/receipts?page={{ page|add:1 }}{% if search_query %}&q={{ search_query }}{% endif %}"
-                hx-trigger="revealed"
-                hx-swap="outerHTML"
-                style="grid-column: 1 / -1; text-align: center; padding: 1rem; color: #666;"
-              >
-                <wa-spinner></wa-spinner> Loading more...
-              </div>
-            {% endif %}
-          {% endpartialdef receipt-grid-items %}
+          {% partial receipt-grid-items %}
         </div>
       {% else %}
         <p style="text-align: center; padding: 2rem; color: #666;">
@@ -88,68 +72,87 @@
     </div>
   </div>
 
-  {% partialdef receipt-grid-item %}
-    <div
-      id="receipt-row-{{ receipt.id }}"
-      class="receipt-card"
-      style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-    >
-      <div style="overflow: hidden; background: #f5f5f5;">
-        {% if receipt.image %}
-          <img
-            src="{{ receipt.image.url }}"
-            alt="Receipt"
-            style="width: 100%; height: 100%; max-height: 25vh; object-fit: cover; cursor: pointer;"
-            hx-get="/receipts/{{ receipt.id }}"
-            hx-target="body"
-            hx-swap="beforeend"
-          />
-        {% endif %}
-      </div>
-      <div style="padding: 1rem;">
-        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
-          {{ receipt.merchant|default:"Unknown Merchant" }}
-        </div>
-        <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ receipt.date|date:"M j, Y" }}</div>
-        <div style="font-weight: 500; font-size: 1.2rem; color: #388e3c;">${{ receipt.total }}</div>
-        <div style="margin-top: 0.75rem; font-size: 0.9rem; color: #666;">
-          {{ receipt.items.count }} item{{ receipt.items.count|pluralize }}
-        </div>
-        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-          <wa-button
-            size="small"
-            appearance="plain"
-            hx-get="/receipts/{{ receipt.id }}"
-            hx-target="body"
-            hx-swap="beforeend"
-          >
-            <wa-icon slot="start" name="eye"></wa-icon>
-            View
-          </wa-button>
-          <wa-button
-            size="small"
-            appearance="plain"
-            hx-delete="/receipts/{{ receipt.id }}"
-            hx-target="closest .receipt-card"
-            hx-swap="outerHTML swap:0.5s"
-            hx-trigger="confirmed"
-            onclick="customConfirm().then(yes => { if (yes) { htmx.trigger(this, 'confirmed'); } })"
-          >
-            <wa-icon slot="start" name="trash"></wa-icon>
-            Delete
-          </wa-button>
-        </div>
-      </div>
-    </div>
-  {% endpartialdef receipt-grid-item %}
-
-  {% partialdef receipt-grid-item-partial %}
-    <hx-partial hx-target="#receipt-row-{{ receipt.id }}" hx-swap="outerHTML">
-      {% partial receipt-grid-item %}
-    </hx-partial>
-  {% endpartialdef receipt-grid-item-partial %}
-
-  {% partialdef receipt-grid-item-partial-prepend %}
-    <hx-partial hx-target="#receipts-grid" hx-swap="prepend"> {% partial receipt-grid-item %} </hx-partial>
-  {% endpartialdef receipt-grid-item-partial-prepend %}
 {% endblock %}
+
+{% partialdef receipt-grid-items %}
+{% for receipt in receipts %}
+  {% partial receipt-grid-item %}
+{% endfor %}
+
+{% if has_more %}
+  <div
+    id="infinite-scroll-trigger"
+    hx-get="/receipts?page={{ page|add:1 }}{% if search_query %}&q={{ search_query }}{% endif %}"
+    hx-trigger="revealed"
+    hx-swap="outerHTML"
+    style="grid-column: 1 / -1; text-align: center; padding: 1rem; color: #666;"
+  >
+    <wa-spinner></wa-spinner> Loading more...
+  </div>
+{% endif %}
+{% endpartialdef receipt-grid-items %}
+
+{% partialdef receipt-grid-item %}
+<div
+  id="receipt-row-{{ receipt.id }}"
+  class="receipt-card"
+  style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+>
+  <div style="overflow: hidden; background: #f5f5f5;">
+    {% if receipt.image %}
+      <img
+        src="{{ receipt.image.url }}"
+        alt="Receipt"
+        style="width: 100%; height: 100%; max-height: 25vh; object-fit: cover; cursor: pointer;"
+        hx-get="/receipts/{{ receipt.id }}"
+        hx-target="body"
+        hx-swap="beforeend"
+      />
+    {% endif %}
+  </div>
+  <div style="padding: 1rem;">
+    <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
+      {{ receipt.merchant|default:"Unknown Merchant" }}
+    </div>
+    <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ receipt.date|date:"M j, Y" }}</div>
+    <div style="font-weight: 500; font-size: 1.2rem; color: #388e3c;">${{ receipt.total }}</div>
+    <div style="margin-top: 0.75rem; font-size: 0.9rem; color: #666;">
+      {{ receipt.items.count }} item{{ receipt.items.count|pluralize }}
+    </div>
+    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+      <wa-button
+        size="small"
+        appearance="plain"
+        hx-get="/receipts/{{ receipt.id }}"
+        hx-target="body"
+        hx-swap="beforeend"
+      >
+        <wa-icon slot="start" name="eye"></wa-icon>
+        View
+      </wa-button>
+      <wa-button
+        size="small"
+        appearance="plain"
+        hx-delete="/receipts/{{ receipt.id }}"
+        hx-target="closest .receipt-card"
+        hx-swap="outerHTML swap:0.5s"
+        hx-trigger="confirmed"
+        onclick="customConfirm().then(yes => { if (yes) { htmx.trigger(this, 'confirmed'); } })"
+      >
+        <wa-icon slot="start" name="trash"></wa-icon>
+        Delete
+      </wa-button>
+    </div>
+  </div>
+</div>
+{% endpartialdef receipt-grid-item %}
+
+{% partialdef receipt-grid-item-partial %}
+<hx-partial hx-target="#receipt-row-{{ receipt.id }}" hx-swap="outerHTML">
+  {% partial receipt-grid-item %}
+</hx-partial>
+{% endpartialdef receipt-grid-item-partial %}
+
+{% partialdef receipt-grid-item-partial-prepend %}
+<hx-partial hx-target="#receipts-grid" hx-swap="prepend">{% partial receipt-grid-item %}</hx-partial>
+{% endpartialdef receipt-grid-item-partial-prepend %}

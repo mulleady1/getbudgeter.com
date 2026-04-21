@@ -26,54 +26,7 @@
   {% if links %}
     <ul style="list-style: none; padding: 0; margin: 0 0 10px 0;">
       {% for link in links %}
-        {% partialdef bill-link-item inline %}
-          <li style="margin: 0; display: flex; align-items: center; gap: 8px;">
-            <div class="reorder-buttons" style="flex-direction: column;">
-              <button
-                class="reorder-btn"
-                hx-post="/bills/links/{{ link.id }}/reorder/up"
-                hx-target="#bill-links-container"
-                hx-swap="outerHTML"
-                {% if forloop.first %}disabled{% endif %}
-              >
-                <wa-icon name="chevron-up"></wa-icon>
-              </button>
-              <button
-                class="reorder-btn"
-                hx-post="/bills/links/{{ link.id }}/reorder/down"
-                hx-target="#bill-links-container"
-                hx-swap="outerHTML"
-                {% if forloop.last %}disabled{% endif %}
-              >
-                <wa-icon name="chevron-down"></wa-icon>
-              </button>
-            </div>
-            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"> {{ link.label }} </a>
-            <div class="edit-actions">
-              <wa-button
-                size="small"
-                appearance="plain"
-                hx-get="/bills/links/{{ link.id }}"
-                hx-target="body"
-                hx-swap="beforeend"
-              >
-                <wa-icon name="pencil" label="Edit"></wa-icon>
-              </wa-button>
-              <wa-button
-                size="small"
-                appearance="plain"
-                variant="danger"
-                hx-delete="/bills/links/{{ link.id }}"
-                hx-target="#bill-links-container"
-                hx-swap="outerHTML"
-                hx-trigger="confirmed"
-                onclick="customConfirm().then(yes => { if (yes) { htmx.trigger(this, 'confirmed'); } })"
-              >
-                <wa-icon name="trash" label="Delete"></wa-icon>
-              </wa-button>
-            </div>
-          </li>
-        {% endpartialdef bill-link-item %}
+        {% partial bill-link-item %}
       {% endfor %}
     </ul>
   {% else %}
@@ -82,3 +35,52 @@
 
   <a hx-get="/bills/links/new" hx-target="body" hx-swap="beforeend"> New... </a>
 </div>
+
+{% partialdef bill-link-item %}
+<li style="margin: 0; display: flex; align-items: center; gap: 8px;">
+  <div class="reorder-buttons" style="flex-direction: column;">
+    <button
+      class="reorder-btn"
+      hx-post="/bills/links/{{ link.id }}/reorder/up"
+      hx-target="#bill-links-container"
+      hx-swap="outerHTML"
+      {% if forloop.first %}disabled{% endif %}
+    >
+      <wa-icon name="chevron-up"></wa-icon>
+    </button>
+    <button
+      class="reorder-btn"
+      hx-post="/bills/links/{{ link.id }}/reorder/down"
+      hx-target="#bill-links-container"
+      hx-swap="outerHTML"
+      {% if forloop.last %}disabled{% endif %}
+    >
+      <wa-icon name="chevron-down"></wa-icon>
+    </button>
+  </div>
+  <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"> {{ link.label }} </a>
+  <div class="edit-actions">
+    <wa-button
+      size="small"
+      appearance="plain"
+      hx-get="/bills/links/{{ link.id }}"
+      hx-target="body"
+      hx-swap="beforeend"
+    >
+      <wa-icon name="pencil" label="Edit"></wa-icon>
+    </wa-button>
+    <wa-button
+      size="small"
+      appearance="plain"
+      variant="danger"
+      hx-delete="/bills/links/{{ link.id }}"
+      hx-target="#bill-links-container"
+      hx-swap="outerHTML"
+      hx-trigger="confirmed"
+      onclick="customConfirm().then(yes => { if (yes) { htmx.trigger(this, 'confirmed'); } })"
+    >
+      <wa-icon name="trash" label="Delete"></wa-icon>
+    </wa-button>
+  </div>
+</li>
+{% endpartialdef bill-link-item %}

@@ -34,7 +34,7 @@ Define named fragments with `{% partialdef %}` at the end of the file and render
 with `{% partial %}`. The view targets them by name:
 ```html
 {% block content %}
-  {% partial "thing-list" %}
+  {% partial thing-list %}
 {% endblock %}
 
 {% partialdef thing-list %}
@@ -54,7 +54,13 @@ def create_thing(request):
 ```
 
 ```html
-{% partialdef thing-list inline %}
+{% block content %}
+  <div id="things-page">
+    {% partial thing-list %}
+  </div>
+{% endblock %}
+
+{% partialdef thing-list %}
 <div id="thing-list">
   {% for thing in things %}...{% endfor %}
 
@@ -251,14 +257,14 @@ template. HTMX can target a named fragment with `template.html#fragment-name`.
 
 {% block content %}
 <div class="page">
-  {% partial "thing-list" %}
+  {% partial thing-list %}
 </div>
 {% endblock %}
 
 {% partialdef thing-list %}
 <div id="thing-list">
   {% for thing in things %}
-    {% partial "thing-item" %}
+    {% partial thing-item %}
   {% endfor %}
 </div>
 {% endpartialdef thing-list %}

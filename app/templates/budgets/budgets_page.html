@@ -64,90 +64,92 @@
       </wa-button>
     </div>
 
-    {% partialdef budget-list inline %}
-      <div id="budget-list">
-        <div style="flex: 1 1 70%; min-width: 0;">
-
-          {% if showing_defaults and budget_data %}
-            <p style="font-size: 0.85rem; color: #9ca3af; margin: 0 0 1rem 0;">
-              <wa-icon name="info-circle" style="vertical-align: middle;"></wa-icon>
-              No budgets set for this month — showing your defaults.
-            </p>
-          {% endif %}
-
-          {% if budget_data %}
-            <div class="budget-cards">
-              {% for item in budget_data %}
-                <div class="budget-card{% if item.over %} over-budget{% endif %}">
-                  <div class="budget-card-header">
-                    <span
-                      class="category-chip"
-                      style="background: {{ item.budget.category.color }}; color: {{ item.budget.category.get_text_color }};"
-                    >
-                      {{ item.budget.category.name }}
-                    </span>
-                    <div class="card-actions">
-                      <wa-button
-                        size="small"
-                        appearance="plain"
-                        hx-get="/budgets/{{ item.budget.id }}"
-                        hx-target="body"
-                        hx-swap="beforeend"
-                      >
-                        <wa-icon name="pencil" label="Edit"></wa-icon>
-                      </wa-button>
-                      <wa-button
-                        size="small"
-                        appearance="plain"
-                        variant="danger"
-                        hx-delete="/budgets/{{ item.budget.id }}"
-                        hx-trigger="confirmed"
-                        hx-target="#budget-list"
-                        hx-swap="outerHTML"
-                        onclick="customConfirm().then(yes => { if (yes) htmx.trigger(this, 'confirmed') })"
-                      >
-                        <wa-icon name="trash" label="Delete"></wa-icon>
-                      </wa-button>
-                    </div>
-                  </div>
-
-                  <div class="budget-amounts">
-                    <div class="amount-item">
-                      <span class="amount-label">Budgeted</span>
-                      <span class="amount-value">{{ item.budget.amount|currency }}</span>
-                    </div>
-                    <div class="amount-item">
-                      <span class="amount-label">Spent</span>
-                      <span class="amount-value">{{ item.spent|currency }}</span>
-                    </div>
-                    <div class="amount-item{% if item.over %} over{% endif %}">
-                      <span class="amount-label">Remaining</span>
-                      <span class="amount-value">{{ item.remaining|currency }}</span>
-                    </div>
-                  </div>
-
-                  <div class="progress-bar-container">
-                    <div class="progress-bar{% if item.over %} over{% endif %}" style="width: {{ item.pct }}%;"></div>
-                  </div>
-                  <div class="progress-label">{{ item.pct }}% used</div>
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <p style="text-align: center; padding: 2rem; color: #666;">
-              No budgets set for this month.
-            </p>
-          {% endif %}
-
-        </div>
-
-        <div class="tile-container">
-          <div
-            hx-get="/budgets/stats?month={{ selected_month|date:'Y-m' }}"
-            hx-trigger="load, budgets-changed from:body"
-          ></div>
-        </div>
-      </div>
-    {% endpartialdef budget-list %}
+    {% partial budget-list %}
   </div>
 {% endblock %}
+
+{% partialdef budget-list %}
+<div id="budget-list">
+  <div style="flex: 1 1 70%; min-width: 0;">
+
+    {% if showing_defaults and budget_data %}
+      <p style="font-size: 0.85rem; color: #9ca3af; margin: 0 0 1rem 0;">
+        <wa-icon name="info-circle" style="vertical-align: middle;"></wa-icon>
+        No budgets set for this month — showing your defaults.
+      </p>
+    {% endif %}
+
+    {% if budget_data %}
+      <div class="budget-cards">
+        {% for item in budget_data %}
+          <div class="budget-card{% if item.over %} over-budget{% endif %}">
+            <div class="budget-card-header">
+              <span
+                class="category-chip"
+                style="background: {{ item.budget.category.color }}; color: {{ item.budget.category.get_text_color }};"
+              >
+                {{ item.budget.category.name }}
+              </span>
+              <div class="card-actions">
+                <wa-button
+                  size="small"
+                  appearance="plain"
+                  hx-get="/budgets/{{ item.budget.id }}"
+                  hx-target="body"
+                  hx-swap="beforeend"
+                >
+                  <wa-icon name="pencil" label="Edit"></wa-icon>
+                </wa-button>
+                <wa-button
+                  size="small"
+                  appearance="plain"
+                  variant="danger"
+                  hx-delete="/budgets/{{ item.budget.id }}"
+                  hx-trigger="confirmed"
+                  hx-target="#budget-list"
+                  hx-swap="outerHTML"
+                  onclick="customConfirm().then(yes => { if (yes) htmx.trigger(this, 'confirmed') })"
+                >
+                  <wa-icon name="trash" label="Delete"></wa-icon>
+                </wa-button>
+              </div>
+            </div>
+
+            <div class="budget-amounts">
+              <div class="amount-item">
+                <span class="amount-label">Budgeted</span>
+                <span class="amount-value">{{ item.budget.amount|currency }}</span>
+              </div>
+              <div class="amount-item">
+                <span class="amount-label">Spent</span>
+                <span class="amount-value">{{ item.spent|currency }}</span>
+              </div>
+              <div class="amount-item{% if item.over %} over{% endif %}">
+                <span class="amount-label">Remaining</span>
+                <span class="amount-value">{{ item.remaining|currency }}</span>
+              </div>
+            </div>
+
+            <div class="progress-bar-container">
+              <div class="progress-bar{% if item.over %} over{% endif %}" style="width: {{ item.pct }}%;"></div>
+            </div>
+            <div class="progress-label">{{ item.pct }}% used</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="text-align: center; padding: 2rem; color: #666;">
+        No budgets set for this month.
+      </p>
+    {% endif %}
+
+  </div>
+
+  <div class="tile-container">
+    <div
+      hx-get="/budgets/stats?month={{ selected_month|date:'Y-m' }}"
+      hx-trigger="load, budgets-changed from:body"
+    ></div>
+  </div>
+</div>
+{% endpartialdef budget-list %}
