@@ -15,7 +15,7 @@ from .utils import get_bills, get_month_from_url
 logger = logging.getLogger(__name__)
 
 
-class BillListCreateView(LoginRequiredMixin, View):
+class BillListView(LoginRequiredMixin, View):
     def get(self, request):
         return get_bills(request)
 
@@ -42,7 +42,7 @@ class BillListCreateView(LoginRequiredMixin, View):
         return response
 
 
-class BillEditDeleteView(LoginRequiredMixin, View):
+class BillDetailView(LoginRequiredMixin, View):
     def get(self, request, bill_id):
         bill = get_object_or_404(Bill, id=bill_id, user=request.user)
         return render(request, "bills/bill_form.html", {"bill": bill})

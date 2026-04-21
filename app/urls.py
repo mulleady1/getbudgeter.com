@@ -9,7 +9,7 @@ urlpatterns = [
     path("login",                                              views.login_view,                        name="login"),
     path("logout",                                             views.logout_view,                       name="logout"),
 
-    path("bills",                                              views.BillListCreateView.as_view(),      name="bills"),
+    path("bills",                                              views.BillListView.as_view(),            name="bills"),
     path("bills/new",                                          views.new_bill,                          name="new_bill"),
     path("bills/copy",                                         views.CopyBillsView.as_view(),           name="copy"),
     path("bills/stats",                                        views.bill_stats,                        name="bill_stats"),
@@ -18,7 +18,7 @@ urlpatterns = [
     path("bills/links/new",                                    views.new_bill_link,                     name="new_bill_link"),
     path("bills/links/<int:link_id>",                          views.BillLinkEditDeleteView.as_view(),  name="edit_delete_bill_link"),
     path("bills/links/<int:link_id>/reorder/<str:direction>",  views.reorder_bill_link,                 name="reorder_bill_link"),
-    path("bills/<int:bill_id>",                                views.BillEditDeleteView.as_view(),      name="edit_delete_bill"),
+    path("bills/<int:bill_id>",                                views.BillDetailView.as_view(),          name="edit_delete_bill"),
     path("bills/<int:bill_id>/amount",                         views.update_bill_amount,                name="update_bill_amount"),
     path("bills/<int:bill_id>/toggle",                         views.toggle_paid,                       name="toggle_paid"),
     

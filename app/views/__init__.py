@@ -2,10 +2,10 @@ from .analytics import AnalyticsView, MerchantChartPartialView, TrendChartPartia
 from .auth import home, login_view, logout_view, signup_view
 from .bills import (
     AddIncomeView,
-    BillEditDeleteView,
+    BillDetailView,
     BillLinkEditDeleteView,
     BillLinksView,
-    BillListCreateView,
+    BillListView,
     CopyBillsView,
     bill_stats,
     new_bill,
@@ -48,8 +48,8 @@ __all__ = [
     "logout_view",
     "signup_view",
     # Bills
-    "BillListCreateView",
-    "BillEditDeleteView",
+    "BillListView",
+    "BillDetailView",
     "new_bill",
     "toggle_paid",
     "CopyBillsView",
