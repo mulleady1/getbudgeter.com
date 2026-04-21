@@ -76,33 +76,33 @@ class UploadCSVView(LoginRequiredMixin, View):
 
         # Validate file type
         if not csv_file.name.lower().endswith(".csv"):
-            error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>Please upload a CSV file.</wa-callout>"
-            return HttpResponse(error, status=400)
+            return render(request, "form_error.html", {"message": "Please upload a CSV file."}, status=400)
 
         # Validate file size (5MB max)
         if csv_file.size > 5 * 1024 * 1024:
-            error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>File size must be less than 5MB.</wa-callout>"
-            return HttpResponse(error, status=400)
+            return render(request, "form_error.html", {"message": "File size must be less than 5MB."}, status=400)
 
         # Validate bank type
         if not bank_type:
-            error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>Please select a bank type.</wa-callout>"
-            return HttpResponse(error, status=400)
+            return render(request, "form_error.html", {"message": "Please select a bank type."}, status=400)
 
         try:
             # Get parser class from selected type
             parser_class = get_parser_class(bank_type)
             if not parser_class:
-                error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>Invalid bank type selected. Supported formats: Citi, Capital One, Bank of America.</wa-callout>"
-                return HttpResponse(error, status=400)
+                return render(
+                    request,
+                    "form_error.html",
+                    {"message": "Invalid bank type selected. Supported formats: Citi, Capital One, Bank of America."},
+                    status=400,
+                )
 
             # Parse CSV
             parser = parser_class()
             transactions_data = parser.parse(csv_file)
 
             if not transactions_data:
-                error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>No transactions found in CSV.</wa-callout>"
-                return HttpResponse(error, status=400)
+                return render(request, "form_error.html", {"message": "No transactions found in CSV."}, status=400)
 
             # Categorize transactions
             categorizer = TransactionCategorizer(request.user)
@@ -163,8 +163,7 @@ class UploadCSVView(LoginRequiredMixin, View):
 
         except Exception as e:
             logger.error("Error processing CSV upload: %s", str(e), exc_info=True)
-            error = f"<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>Error processing CSV: {str(e)}.</wa-callout>"
-            return HttpResponse(error, status=500)
+            return render(request, "form_error.html", {"message": f"Error processing CSV: {str(e)}."}, status=500)
 
 
 class TransactionListView(LoginRequiredMixin, View):

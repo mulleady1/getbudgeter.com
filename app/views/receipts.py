@@ -121,13 +121,16 @@ class ReceiptUploadView(LoginRequiredMixin, View):
         # Validate file type
         allowed_extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"]
         if not any(image_file.name.lower().endswith(ext) for ext in allowed_extensions):
-            error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>Please upload a valid image file (JPG, PNG, GIF, BMP, TIFF)</wa-callout>"
-            return HttpResponse(error, status=400)
+            return render(
+                request,
+                "form_error.html",
+                {"message": "Please upload a valid image file (JPG, PNG, GIF, BMP, TIFF)"},
+                status=400,
+            )
 
         # Validate file size (5MB max — Anthropic API limit)
         if image_file.size > 5 * 1024 * 1024:
-            error = "<wa-callout class='form-error' variant='danger'><wa-icon slot='icon' name='circle-exclamation'></wa-icon>File size must be less than 5MB</wa-callout>"
-            return HttpResponse(error, status=400)
+            return render(request, "form_error.html", {"message": "File size must be less than 5MB"}, status=400)
 
         try:
             # Save the image and kick off background AI processing
