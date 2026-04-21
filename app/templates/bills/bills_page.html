@@ -179,6 +179,7 @@
                       hx-post="/bills/{{ bill.id }}/toggle"
                       hx-target="closest li"
                       hx-swap="outerHTML"
+                      hx-trigger="change"
                       >Paid</wa-checkbox
                     >
                     {% if not bill.autopay %}
