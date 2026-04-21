@@ -124,7 +124,7 @@
     </div>
 
     <div class="tile-container" style="padding-top: 7px;">
-      <div hx-get="/bills/stats" hx-trigger="load, bills-changed from:body"></div>
+      <div id="bills-stats" hx-get="/bills/stats" hx-trigger="load" hx-swap="outerHTML"></div>
       <div
         hx-get="/bills/links"
         hx-trigger="load"
@@ -241,3 +241,50 @@
     </script>
   </div>
 {% endpartialdef bill-amount %}
+
+{% partialdef bills-stats %}
+  <div id="bills-stats">
+    <div style="color: #888">Paid {{ paid|currency }} of {{ total|currency }}.</div>
+    {% if income %}
+      <div style="padding: 20px 0">
+        <div
+          style="padding: 20px 25px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: inline-block;"
+        >
+          <div class="labelvalue">
+            <span style="color: #0000">–</span>
+            <span><a hx-get="/bills/income" hx-target="body" hx-swap="beforeend">Income</a></span>
+            <span>{{ income|currency }}</span>
+          </div>
+          <div class="labelvalue">
+            <span>–</span>
+            <span>Expenses</span>
+            <span>{{ total|currency }}</span>
+          </div>
+          <div class="labelvalue">
+            <span style="border-top: 1px solid #888; color: #0000">–</span>
+            <span style="border-top: 1px solid #888">Remaining</span>
+            <span style="border-top: 1px solid #888">{{ remaining|currency }}</span>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div style="padding: 10px 0 20px 0">
+        <a hx-get="/bills/income" hx-target="body" hx-swap="beforeend">Add income</a>
+      </div>
+    {% endif %}
+  </div>
+{% endpartialdef bills-stats %}
+
+{% partialdef bills-stats-update %}
+  <hx-partial hx-target="#bills-stats" hx-swap="outerHTML"> {% partial bills-stats %} </hx-partial>
+{% endpartialdef bills-stats-update %}
+
+{% partialdef bill-item-with-stats %}
+  {% partial bill-item %}
+  <hx-partial hx-target="#bills-stats" hx-swap="outerHTML"> {% partial bills-stats %} </hx-partial>
+{% endpartialdef bill-item-with-stats %}
+
+{% partialdef bill-amount-with-stats %}
+  {% partial bill-amount %}
+  <hx-partial hx-target="#bills-stats" hx-swap="outerHTML"> {% partial bills-stats %} </hx-partial>
+{% endpartialdef bill-amount-with-stats %}

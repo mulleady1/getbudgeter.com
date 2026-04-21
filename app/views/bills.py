@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Max
-from django.http import HttpResponse, QueryDict
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
 from django.views.generic import View
@@ -13,6 +13,18 @@ from ..models import Bill, BillLink
 from .utils import get_bills, get_month_from_url
 
 logger = logging.getLogger(__name__)
+
+
+def _stats_context(user, month):
+    bills = Bill.objects.filter(user=user, month=month)
+    paid = sum(b.amount for b in bills if b.paid)
+    total = sum(b.amount for b in bills)
+    return {
+        "paid": paid,
+        "total": total,
+        "income": user.profile.income,
+        "remaining": user.profile.income - total,
+    }
 
 
 class BillListView(LoginRequiredMixin, View):
@@ -37,9 +49,8 @@ class BillListView(LoginRequiredMixin, View):
 
         bills = Bill.objects.filter(user=request.user, month=bill.month)
 
-        response = render(request, "bills/bills_page.html#bills-list", {"bills": bills})
-        response["HX-Trigger"] = "bills-changed"
-        return response
+        bills = Bill.objects.filter(user=request.user, month=bill.month)
+        return render(request, "bills/bills_page.html#bills-list", {"bills": bills})
 
 
 class BillDetailView(LoginRequiredMixin, View):
@@ -56,16 +67,13 @@ class BillDetailView(LoginRequiredMixin, View):
         bill.autopay = data.get("autopay") == "on"
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
-        response = render(request, "bills/bills_page.html#bills-list", {"bills": bills})
-        response["HX-Trigger"] = "bills-changed"
-        return response
+        return render(request, "bills/bills_page.html#bills-list", {"bills": bills})
 
     def delete(self, request, bill_id):
         bill = get_object_or_404(Bill, id=bill_id, user=request.user)
+        month = bill.month
         bill.delete()
-        response = HttpResponse()
-        response["HX-Trigger"] = "bills-changed"
-        return response
+        return render(request, "bills/bills_page.html#bills-stats-update", _stats_context(request.user, month))
 
 
 @login_required
@@ -82,9 +90,7 @@ def update_bill_amount(request, bill_id):
     bill = get_object_or_404(Bill, id=bill_id, user=request.user)
     bill.amount = data.get("amount")
     bill.save()
-    response = render(request, "bills/bills_page.html#bill-amount", {"bill": bill})
-    response["HX-Trigger"] = "bills-changed"
-    return response
+    return render(request, "bills/bills_page.html#bill-amount-with-stats", {"bill": bill, **_stats_context(request.user, bill.month)})
 
 
 @login_required
@@ -93,9 +99,7 @@ def toggle_paid(request, bill_id):
     bill = get_object_or_404(Bill, id=bill_id, user=request.user)
     bill.paid = not bill.paid
     bill.save()
-    response = render(request, "bills/bills_page.html#bill-item", {"bill": bill})
-    response["HX-Trigger"] = "bills-changed"
-    return response
+    return render(request, "bills/bills_page.html#bill-item-with-stats", {"bill": bill, **_stats_context(request.user, bill.month)})
 
 
 class CopyBillsView(LoginRequiredMixin, View):
@@ -134,9 +138,7 @@ class CopyBillsView(LoginRequiredMixin, View):
             new_bills.append(bill)
 
         logger.info("copied %s bills for %s", len(new_bills), target_month)
-        response = render(request, "bills/bills_page.html#bills-list", {"bills": new_bills})
-        response["HX-Trigger"] = "bills-changed"
-        return response
+        return render(request, "bills/bills_page.html#bills-list", {"bills": new_bills})
 
 
 class AddIncomeView(LoginRequiredMixin, View):
@@ -151,26 +153,15 @@ class AddIncomeView(LoginRequiredMixin, View):
         income = int(request.POST.get("income"))
         request.user.profile.income = income
         request.user.profile.save()
-        response = HttpResponse(status=200)
-        response["HX-Trigger"] = "bills-changed"
-        return response
+        month = get_month_from_url(request.htmx.current_url)
+        return render(request, "bills/bills_page.html#bills-stats-update", _stats_context(request.user, month))
 
 
 @login_required
 @require_http_methods(["GET"])
 def bill_stats(request):
     month = get_month_from_url(request.htmx.current_url)
-    bills = Bill.objects.filter(user=request.user, month=month)
-    paid = sum(bill.amount for bill in bills if bill.paid)
-    total = sum(bill.amount for bill in bills)
-    context = {
-        "paid": paid,
-        "total": total,
-        "income": request.user.profile.income,
-        "remaining": request.user.profile.income - total,
-    }
-
-    return render(request, "bills/bill_stats.html", context)
+    return render(request, "bills/bills_page.html#bills-stats", _stats_context(request.user, month))
 
 
 class BillLinksView(LoginRequiredMixin, View):
