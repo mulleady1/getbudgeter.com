@@ -30,28 +30,73 @@ Always append to `<body>` so Web Awesome can teleport the overlay correctly:
 ```
 
 ### Fragment targets
-Define named fragments with `{% partialdef %}` and target them by ID:
+Define named fragments with `{% partialdef %}` at the end of the file and render them in-layout
+with `{% partial %}`. The view targets them by name:
 ```html
-{% partialdef thing-list inline %}
-  <div id="thing-list">...</div>
+{% block content %}
+  {% partial "thing-list" %}
+{% endblock %}
+
+{% partialdef thing-list %}
+<div id="thing-list">...</div>
 {% endpartialdef thing-list %}
 ```
 The view returns the fragment via `render(request, "things/page.html#thing-list", context)`.
 
-### Returning updated state after mutations (POST/PUT/DELETE)
-After a mutation, re-render the relevant list fragment and set `HX-Trigger` so sidebars/stats
-reload without a full page refresh:
+### Updating multiple regions after mutations (`<hx-partial>`)
+After a mutation, include `<hx-partial>` tags in the response to update dependent regions
+(sidebars, stats counters) in the same round-trip — no extra `HX-Trigger` event needed:
+
 ```python
-response = render(request, "things/page.html#thing-list", context)
-response["HX-Trigger"] = "things-changed"
-return response
+def create_thing(request):
+    # ... create thing ...
+    return render(request, "things/page.html#thing-list", context)
 ```
 
-### Listening for cross-component events
-Sidebar panels load on page load and re-load when data changes:
 ```html
-<div hx-get="/things/stats" hx-trigger="load, things-changed from:body"></div>
+{% partialdef thing-list inline %}
+<div id="thing-list">
+  {% for thing in things %}...{% endfor %}
+
+  <hx-partial hx-target="#things-stats" hx-swap="outerHTML">
+    <div id="things-stats">{{ stats.count }} items</div>
+  </hx-partial>
+</div>
+{% endpartialdef thing-list %}
 ```
+
+Sidebar panels still use `hx-trigger="load"` for the initial page load, but mutations push
+updates directly via `<hx-partial>` instead of triggering a second request:
+```html
+<div id="things-stats" hx-get="/things/stats" hx-trigger="load">...</div>
+```
+
+### Attribute inheritance
+htmx 4 requires **explicit** inheritance. Parent attributes do not apply to children unless
+marked `:inherited`:
+```html
+<!-- WRONG in htmx 4: children won't inherit hx-target -->
+<div hx-target="#output">
+  <button hx-get="/a">A</button>
+</div>
+
+<!-- CORRECT: use :inherited modifier -->
+<div hx-target:inherited="#output">
+  <button hx-get="/a">A</button>
+</div>
+```
+
+### Form validation errors
+`<body>` has a global `hx-status:4xx:inherited` that prepends any 4xx response to the nearest
+form. Return a 4xx using the shared `form_error.html` template — no per-form `hx-status` needed:
+```python
+# views.py
+if not some_condition:
+    return render(request, "form_error.html", {"message": "Something went wrong."}, status=400)
+# success path ...
+```
+The error callout is prepended to the submitting form automatically and cleared on the next
+submit by the `button-spinner` extension in `app.js`.
 
 ### Month-scoped pages
 Pages that show monthly data use a `wa-input type="month"` with HTMX. The input fires a GET
@@ -194,17 +239,33 @@ Use surrealjs for any client-side DOM work that doesn't need a server round-trip
 Use `django-template-partials` (`{% partialdef %}`) to co-locate fragments with their parent
 template. HTMX can target a named fragment with `template.html#fragment-name`.
 
+### Convention
+- Define all `{% partialdef %}` blocks **at the end of the file, at top-level indentation** (outside
+  any `{% block %}` tags). Do NOT use `inline`.
+- Render them in the layout with `{% partial 'name' %}` inside the block.
+- This keeps the page structure readable and all fragments easy to find.
+
 ### Pattern
 ```html
-{% partialdef thing-list inline %}
-  <div id="thing-list">
-    {% for thing in things %}
-      {% partialdef thing-item inline %}
-        <li id="thing-{{ thing.id }}">{{ thing.name }}</li>
-      {% endpartialdef thing-item %}
-    {% endfor %}
-  </div>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page">
+  {% partial "thing-list" %}
+</div>
+{% endblock %}
+
+{% partialdef thing-list %}
+<div id="thing-list">
+  {% for thing in things %}
+    {% partial "thing-item" %}
+  {% endfor %}
+</div>
 {% endpartialdef thing-list %}
+
+{% partialdef thing-item %}
+<li id="thing-{{ thing.id }}">{{ thing.name }}</li>
+{% endpartialdef thing-item %}
 ```
 
 ### Views
@@ -235,3 +296,5 @@ else:
   - `head-support` — allows `<head>` tags in HTMX responses (used for CSS injection on partial loads)
 - `customConfirm()` (in `app.js`) is a styled confirmation dialog. Use it instead of
   `hx-confirm` for consistency with the rest of the UI.
+- htmx 4 event names use colons: `htmx:after:swap`, `htmx:config:request`, `htmx:before:request`.
+  htmx 2 camelCase names (`htmx:afterSwap`, `htmx:configRequest`) no longer exist.
