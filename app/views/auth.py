@@ -1,13 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 
 
 def home(request):
     if not request.user.is_authenticated:
-        return redirect("login")
+        return HttpResponseRedirect("/login")
 
-    return redirect("bills")
+    return HttpResponseRedirect("/bills")
 
 
 def signup_view(request):
