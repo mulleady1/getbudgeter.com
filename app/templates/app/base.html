@@ -30,11 +30,21 @@
           </a>
           {% if user.is_authenticated %}
             <nav class="desktop-nav">
-              <a href="{% url 'bills' %}"        class="nav-link {% if request.path|startswith:'/bills' %}active{% endif %}">       <span>Bills</span></a>
-              <a href="{% url 'transactions' %}" class="nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}"><span>Transactions</span></a>
-              <a href="{% url 'receipts' %}"     class="nav-link {% if request.path|startswith:'/receipts' %}active{% endif %}">    <span>Receipts</span></a>
-              <a href="{% url 'analytics' %}"    class="nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}">   <span>Analytics</span></a>
-              <a href="{% url 'budgets' %}"      class="nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}">     <span>Budgets</span></a>
+              <a href="/bills" class="nav-link {% if request.path|startswith:'/bills' %}active{% endif %}">
+                <span>Bills</span></a
+              >
+              <a href="/transactions" class="nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}"
+                ><span>Transactions</span></a
+              >
+              <a href="/receipts" class="nav-link {% if request.path|startswith:'/receipts' %}active{% endif %}">
+                <span>Receipts</span></a
+              >
+              <a href="/analytics" class="nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}">
+                <span>Analytics</span></a
+              >
+              <a href="/budgets" class="nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}">
+                <span>Budgets</span></a
+              >
               <wa-dropdown placement="bottom-end">
                 <wa-button slot="trigger" appearance="plain" aria-label="User menu" style="transform: translateY(6px);">
                   <wa-icon name="user-circle" style="font-size: 1.25rem;"></wa-icon>
@@ -44,7 +54,7 @@
                   Category Rules
                 </wa-dropdown-item>
                 <wa-divider></wa-divider>
-                <wa-dropdown-item onclick="window.location.href=`{% url 'logout' %}`">
+                <wa-dropdown-item onclick="window.location.href='/logout'">
                   <wa-icon slot="prefix" name="arrow-right-from-bracket"></wa-icon>
                   Logout
                 </wa-dropdown-item>
@@ -62,33 +72,47 @@
               <wa-drawer id="mobile-nav-drawer" label="Menu" placement="end" data-no-autoopen data-no-autoremove>
                 <nav class="mobile-nav">
                   <script>
-                    me().on('click', (e) => { me(e).parentElement.open = false })
+                    me().on("click", e => {
+                      me(e).parentElement.open = false
+                    })
                   </script>
-                  <a href="{% url 'bills' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/bills' %}active{% endif %}">
+                  <a
+                    href="/bills"
+                    hx-boost="true"
+                    class="mobile-nav-link {% if request.path|startswith:'/bills' %}active{% endif %}"
+                  >
                     Bills
                   </a>
-                  <a href="{% url 'transactions' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}">
+                  <a
+                    href="/transactions"
+                    hx-boost="true"
+                    class="mobile-nav-link {% if request.path|startswith:'/transactions' %}active{% endif %}"
+                  >
                     Transactions
                   </a>
-                  <a href="{% url 'receipts' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/receipts' %}active{% endif %}">
+                  <a
+                    href="/receipts"
+                    hx-boost="true"
+                    class="mobile-nav-link {% if request.path|startswith:'/receipts' %}active{% endif %}"
+                  >
                     Receipts
                   </a>
-                  <a href="{% url 'analytics' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}">
+                  <a
+                    href="/analytics"
+                    hx-boost="true"
+                    class="mobile-nav-link {% if request.path|startswith:'/analytics' %}active{% endif %}"
+                  >
                     Analytics
                   </a>
-                  <a href="{% url 'budgets' %}" hx-boost="true" class="mobile-nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}">
+                  <a
+                    href="/budgets"
+                    hx-boost="true"
+                    class="mobile-nav-link {% if request.path|startswith:'/budgets' %}active{% endif %}"
+                  >
                     Budgets
                   </a>
-                  <a
-                    href="/category-rules"
-                    hx-boost="true"
-                    class="mobile-nav-link"
-                  >
-                    Category Rules
-                  </a>
-                  <a href="{% url 'logout' %}" class="mobile-nav-link logout">
-                    Logout
-                  </a>
+                  <a href="/category-rules" hx-boost="true" class="mobile-nav-link"> Category Rules </a>
+                  <a href="/logout" class="mobile-nav-link logout"> Logout </a>
                 </nav>
               </wa-drawer>
             </div>

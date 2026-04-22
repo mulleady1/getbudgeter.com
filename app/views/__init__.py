@@ -1,45 +1,10 @@
-from .analytics import AnalyticsView, MerchantChartPartialView, TrendChartPartialView
+from .analytics import AnalyticsViewSet
 from .auth import home, login_view, logout_view, signup_view
-from .bills import (
-    AddIncomeView,
-    BillDetailView,
-    BillLinkEditDeleteView,
-    BillLinksView,
-    BillListView,
-    CopyBillsView,
-    bill_stats,
-    new_bill,
-    new_bill_link,
-    reorder_bill_link,
-    toggle_paid,
-    update_bill_amount,
-)
-from .budgets import BudgetEditDeleteView, BudgetListView, budget_stats, new_budget
-from .category_rules import CategoryRuleDetailView, CategoryRuleListView, reprocess_transactions
-from .receipts import (
-    ReceiptDetailView,
-    ReceiptListView,
-    ReceiptUploadView,
-    cancel_edit_merchant,
-    edit_receipt_merchant,
-    process_receipt_image,
-    receipt_status,
-    update_receipt_item_category,
-    update_receipt_merchant,
-)
-from .transactions import (
-    CategoryDetailView,
-    CategoryListView,
-    TransactionDetailView,
-    TransactionListView,
-    UploadCSVView,
-    bulk_categorize_transactions,
-    create_rule_from_token,
-    get_filter_options,
-    new_category_dialog,
-    toggle_anomaly,
-    token_selection_dialog,
-)
+from .bills import BillLinkViewSet, BillViewSet
+from .budgets import BudgetViewSet
+from .category_rules import CategoryRuleViewSet
+from .receipts import ReceiptViewSet
+from .transactions import CategoryViewSet, TransactionViewSet
 
 __all__ = [
     # Auth
@@ -48,49 +13,17 @@ __all__ = [
     "logout_view",
     "signup_view",
     # Bills
-    "BillListView",
-    "BillDetailView",
-    "new_bill",
-    "toggle_paid",
-    "CopyBillsView",
-    "AddIncomeView",
-    "bill_stats",
-    "BillLinksView",
-    "BillLinkEditDeleteView",
-    "new_bill_link",
-    "reorder_bill_link",
-    "update_bill_amount",
+    "BillViewSet",
+    "BillLinkViewSet",
     # Transactions
-    "UploadCSVView",
-    "TransactionListView",
-    "TransactionDetailView",
-    "bulk_categorize_transactions",
-    "CategoryListView",
-    "CategoryDetailView",
-    "CategoryRuleListView",
-    "CategoryRuleDetailView",
-    "reprocess_transactions",
-    "new_category_dialog",
-    "toggle_anomaly",
-    "token_selection_dialog",
-    "create_rule_from_token",
-    "get_filter_options",
+    "TransactionViewSet",
+    "CategoryViewSet",
+    # Category rules
+    "CategoryRuleViewSet",
     # Receipts
-    "ReceiptListView",
-    "ReceiptUploadView",
-    "ReceiptDetailView",
-    "update_receipt_item_category",
-    "process_receipt_image",
-    "edit_receipt_merchant",
-    "update_receipt_merchant",
-    "cancel_edit_merchant",
+    "ReceiptViewSet",
     # Analytics
-    "AnalyticsView",
-    "MerchantChartPartialView",
-    "TrendChartPartialView",
+    "AnalyticsViewSet",
     # Budgets
-    "BudgetListView",
-    "new_budget",
-    "budget_stats",
-    "BudgetEditDeleteView",
+    "BudgetViewSet",
 ]

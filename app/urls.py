@@ -1,59 +1,22 @@
 # fmt: off
 from django.urls import path
+from rest_framework.routers import SimpleRouter
 
 from . import views
 
+_router = SimpleRouter(trailing_slash=False)
+_router.register("bills/links",             views.BillLinkViewSet,    basename="bill-link")
+_router.register("bills",                   views.BillViewSet,        basename="bill")
+_router.register("transactions/categories", views.CategoryViewSet,    basename="category")
+_router.register("transactions",            views.TransactionViewSet, basename="transaction")
+_router.register("receipts",               views.ReceiptViewSet,     basename="receipt")
+_router.register("category-rules",         views.CategoryRuleViewSet, basename="category-rule")
+_router.register("analytics",              views.AnalyticsViewSet,   basename="analytics")
+_router.register("budgets",                views.BudgetViewSet,      basename="budget")
+
 urlpatterns = [
-    path("",                                                   views.home,                              name="home"),
-    path("signup",                                             views.signup_view,                       name="signup"),
-    path("login",                                              views.login_view,                        name="login"),
-    path("logout",                                             views.logout_view,                       name="logout"),
-
-    path("bills",                                              views.BillListView.as_view(),            name="bills"),
-    path("bills/new",                                          views.new_bill,                          name="new_bill"),
-    path("bills/copy",                                         views.CopyBillsView.as_view(),           name="copy"),
-    path("bills/stats",                                        views.bill_stats,                        name="bill_stats"),
-    path("bills/income",                                       views.AddIncomeView.as_view(),           name="add_income"),
-    path("bills/links",                                        views.BillLinksView.as_view(),           name="bill_links"),
-    path("bills/links/new",                                    views.new_bill_link,                     name="new_bill_link"),
-    path("bills/links/<int:link_id>",                          views.BillLinkEditDeleteView.as_view(),  name="edit_delete_bill_link"),
-    path("bills/links/<int:link_id>/reorder/<str:direction>",  views.reorder_bill_link,                 name="reorder_bill_link"),
-    path("bills/<int:bill_id>",                                views.BillDetailView.as_view(),          name="edit_delete_bill"),
-    path("bills/<int:bill_id>/amount",                         views.update_bill_amount,                name="update_bill_amount"),
-    path("bills/<int:bill_id>/toggle",                         views.toggle_paid,                       name="toggle_paid"),
-    
-    path("transactions",                                       views.TransactionListView.as_view(),     name="transactions"),
-    path("transactions/upload",                                views.UploadCSVView.as_view(),           name="upload_csv"),
-    path("transactions/bulk-categorize",                       views.bulk_categorize_transactions,      name="bulk_categorize_transactions"),
-    path("transactions/filter-options/<str:filter_type>",      views.get_filter_options,                name="filter_options"),
-    path("transactions/categories",                            views.CategoryListView.as_view(),        name="category_list_create"),
-    path("transactions/categories/new",                        views.new_category_dialog,               name="new_category_dialog"),
-    path("transactions/categories/<int:category_id>",          views.CategoryDetailView.as_view(),      name="category_edit_delete"),
-    path("transactions/<int:transaction_id>",                  views.TransactionDetailView.as_view(),   name="transaction_detail"),
-    path("transactions/<int:transaction_id>/toggle-anomaly",   views.toggle_anomaly,                    name="toggle_anomaly"),
-    path("transactions/<int:transaction_id>/token-selection/<int:category_id>",  views.token_selection_dialog,  name="token_selection_dialog"),
-    path("transactions/<int:transaction_id>/create-rule",      views.create_rule_from_token,            name="create_rule_from_token"),
-
-    path("receipts",                                           views.ReceiptListView.as_view(),         name="receipts"),
-    path("receipts/upload",                                    views.ReceiptUploadView.as_view(),       name="upload_receipt"),
-    path("receipts/<int:receipt_id>",                          views.ReceiptDetailView.as_view(),       name="receipt_detail"),
-    path("receipts/<int:receipt_id>/process-image",            views.process_receipt_image,             name="process_receipt_image"),
-    path("receipts/<int:receipt_id>/status",                   views.receipt_status,                    name="receipt_status"),
-    path("receipts/<int:receipt_id>/merchant/edit",            views.edit_receipt_merchant,             name="edit_receipt_merchant"),
-    path("receipts/<int:receipt_id>/merchant",                 views.update_receipt_merchant,           name="update_receipt_merchant"),
-    path("receipts/<int:receipt_id>/merchant/cancel",          views.cancel_edit_merchant,              name="cancel_edit_merchant"),
-    path("receipts/items/<int:item_id>/category",              views.update_receipt_item_category,      name="update_receipt_item_category"),
-
-    path("category-rules",                                     views.CategoryRuleListView.as_view(),    name="category_rules"),
-    path("category-rules/reprocess",                           views.reprocess_transactions,            name="reprocess_transactions"),
-    path("category-rules/<int:rule_id>",                       views.CategoryRuleDetailView.as_view(),  name="category_rule_edit_delete"),
-
-    path("analytics",                                          views.AnalyticsView.as_view(),           name="analytics"),
-    path("analytics/merchant-chart",                           views.MerchantChartPartialView.as_view(), name="merchant_chart_partial"),
-    path("analytics/trend-chart",                              views.TrendChartPartialView.as_view(),   name="trend_chart_partial"),
-    
-    path("budgets",                                            views.BudgetListView.as_view(),          name="budgets"),
-    path("budgets/new",                                        views.new_budget,                        name="new_budget"),
-    path("budgets/stats",                                      views.budget_stats,                      name="budget_stats"),
-    path("budgets/<int:budget_id>",                            views.BudgetEditDeleteView.as_view(),    name="edit_delete_budget"),
-]
+    path("",        views.home,         name="home"),
+    path("signup",  views.signup_view,  name="signup"),
+    path("login",   views.login_view,   name="login"),
+    path("logout",  views.logout_view,  name="logout"),
+] + _router.urls

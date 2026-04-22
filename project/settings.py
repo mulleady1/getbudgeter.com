@@ -52,7 +52,15 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "app",
     "django_htmx",
+    "rest_framework",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

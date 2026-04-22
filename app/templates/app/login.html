@@ -74,14 +74,7 @@
     {% endif %}
     <form id="login-form" method="post">
       {% csrf_token %}
-      <wa-input
-        type="email"
-        id="email"
-        name="email"
-        label="Email"
-        value="{{ email }}"
-        required
-      ></wa-input>
+      <wa-input type="email" id="email" name="email" label="Email" value="{{ email }}" required></wa-input>
       <wa-input
         type="password"
         id="password"
@@ -91,12 +84,10 @@
         required
       ></wa-input>
       <div style="padding-top: 0.5rem;">
-        <wa-button type="submit" style="width: 100%;"
-          >Login</wa-button
-        >
+        <wa-button type="submit" style="width: 100%;">Login</wa-button>
       </div>
       <div style="padding-top: 0.5rem;">
-        <a href="{% url 'signup' %}">Sign up</a>
+        <a href="/signup">Sign up</a>
       </div>
     </form>
   </div>
@@ -104,7 +95,7 @@
   <script type="module">
     const form = document.getElementById("login-form")
     const submitButton = form.querySelector("wa-button[type='submit']")
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", event => {
       submitButton.loading = true
       submitButton.disabled = true
     })
