@@ -166,6 +166,9 @@ class Budget(models.Model):
     month = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    if TYPE_CHECKING:
+        category_id: int
+
     class Meta:
         # Note: DB UNIQUE doesn't enforce NULL uniqueness, so (user, category, month=None)
         # duplicates are prevented via update_or_create in views.

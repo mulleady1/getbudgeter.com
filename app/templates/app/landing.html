@@ -1,0 +1,378 @@
+{% extends "app/base.html" %}
+{% load static %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<style>
+  body { background: #fff; }
+
+  /* ── Shared ─────────────────────────────────────────── */
+  .lp-section {
+    padding: 5rem 1.5rem;
+  }
+  .lp-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .lp-inner--narrow {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .lp-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--wa-color-primary);
+    margin-bottom: 0.75rem;
+  }
+  .lp-h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #111;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+  }
+  .lp-lead {
+    font-size: 1.05rem;
+    color: #555;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .lp-section { padding: 3.5rem 1.25rem; }
+    .lp-h2 { font-size: 1.5rem; }
+  }
+
+  /* ── Hero ────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(160deg, #f0f4ff 0%, #f7f8fa 60%);
+    padding: 6rem 1.5rem 5rem;
+    text-align: center;
+  }
+  .hero-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+  }
+  .hero-logo img { height: 38px; width: auto; }
+  .hero-logo span { font-size: 1.35rem; font-weight: 700; color: #333; }
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #111;
+    line-height: 1.15;
+    margin: 0 0 1.25rem;
+    max-width: 700px;
+    margin-inline: auto;
+  }
+  .hero-sub {
+    font-size: 1.15rem;
+    color: #555;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.65;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 4rem 1.25rem 3rem; }
+    .hero h1 { font-size: 2rem; }
+  }
+
+  /* ── How it works ────────────────────────────────────── */
+  .steps {
+    background: #fff;
+  }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .step-number {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--wa-color-primary);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+  }
+  .step p {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+  }
+  @media (max-width: 680px) {
+    .steps-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  }
+
+  /* ── Features ────────────────────────────────────────── */
+  .features-section {
+    background: #f7f8fa;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-top: 3rem;
+  }
+  .feature-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  }
+  .feature-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 8px;
+    background: var(--wa-color-primary-fill-quiet);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.9rem;
+    font-size: 1.1rem;
+    color: var(--wa-color-primary);
+  }
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 0.4rem;
+  }
+  .feature-card p {
+    font-size: 0.875rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+  }
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Everything included checklist ───────────────────── */
+  .checklist-section {
+    background: #fff;
+  }
+  .checklist {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 2rem;
+    margin-top: 2.5rem;
+    text-align: left;
+  }
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  .checklist-item wa-icon {
+    color: var(--wa-color-success);
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+  @media (max-width: 600px) {
+    .checklist { grid-template-columns: 1fr; }
+  }
+
+  /* ── Bottom CTA ──────────────────────────────────────── */
+  .bottom-cta {
+    background: linear-gradient(135deg, #4f6ef7 0%, #7c4dda 100%);
+    text-align: center;
+    padding: 5rem 1.5rem;
+  }
+  .bottom-cta h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 0.75rem;
+    line-height: 1.2;
+  }
+  .bottom-cta p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.8);
+    margin: 0 auto 2rem;
+    max-width: 440px;
+    line-height: 1.6;
+  }
+  .bottom-cta-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 600px) {
+    .bottom-cta h2 { font-size: 1.5rem; }
+  }
+
+  /* ── Footer ──────────────────────────────────────────── */
+  .lp-footer {
+    background: #111;
+    color: #888;
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.8rem;
+  }
+  .lp-footer a { color: #aaa; }
+</style>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-logo">
+    <img src="{% static 'logo.png' %}" alt="Budgeter logo" />
+    <span>Budgeter</span>
+  </div>
+  <h1>Stop wondering where your money went.</h1>
+  <p class="hero-sub">
+    Budgeter keeps your monthly bills, budgets, and transactions organized in one simple place — so you always know what's due, what's paid, and what's left.
+  </p>
+  <div class="hero-cta">
+    <wa-button href="/signup" size="large">Get started free</wa-button>
+    <wa-button href="/login" size="large" appearance="outlined">Log in</wa-button>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="lp-section steps">
+  <div class="lp-inner">
+    <div class="lp-inner--narrow">
+      <div class="lp-eyebrow">How it works</div>
+      <h2 class="lp-h2">Up and running in minutes</h2>
+      <p class="lp-lead">No complicated setup. Just sign up and start adding your bills.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Add your bills</h3>
+        <p>Enter your recurring monthly bills — rent, utilities, subscriptions — and set which ones are on autopay.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Import transactions</h3>
+        <p>Upload a CSV export from your bank or credit card. Budgeter auto-categorizes everything using your rules.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Stay on top of it</h3>
+        <p>Check off bills as you pay them, watch your budget progress fill in, and review spending trends month to month.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="lp-section features-section">
+  <div class="lp-inner">
+    <div class="lp-inner--narrow">
+      <div class="lp-eyebrow">Features</div>
+      <h2 class="lp-h2">Everything you need to stay on budget</h2>
+      <p class="lp-lead">Budgeter covers the full picture — from bills due this month to long-term spending patterns.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><wa-icon name="receipt"></wa-icon></div>
+        <h3>Monthly bill tracking</h3>
+        <p>List every bill for the month, mark them paid as you go, and copy last month's bills in one click to save setup time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><wa-icon name="chart-pie"></wa-icon></div>
+        <h3>Category budgets</h3>
+        <p>Set a spending limit per category. As transactions come in, a progress bar shows exactly how close you are to the edge.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><wa-icon name="arrow-right-arrow-left"></wa-icon></div>
+        <h3>Bank CSV import</h3>
+        <p>Supports exports from Bank of America, Capital One, Citi, and more. Transactions are deduplicated automatically on re-import.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><wa-icon name="wand-magic-sparkles"></wa-icon></div>
+        <h3>Smart categorization rules</h3>
+        <p>Create keyword rules that auto-assign categories — "Spotify" → Entertainment, "Trader Joe's" → Groceries — so categorizing is mostly hands-off.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><wa-icon name="chart-line"></wa-icon></div>
+        <h3>Spending analytics</h3>
+        <p>See a monthly breakdown by category and merchant, track trends over time, and get flagged when a transaction looks unusually large.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><wa-icon name="camera"></wa-icon></div>
+        <h3>Receipt scanning</h3>
+        <p>Snap a photo of a receipt and Budgeter uses AI to extract the merchant, date, total, and line items automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Everything included checklist -->
+<section class="lp-section checklist-section">
+  <div class="lp-inner">
+    <div class="lp-inner--narrow">
+      <div class="lp-eyebrow">What's included</div>
+      <h2 class="lp-h2">No tiers. No paywalls. No nonsense.</h2>
+      <p class="lp-lead">Everything Budgeter offers is available from day one.</p>
+    </div>
+    <div class="checklist" style="max-width: 640px; margin-inline: auto; margin-top: 2.5rem;">
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Monthly bill management</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Unlimited transaction imports</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Per-category budgets</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Automatic categorization rules</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Spending analytics &amp; trends</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Anomaly detection</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Receipt scanning with AI</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Bill quick-links panel</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Copy bills month-to-month</div>
+      <div class="checklist-item"><wa-icon name="circle-check"></wa-icon> Works on mobile</div>
+    </div>
+  </div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="bottom-cta">
+  <h2>Ready to take control of your finances?</h2>
+  <p>Sign up in seconds — no credit card required.</p>
+  <div class="bottom-cta-buttons">
+    <wa-button href="/signup" size="large" style="--wa-color-primary: #fff; --wa-color-primary-on-normal: #4f6ef7;">
+      Create a free account
+    </wa-button>
+    <wa-button href="/login" size="large" appearance="outlined" style="--wa-button-outlined-color: rgba(255,255,255,0.8); --wa-button-outlined-border-color: rgba(255,255,255,0.4);">
+      Log in
+    </wa-button>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="lp-footer">
+  &copy; {% now "Y" %} Budgeter &nbsp;·&nbsp; <a href="/login">Log in</a> &nbsp;·&nbsp; <a href="/signup">Sign up</a>
+</footer>
+
+{% endblock %}

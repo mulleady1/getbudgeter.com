@@ -5,10 +5,9 @@ from django.shortcuts import redirect, render
 
 
 def home(request):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect("/login")
-
-    return HttpResponseRedirect("/bills")
+    if request.user.is_authenticated:
+        return HttpResponseRedirect("/bills")
+    return render(request, "app/landing.html")
 
 
 def signup_view(request):
