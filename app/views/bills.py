@@ -2,13 +2,14 @@ import logging
 from datetime import datetime, timedelta
 
 from django.db.models import Max
-from django.http import QueryDict
+
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from rest_framework.decorators import action
 
 from ..models import Bill, BillLink
 from .base import LoginRequiredViewSet
-from .utils import get_bills, get_month_from_url
+from .utils import get_month_from_url
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,36 @@ class BillViewSet(LoginRequiredViewSet):
     lookup_value_regex = r"\d+"
 
     def list(self, request):
-        return get_bills(request)
+        # Get the selected month from the request, default to current month
+        selected_month = request.GET.get("month")
+        if selected_month:
+            selected_month = datetime.strptime(selected_month, "%Y-%m").date()
+        else:
+            selected_month = datetime.now().replace(day=1).date()
+
+        # Filter bills for the selected month
+        bills = Bill.objects.filter(user=request.user, month=selected_month)
+
+        context = {
+            "bills": bills,
+            "selected_month": selected_month,
+        }
+
+        if request.htmx and not request.htmx.boosted:
+            template_name = "bills/bills_page.html#bills-list"
+        else:
+            template_name = "bills/bills_page.html"
+
+        res = render(request, template_name, context)
+
+        # Check if session will expire within a month and regenerate if needed
+        session_expiry = request.session.get_expiry_date()
+        one_month_from_now = timezone.now() + timedelta(days=30)
+        if session_expiry and session_expiry < one_month_from_now:
+            request.session.set_expiry(60 * 60 * 24 * 365)  # Reset to 1 year
+            logger.info("session close to expire, added 1 year")
+
+        return res
 
     def create(self, request):
         name = request.POST.get("name")
@@ -55,12 +85,11 @@ class BillViewSet(LoginRequiredViewSet):
         return render(request, "bills/bill_form.html", {"bill": bill})
 
     def update(self, request, pk):
-        data = QueryDict(request.body)
         bill = get_object_or_404(Bill, id=pk, user=request.user)
-        bill.name = data.get("name")
-        bill.amount = data.get("amount")
-        bill.link = data.get("link")
-        bill.autopay = data.get("autopay") == "on"
+        bill.name = request.data.get("name")
+        bill.amount = request.data.get("amount")
+        bill.link = request.data.get("link")
+        bill.autopay = request.data.get("autopay") == "on"
         bill.save()
         bills = Bill.objects.filter(user=request.user, month=bill.month)
         return render(request, "bills/bills_page.html#bills-list", {"bills": bills})
@@ -125,9 +154,8 @@ class BillViewSet(LoginRequiredViewSet):
 
     @action(detail=True, methods=["patch"])
     def amount(self, request, pk):
-        data = QueryDict(request.body)
         bill = get_object_or_404(Bill, id=pk, user=request.user)
-        bill.amount = data.get("amount")
+        bill.amount = request.data.get("amount")
         bill.save()
         return render(request, "bills/bills_page.html#bill-amount-with-stats", {"bill": bill, **_stats_context(request.user, bill.month)})
 
@@ -160,10 +188,9 @@ class BillLinkViewSet(LoginRequiredViewSet):
         return render(request, "bills/bill_link_form.html", {"link": link})
 
     def update(self, request, pk):
-        data = QueryDict(request.body)
         link = get_object_or_404(BillLink, id=pk, user=request.user)
-        link.label = data.get("label")
-        link.url = data.get("url")
+        link.label = request.data.get("label")
+        link.url = request.data.get("url")
         link.save()
         links = BillLink.objects.filter(user=request.user)
         return render(request, "bills/bill_links.html", {"links": links, "edit_mode": True})

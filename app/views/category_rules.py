@@ -108,18 +108,17 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
         return res
 
     def update(self, request, pk):
-        data = QueryDict(request.body)
         rule = get_object_or_404(CategoryRule, id=pk, user=request.user)
 
-        keyword = data.get("keyword", "").strip()
+        keyword = request.data.get("keyword", "").strip()
         if keyword:
             rule.keyword = keyword
 
-        category_id = data.get("category")
+        category_id = request.data.get("category")
         if category_id:
             rule.category = get_object_or_404(Category, id=category_id, user=request.user)
 
-        priority = data.get("priority")
+        priority = request.data.get("priority")
         if priority is not None:
             rule.priority = int(priority) if priority.isdigit() else 0
 

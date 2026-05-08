@@ -180,15 +180,6 @@
     padding: 1rem;
   }
 
-  .chart-filter {
-    margin-bottom: 1rem;
-    max-width: 300px;
-
-    @media (max-width: 768px) {
-      max-width: none;
-    }
-  }
-
   .chart-container {
     background: transparent;
     padding: 0;

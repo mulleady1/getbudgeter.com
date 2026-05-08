@@ -3,7 +3,7 @@ from typing import cast
 from urllib.parse import parse_qs, urlparse
 
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse, QueryDict
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from rest_framework.decorators import action
@@ -134,9 +134,8 @@ class TransactionViewSet(LoginRequiredViewSet):
         return render(request, "transactions/categorize_form.html", {"transaction": transaction, "categories": categories})
 
     def update(self, request, pk):
-        data = QueryDict(request.body)
         transaction = get_object_or_404(Transaction, id=pk, user=request.user)
-        category_id = data.get("category")
+        category_id = request.data.get("category")
         if category_id:
             transaction.category_id = cast(int, category_id)
             transaction.save()

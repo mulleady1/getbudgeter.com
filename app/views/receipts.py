@@ -4,7 +4,7 @@ import threading
 
 from django.db import connection
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse, QueryDict
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django_htmx.http import trigger_client_event
@@ -234,8 +234,7 @@ class ReceiptViewSet(LoginRequiredViewSet):
     @action(detail=True, methods=["put"], url_path="merchant")
     def merchant_update(self, request, pk):
         receipt = get_object_or_404(Receipt, id=pk, user=request.user)
-        data = QueryDict(request.body)
-        merchant = data.get("merchant", "").strip()
+        merchant = request.data.get("merchant", "").strip()
         receipt.merchant = merchant if merchant else None
         receipt.save()
 
@@ -255,8 +254,7 @@ class ReceiptViewSet(LoginRequiredViewSet):
     @action(detail=False, methods=["put"], url_path=r"items/(?P<item_id>\d+)/category")
     def item_category(self, request, item_id):
         item = get_object_or_404(ReceiptItem, id=item_id, receipt__user=request.user)
-        data = QueryDict(request.body)
-        category_id = data.get("category")
+        category_id = request.data.get("category")
         if category_id:
             item.category_id = int(category_id)
             item.save()

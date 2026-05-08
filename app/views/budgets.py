@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.db.models import Sum
-from django.http import HttpResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
 from rest_framework.decorators import action
 
@@ -111,9 +110,8 @@ class BudgetViewSet(LoginRequiredViewSet):
         return render(request, "budgets/budget_form.html", {"budget": budget, "categories": categories})
 
     def update(self, request, pk):
-        data = QueryDict(request.body)
         budget = get_object_or_404(Budget, id=pk, user=request.user)
-        budget.amount = data.get("amount")
+        budget.amount = request.data.get("amount")
         budget.save()
 
         selected_month = _get_month_from_htmx_url(request)

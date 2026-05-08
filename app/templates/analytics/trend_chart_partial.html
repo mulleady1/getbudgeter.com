@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="trend-chart-section">
-  <div class="chart-filter">
+  <div class="chart-filter" style="display: flex; align-items: center; justify-content: space-between;">
     <wa-select
       name="category"
       size="small"
@@ -39,6 +39,48 @@
         <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
       {% endfor %}
     </wa-select>
+    <wa-button size="small" appearance="plain" id="trend-see-more-btn">
+      <script>
+        me().on('click', () => {
+          const form = document.querySelector('#date-range-form')
+          const formData = new FormData(form)
+          const mode = formData.get('mode') || 'month'
+
+          let startDate, endDate
+
+          if (mode === 'month') {
+            const monthVal = formData.get('month') || ''
+            if (monthVal) {
+              const [y, m] = monthVal.split('-').map(Number)
+              const lastDay = new Date(y, m, 0).getDate()
+              startDate = `${y}-${String(m).padStart(2, '0')}-01`
+              endDate = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+            }
+          } else if (mode === 'year') {
+            const year = formData.get('year') || ''
+            if (year) {
+              startDate = `${year}-01-01`
+              endDate = `${year}-12-31`
+            }
+          } else {
+            startDate = formData.get('start_date') || ''
+            endDate = formData.get('end_date') || ''
+          }
+
+          const params = new URLSearchParams()
+          if (startDate) params.set('start_date', startDate)
+          if (endDate) params.set('end_date', endDate)
+          if (startDate && endDate) params.set('date_mode', 'range')
+
+          const categorySelect = document.querySelector('#trend-chart-container wa-select')
+          const categoryVal = categorySelect?.value
+          if (categoryVal && categoryVal !== 'all') params.set('category', categoryVal)
+
+          window.open(`/transactions?${params.toString()}`, '_blank')
+        })
+      </script>
+      View details
+    </wa-button>
   </div>
 
   {% if trend_chart_data %}
