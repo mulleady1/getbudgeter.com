@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="merchant-chart-section">
-  <div class="chart-filter">
+  <div class="chart-filter" style="display: flex; align-items: center; justify-content: space-between;">
     <wa-select
       name="category"
       size="small"
@@ -39,6 +39,7 @@
         <wa-option value="{{ category.id }}">{{ category.name }}</wa-option>
       {% endfor %}
     </wa-select>
+    <div></div>
   </div>
 
   {% if merchant_chart_data %}
