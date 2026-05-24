@@ -1,0 +1,191 @@
+{% extends "app/base.html" %}
+{% load static %}
+{% load myfilters %}
+
+{% block content %}
+<div id="items-analysis-page" style="max-width: 900px; margin: 0 auto; padding: 1rem 1rem 100px;">
+
+  <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+    <wa-button appearance="plain" size="small" onclick="window.location.href='/receipts'">
+      <wa-icon slot="start" name="arrow-left"></wa-icon>
+      Receipts
+    </wa-button>
+    <h2 style="margin: 0; font-size: 1.2rem; font-weight: 600;">Receipt Analytics</h2>
+  </div>
+
+  <form
+    id="items-filter-form"
+    hx-get="/receipts/items-analysis"
+    hx-target="#items-results"
+    hx-push-url="true"
+    style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1.5rem;"
+  >
+    <script>
+      var iff = me()
+      iff.debouncedSubmit = () => {
+        clearTimeout(iff._t)
+        iff._t = setTimeout(() => iff.requestSubmit(), 400)
+      }
+    </script>
+
+    <!-- Mode selector -->
+    <wa-select label="Date Range" name="mode" value="{{ mode }}" style="width: 140px;">
+      <script>
+        me().on("change", e => {
+          const mode = e.target.value
+          me("#month-container").style.display = mode === "month" ? "flex" : "none"
+          me("#year-container").style.display = mode === "year" ? "flex" : "none"
+          me("#items-filter-form").requestSubmit()
+        })
+      </script>
+      <wa-option value="month">Month</wa-option>
+      <wa-option value="year">Year</wa-option>
+    </wa-select>
+
+    <!-- Month input + arrows -->
+    <div id="month-container" style="display: {% if mode == 'year' %}none{% else %}flex{% endif %}; align-items: flex-end; gap: 0.25rem;">
+      <wa-button size="small" appearance="plain" type="button" style="margin-bottom: 4px;">
+        <script>
+          me().on("click", () => {
+            const inp = me("#month-input")
+            const [y, m] = inp.value.split("-").map(Number)
+            let nm = m - 1, ny = y
+            if (nm < 1) { nm = 12; ny-- }
+            inp.value = `${ny}-${String(nm).padStart(2, "0")}`
+            me("#items-filter-form").requestSubmit()
+          })
+        </script>
+        <wa-icon name="chevron-left" label="Previous month"></wa-icon>
+      </wa-button>
+
+      <wa-input label="Month" type="month" id="month-input" name="month" value="{{ month }}">
+        <script>
+          me().on("change", () => me("#items-filter-form").requestSubmit())
+        </script>
+      </wa-input>
+
+      <wa-button size="small" appearance="plain" type="button" style="margin-bottom: 4px;">
+        <script>
+          me().on("click", () => {
+            const inp = me("#month-input")
+            const [y, m] = inp.value.split("-").map(Number)
+            let nm = m + 1, ny = y
+            if (nm > 12) { nm = 1; ny++ }
+            inp.value = `${ny}-${String(nm).padStart(2, "0")}`
+            me("#items-filter-form").requestSubmit()
+          })
+        </script>
+        <wa-icon name="chevron-right" label="Next month"></wa-icon>
+      </wa-button>
+    </div>
+
+    <!-- Year input + arrows -->
+    <div id="year-container" style="display: {% if mode == 'year' %}flex{% else %}none{% endif %}; align-items: flex-end; gap: 0.25rem;">
+      <wa-button size="small" appearance="plain" type="button" style="margin-bottom: 4px;">
+        <script>
+          me().on("click", () => {
+            const inp = me("#year-input")
+            inp.value = parseInt(inp.value) - 1
+            me("#items-filter-form").requestSubmit()
+          })
+        </script>
+        <wa-icon name="chevron-left" label="Previous year"></wa-icon>
+      </wa-button>
+
+      <wa-input label="Year" type="number" id="year-input" name="year" value="{{ year }}" min="2000" max="2099" style="width: 100px;">
+        <script>
+          me().on("change", () => me("#items-filter-form").requestSubmit())
+        </script>
+      </wa-input>
+
+      <wa-button size="small" appearance="plain" type="button" style="margin-bottom: 4px;">
+        <script>
+          me().on("click", () => {
+            const inp = me("#year-input")
+            inp.value = parseInt(inp.value) + 1
+            me("#items-filter-form").requestSubmit()
+          })
+        </script>
+        <wa-icon name="chevron-right" label="Next year"></wa-icon>
+      </wa-button>
+    </div>
+
+    <!-- Keyword search -->
+    <wa-input
+      label="Search Items"
+      type="search"
+      name="q"
+      value="{{ search_query }}"
+      placeholder="e.g., avocado, wine…"
+      with-clear
+      style="flex: 1; min-width: 200px; max-width: 320px;"
+    >
+      <script>
+        me().on("input", () => me("#items-filter-form").debouncedSubmit())
+        me().on("wa-clear", () => me("#items-filter-form").requestSubmit())
+      </script>
+      <wa-icon slot="start" name="magnifying-glass"></wa-icon>
+    </wa-input>
+  </form>
+
+  <div id="items-results">
+    {% partial items-results %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% partialdef items-results %}
+{% if groups %}
+  <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 1.25rem; padding: 0.75rem 1rem; background: #f8f8f8; border-radius: 8px;">
+    <div>
+      <div style="color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;">Distinct items</div>
+      <div style="font-weight: 600; font-size: 1.15rem;">{{ groups|length }}</div>
+    </div>
+    <div>
+      <div style="color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;">Total purchases</div>
+      <div style="font-weight: 600; font-size: 1.15rem;">{{ total_occurrences }}</div>
+    </div>
+    <div>
+      <div style="color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;">Total spent</div>
+      <div style="font-weight: 600; font-size: 1.15rem; color: #388e3c;">{{ grand_total|currency }}</div>
+    </div>
+    {% if search_query %}
+      <div>
+        <div style="color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;">Filtered by</div>
+        <div style="font-weight: 500; font-size: 1rem;">"{{ search_query }}"</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid #ddd; text-align: left;">
+          <th style="padding: 0.6rem 0.75rem; font-weight: 600;">Item</th>
+          <th style="padding: 0.6rem 0.75rem; font-weight: 600; text-align: center;">Qty</th>
+          <th style="padding: 0.6rem 0.75rem; font-weight: 600; text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for group in groups %}
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 0.6rem 0.75rem; font-weight: 500;">{{ group.description }}</td>
+            <td style="padding: 0.6rem 0.75rem; text-align: center; color: #666;">{{ group.count }}</td>
+            <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 600; color: #388e3c;">{{ group.total|currency }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% elif search_query %}
+  <p style="text-align: center; padding: 3rem 1rem; color: #666;">
+    No items found matching "{{ search_query }}" in this period.
+  </p>
+{% else %}
+  <p style="text-align: center; padding: 3rem 1rem; color: #666;">
+    No receipt items found for this period. Upload and process receipts to see spending by item.
+  </p>
+{% endif %}
+{% endpartialdef items-results %}

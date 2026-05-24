@@ -6,7 +6,7 @@ from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
 from rest_framework.decorators import action
 
-from ..categorization import TransactionCategorizer
+from ..services import TransactionCategorizer
 from ..models import Category, CategoryRule, Transaction
 from .base import LoginRequiredViewSet
 

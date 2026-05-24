@@ -1,6 +1,7 @@
 import logging
 import os
 import threading
+from datetime import datetime
 
 from django.db import connection
 from django.db.models import Q
@@ -10,10 +11,8 @@ from django.template.loader import render_to_string
 from django_htmx.http import trigger_client_event
 from rest_framework.decorators import action
 
-from ..ai_receipt_processor import AIReceiptProcessor
-from ..categorization import TransactionCategorizer
 from ..models import Category, Receipt, ReceiptItem
-from ..receipt_ocr import ReceiptOCRProcessor
+from ..services import AIReceiptProcessor, TransactionCategorizer, get_item_spending, parse_date_range, ReceiptOCRProcessor
 from .base import LoginRequiredViewSet
 
 logger = logging.getLogger(__name__)
@@ -250,6 +249,35 @@ class ReceiptViewSet(LoginRequiredViewSet):
     def merchant_cancel(self, request, pk):
         receipt = get_object_or_404(Receipt, id=pk, user=request.user)
         return render(request, "receipts/receipt_detail.html#merchant-field", {"receipt": receipt})
+
+    @action(detail=False, methods=["get"], url_path="items-analysis")
+    def items_analysis(self, request):
+        today = datetime.now().date()
+        mode = request.GET.get("mode", "month")
+        month_str = request.GET.get("month", today.strftime("%Y-%m"))
+        year_str = request.GET.get("year", str(today.year))
+        search_query = request.GET.get("q", "").strip()
+
+        start_date, end_date = parse_date_range(mode, month_str, year_str)
+        groups, grand_total, total_occurrences = get_item_spending(
+            request.user, start_date, end_date, search_query
+        )
+
+        context = {
+            "mode": mode,
+            "month": month_str,
+            "year": year_str,
+            "search_query": search_query,
+            "start_date": start_date,
+            "end_date": end_date,
+            "groups": groups,
+            "grand_total": grand_total,
+            "total_occurrences": total_occurrences,
+        }
+
+        if request.htmx and not request.htmx.boosted:
+            return render(request, "receipts/items_analysis.html#items-results", context)
+        return render(request, "receipts/items_analysis.html", context)
 
     @action(detail=False, methods=["put"], url_path=r"items/(?P<item_id>\d+)/category")
     def item_category(self, request, item_id):

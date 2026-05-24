@@ -16,7 +16,10 @@
 
   <div id="receipts-page" style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem 100px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <span></span>
+      <wa-button appearance="outlined" onclick="window.location.href='/receipts/items-analysis'">
+        <wa-icon slot="start" name="chart-bar"></wa-icon>
+        Analysis
+      </wa-button>
       <wa-button hx-get="/receipts/upload" hx-target="body" hx-swap="beforeend">
         <wa-icon slot="start" name="upload"></wa-icon>
         Upload Receipt

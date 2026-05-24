@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 
-from .models import Category, CategoryRule
+from ..models import Category, CategoryRule
 
 
 class TransactionCategorizer:

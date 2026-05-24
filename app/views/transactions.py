@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from rest_framework.decorators import action
 
-from ..categorization import TransactionCategorizer
+from ..services import TransactionCategorizer
 from ..csv_parsers.base import BaseCSVParser
 from ..models import Category, CategoryRule, Transaction
 from .base import LoginRequiredViewSet
