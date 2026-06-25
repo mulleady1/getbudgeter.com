@@ -19,39 +19,48 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
     def list(self, request):
         group_by_category = request.GET.get("group_by_category") in ["on", "true"]
         page_number = request.GET.get("page", 1)
-        search_query = request.GET.get("search", "").strip()
+        search_query = request.GET.get("q", "").strip()
+        last_category = request.GET.get("last_category", "")
 
+        # The multiselect filter may arrive as repeated params or a single
+        # space/comma delimited value depending on how the control serializes.
+        category_filter = []
+        for raw in request.GET.getlist("category"):
+            category_filter.extend(raw.replace(",", " ").split())
+        category_filter = [c for c in category_filter if c.isdigit()]
+
+        rules_queryset = CategoryRule.objects.filter(user=request.user).select_related("category")
         if group_by_category:
-            rules_queryset = (
-                CategoryRule.objects.filter(user=request.user)
-                .select_related("category")
-                .order_by(Lower("category__name"), Lower("keyword"))
-            )
+            rules_queryset = rules_queryset.order_by(Lower("category__name"), Lower("keyword"))
         else:
-            rules_queryset = (
-                CategoryRule.objects.filter(user=request.user).select_related("category").order_by(Lower("keyword"))
-            )
+            rules_queryset = rules_queryset.order_by(Lower("keyword"))
 
         if search_query:
             rules_queryset = rules_queryset.filter(keyword__icontains=search_query)
+        if category_filter:
+            rules_queryset = rules_queryset.filter(category_id__in=category_filter)
 
         paginator = Paginator(rules_queryset, 50)
         page_obj = paginator.get_page(page_number)
 
         categories = Category.objects.filter(user=request.user).order_by(Lower("name"))
+        has_any_rules = CategoryRule.objects.filter(user=request.user).exists()
 
-        checkbox_params = QueryDict(mutable=True)
-        if search_query:
-            checkbox_params["search"] = search_query
-        checkbox_params = checkbox_params.urlencode()
-
+        # Shared filter state for the infinite-scroll link. Other controls use
+        # hx-include to pick up sibling state, so they don't need pre-built params.
         inf_scroll_params = QueryDict(mutable=True)
         if page_obj.has_next():
             inf_scroll_params["page"] = str(page_obj.next_page_number())
         if group_by_category:
             inf_scroll_params["group_by_category"] = "true"
         if search_query:
-            inf_scroll_params["search"] = search_query
+            inf_scroll_params["q"] = search_query
+        if category_filter:
+            inf_scroll_params.setlist("category", category_filter)
+        # Tell the next page which category we ended on so it doesn't repeat the header.
+        page_rules = list(page_obj.object_list)
+        if group_by_category and page_rules:
+            inf_scroll_params["last_category"] = str(page_rules[-1].category_id)
         inf_scroll_params = inf_scroll_params.urlencode()
 
         if request.htmx and request.GET.get("page"):
@@ -62,13 +71,16 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
             template = "category_rules/category_rules_page.html"
 
         context = {
-            "rules": page_obj.object_list,
+            "rules": page_rules,
             "page_obj": page_obj,
             "total_count": paginator.count,
             "categories": categories,
+            "has_any_rules": has_any_rules,
             "group_by_category": group_by_category,
             "search_query": search_query,
-            "checkbox_params": checkbox_params,
+            "category_filter": category_filter,
+            "category_filter_value": " ".join(category_filter),
+            "last_category": last_category,
             "inf_scroll_params": inf_scroll_params,
         }
         return render(request, template, context)
