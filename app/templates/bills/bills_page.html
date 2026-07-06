@@ -150,11 +150,10 @@
       <wa-checkbox
         {% if bill.paid %}checked{% endif %}
         hx-post="/bills/{{ bill.id }}/toggle"
-        hx-target="closest li"
-        hx-swap="outerHTML"
-        hx-trigger="change"
-        >Paid</wa-checkbox
-      >
+        hx-swap="none"
+        hx-trigger="change">
+        Paid
+      </wa-checkbox>
       {% if not bill.autopay %}
         <span style="opacity: 0.6">
           <wa-badge appearance="filled" variant="danger">Not Autopay</wa-badge>
@@ -278,11 +277,6 @@
 {% partialdef bills-stats-update %}
   <hx-partial hx-target="#bills-stats" hx-swap="outerHTML"> {% partial bills-stats %} </hx-partial>
 {% endpartialdef bills-stats-update %}
-
-{% partialdef bill-item-with-stats %}
-  {% partial bill-item %}
-  <hx-partial hx-target="#bills-stats" hx-swap="outerHTML"> {% partial bills-stats %} </hx-partial>
-{% endpartialdef bill-item-with-stats %}
 
 {% partialdef bill-amount-with-stats %}
   {% partial bill-amount %}

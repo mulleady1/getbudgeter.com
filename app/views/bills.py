@@ -164,7 +164,7 @@ class BillViewSet(LoginRequiredViewSet):
         bill = get_object_or_404(Bill, id=pk, user=request.user)
         bill.paid = not bill.paid
         bill.save()
-        return render(request, "bills/bills_page.html#bill-item-with-stats", {"bill": bill, **_stats_context(request.user, bill.month)})
+        return render(request, "bills/bills_page.html#bills-stats-update", _stats_context(request.user, bill.month))
 
 
 class BillLinkViewSet(LoginRequiredViewSet):

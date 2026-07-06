@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 
 from django.core.paginator import Paginator
 from django.db.models.functions import Lower
@@ -85,6 +86,16 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
         }
         return render(request, template, context)
 
+    @action(detail=False, methods=["get"], url_path="reprocess-dialog")
+    def reprocess_dialog(self, request):
+        today = datetime.now().date()
+        context = {
+            # Default reprocess window: the last 30 days.
+            "reprocess_start_date": (today - timedelta(days=30)).strftime("%Y-%m-%d"),
+            "reprocess_end_date": today.strftime("%Y-%m-%d"),
+        }
+        return render(request, "category_rules/category_rules_page.html#reprocess-dialog", context)
+
     def create(self, request):
         keyword = request.POST.get("keyword", "").strip()
         category_id = request.POST.get("category")
@@ -160,8 +171,27 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
     def reprocess(self, request):
         transactions = Transaction.objects.filter(user=request.user)
 
+        # scope="all" reprocesses everything; scope="range" limits to the date window.
+        start_date_str = ""
+        end_date_str = ""
+        if request.POST.get("scope") == "range":
+            start_date_str = request.POST.get("start_date", "").strip()
+            end_date_str = request.POST.get("end_date", "").strip()
+            if start_date_str:
+                start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+                transactions = transactions.filter(date__gte=start_date)
+            if end_date_str:
+                end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+                transactions = transactions.filter(date__lte=end_date)
+
         if not transactions.exists():
-            return JsonResponse({"success": False, "error": "No transactions to reprocess"}, status=400)
+            in_range = " in the selected date range" if start_date_str or end_date_str else ""
+            return render(
+                request,
+                "form_error.html",
+                {"message": f"No transactions found{in_range}."},
+                status=400,
+            )
 
         categorizer = TransactionCategorizer(request.user)
         updated_count = 0
@@ -174,8 +204,10 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
 
         total_count = transactions.count()
         logger.info(
-            "User %s reprocessed transactions: %s updated out of %s total",
+            "User %s reprocessed transactions (%s to %s): %s updated out of %s total",
             request.user.username,
+            start_date_str or "beginning",
+            end_date_str or "today",
             updated_count,
             total_count,
         )
@@ -185,17 +217,4 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
         else:
             message = f"Successfully updated {updated_count} of {total_count} transactions."
 
-        alert_html = f"""
-    <div style="position: fixed; top: 60px; right: 50%; transform: translateX(50%);">
-        <wa-callout variant="success" open>
-        <script>
-            var el = me()
-            setTimeout(() => el.remove(), 5000)
-        </script>
-        {message}
-        </wa-callout>
-    </div>
-    """
-        res = HttpResponse(alert_html)
-        res.headers["HX-Swap-OOB"] = "afterbegin:#category-rules-page"
-        return res
+        return render(request, "category_rules/category_rules_page.html#reprocess-result", {"message": message})

@@ -90,8 +90,7 @@
       <h1 style="margin: 0; font-size: 1.75rem; font-weight: 600;">Category Rules</h1>
       <wa-button
         appearance="outlined"
-        hx-post="/category-rules/reprocess"
-        hx-confirm="This will recategorize all your transactions based on your current rules. Continue?"
+        hx-get="/category-rules/reprocess-dialog"
         hx-target="body"
         hx-swap="beforeend"
       >
@@ -351,3 +350,58 @@
   </div>
 {% endif %}
 {% endpartialdef rules-list %}
+
+{% partialdef reprocess-dialog %}
+<wa-dialog id="reprocess-dialog" label="Reprocess transactions">
+  <form
+    id="reprocess-form"
+    hx-post="/category-rules/reprocess"
+    hx-target="body"
+    hx-swap="beforeend"
+    style="display: flex; flex-direction: column; gap: 1rem;"
+  >
+    {% csrf_token %}
+    <p style="margin: 0; color: #666;">
+      This will recategorize your transactions based on your current rules.
+    </p>
+
+    <wa-radio-group id="reprocess-scope" name="scope" value="range">
+      <wa-radio value="range">Last 30 days / custom date range</wa-radio>
+      <wa-radio value="all">All transactions</wa-radio>
+      <script>
+        // Show the date inputs only when "Date range" is selected. Explicit
+        // me("#id") selectors stay reliable after the HTMX swap that inserts this.
+        me("#reprocess-scope").on("change", () => {
+          me("#reprocess-date-fields").styles({
+            display: me("#reprocess-scope").value === "range" ? "flex" : "none",
+          })
+        })
+      </script>
+    </wa-radio-group>
+
+    <div id="reprocess-date-fields" style="display: flex; gap: 1rem;">
+      <wa-input label="From" type="date" name="start_date" value="{{ reprocess_start_date }}"></wa-input>
+      <wa-input label="To" type="date" name="end_date" value="{{ reprocess_end_date }}"></wa-input>
+    </div>
+  </form>
+
+  <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <wa-button appearance="outlined" onclick="this.closest('wa-dialog').open = false">Cancel</wa-button>
+    <wa-button type="submit" form="reprocess-form" appearance="primary">Reprocess</wa-button>
+  </div>
+</wa-dialog>
+{% endpartialdef reprocess-dialog %}
+
+{% partialdef reprocess-result %}
+<hx-partial hx-target="#category-rules-page" hx-swap="afterbegin">
+  <div style="position: fixed; top: 60px; right: 50%; transform: translateX(50%);">
+    <wa-callout variant="success" open>
+      <script>
+        var el = me()
+        setTimeout(() => el.remove(), 5000)
+      </script>
+      {{ message }}
+    </wa-callout>
+  </div>
+</hx-partial>
+{% endpartialdef reprocess-result %}
