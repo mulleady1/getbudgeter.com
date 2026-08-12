@@ -44,9 +44,9 @@ Run a specific test:
 
 ### Useful Options
 
-**Headless mode** (default, faster):
+**Headless mode** (the default — no flag needed, and faster):
 ```bash
-./env/bin/pytest tests/e2e/ --headed=false
+./env/bin/pytest tests/e2e/
 ```
 
 **Headed mode** (see the browser):
@@ -273,7 +273,7 @@ Use the Playwright inspector to check selectors:
 ```
 
 ### Tests fail in CI but pass locally
-Use `--headed=false` (headless mode) locally to match CI environment.
+Drop `--headed` so the local run is headless and matches the CI environment.
 
 ## Resources
 

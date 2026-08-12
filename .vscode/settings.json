@@ -1,4 +1,7 @@
 {
   "djangointellisense.settingsModule": "project.settings",
-  "djangointellisense.projectRoot": "."
+  "djangointellisense.projectRoot": ".",
+  "emmet.includeLanguages": {
+    "django-htm": "html"
+  }
 }
