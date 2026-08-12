@@ -10,13 +10,15 @@ from django.template.loader import render_to_string
 from django_htmx.http import trigger_client_event
 from rest_framework.decorators import action
 
-from ..models import Category, Receipt, ReceiptItem
+from ..models import Receipt, ReceiptItem
 from ..services import (
     AIReceiptProcessor,
     ItemNormalizer,
     TransactionCategorizer,
     ReceiptOCRProcessor,
+    alias_key,
 )
+from ..taxonomy import PRODUCT_CATEGORIES, PRODUCT_CATEGORIES_AZ
 from .base import LoginRequiredViewSet
 
 logger = logging.getLogger(__name__)
@@ -61,6 +63,26 @@ def _create_receipt_items(receipt, user, items_data, merchant):
             )
         )
     return created
+
+
+def _apply_alias_to_items(user, description, match):
+    """Push a corrected alias onto every item across the user's receipts that says the same thing.
+
+    Matching goes through `alias_key`, not raw equality, because case and spacing
+    drift between scans of the same product — the whole reason the alias table is
+    keyed that way. Returns the number of rows updated.
+    """
+    key = alias_key(description)
+    ids = [
+        item_id
+        for item_id, raw in ReceiptItem.objects.filter(receipt__user=user).values_list("id", "description")
+        if alias_key(raw) == key
+    ]
+    if not ids:
+        return 0
+    return ReceiptItem.objects.filter(id__in=ids).update(
+        normalized_name=match.name, product_category=match.category
+    )
 
 
 def _process_receipt_background(receipt_id):
@@ -136,9 +158,9 @@ class ReceiptViewSet(LoginRequiredViewSet):
     def retrieve(self, request, pk):
         receipt = get_object_or_404(Receipt, id=pk, user=request.user)
         items = receipt.items.all()
-        categories = Category.objects.filter(user=request.user).order_by("name")
         return render(request, "receipts/receipt_detail.html", {
-            "receipt": receipt, "items": items, "categories": categories, "item_count": items.count(),
+            "receipt": receipt, "items": items, "product_categories": PRODUCT_CATEGORIES_AZ,
+            "item_count": items.count(),
         })
 
     def destroy(self, request, pk):
@@ -189,10 +211,10 @@ class ReceiptViewSet(LoginRequiredViewSet):
                 )
 
                 if len(image_files) == 1:
-                    categories = Category.objects.filter(user=request.user).order_by("name")
                     receipt_detail_html = render_to_string(
                         "receipts/receipt_detail.html",
-                        context={"receipt": accepted[0], "items": [], "categories": categories,
+                        context={"receipt": accepted[0], "items": [],
+                                 "product_categories": PRODUCT_CATEGORIES_AZ,
                                  "item_count": 0, "open": True},
                         request=request,
                     )
@@ -244,11 +266,11 @@ class ReceiptViewSet(LoginRequiredViewSet):
     def status(self, request, pk):
         receipt = get_object_or_404(Receipt, id=pk, user=request.user)
         items = receipt.items.all()
-        categories = Category.objects.filter(user=request.user).order_by("name")
 
         html = render_to_string(
             "receipts/receipt_detail.html#dialog-content",
-            context={"receipt": receipt, "items": items, "categories": categories, "item_count": items.count()},
+            context={"receipt": receipt, "items": items,
+                     "product_categories": PRODUCT_CATEGORIES_AZ, "item_count": items.count()},
             request=request,
         )
         if receipt.status == Receipt.READY:
@@ -294,11 +316,11 @@ class ReceiptViewSet(LoginRequiredViewSet):
                 request.user.username, pk, processing_method, len(items), receipt.total,
             )
 
-            categories = Category.objects.filter(user=request.user).order_by("name")
             dialog_html = render_to_string(
                 "receipts/receipt_detail.html#dialog-content",
                 context={"process_success": True, "processing_method": processing_method, "receipt": receipt,
-                         "items": items, "categories": categories, "item_count": len(items)},
+                         "items": items, "product_categories": PRODUCT_CATEGORIES_AZ,
+                         "item_count": len(items)},
                 request=request,
             )
             list_item_html = render_to_string(
@@ -344,12 +366,28 @@ class ReceiptViewSet(LoginRequiredViewSet):
         query = request.GET.urlencode()
         return redirect(f"/analytics?view=items&{query}" if query else "/analytics?view=items")
 
-    @action(detail=False, methods=["put"], url_path=r"items/(?P<item_id>\d+)/category")
-    def item_category(self, request, item_id):
+    @action(detail=False, methods=["put"], url_path=r"items/(?P<item_id>\d+)/product-category")
+    def item_product_category(self, request, item_id):
+        """Recategorize a line item — and, with it, every other line that says the same thing.
+
+        The edit is written as an ItemAlias override rather than onto the row, so
+        the correction survives re-normalization and keeps the item grouped with
+        its past and future purchases in analytics.
+        """
         item = get_object_or_404(ReceiptItem, id=item_id, receipt__user=request.user)
-        category_id = request.data.get("category")
-        if category_id:
-            item.category_id = int(category_id)
-            item.save()
-        categories = Category.objects.filter(user=request.user).order_by("name")
-        return render(request, "receipts/receipt_detail.html#item-row", {"item": item, "categories": categories})
+        product_category = (request.data.get("product_category") or "").strip()
+
+        if product_category in PRODUCT_CATEGORIES:
+            match = ItemNormalizer(request.user).set_override(
+                item.description, item.display_name, product_category
+            )
+            _apply_alias_to_items(request.user, item.description, match)
+            item.refresh_from_db()
+        else:
+            logger.warning("Ignoring unknown product category %r for item %s", product_category, item_id)
+
+        return render(
+            request,
+            "receipts/receipt_detail.html#item-row",
+            {"item": item, "product_categories": PRODUCT_CATEGORIES_AZ},
+        )

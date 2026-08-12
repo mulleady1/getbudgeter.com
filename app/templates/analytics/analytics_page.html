@@ -44,8 +44,19 @@
         // Same form, different target. Passing the form as `source` lets htmx collect
         // its data itself — Web Awesome inputs keep their native input in the shadow
         // DOM, so only FormData on the form sees their values.
+        //
+        // The explicit HX-Target matters: htmx stamps that header from the source
+        // element's hx-target (the whole panel) before it applies the target passed
+        // here, so the server would render the panel fragment and the swap would
+        // graft a second copy of the filters above the results on every call.
         window.analyticsSwap = (target, values) =>
-          htmx.ajax("GET", "/analytics", { source: "#analytics-form", target, swap: "outerHTML", values })
+          htmx.ajax("GET", "/analytics", {
+            source: "#analytics-form",
+            target,
+            swap: "outerHTML",
+            values,
+            headers: { "HX-Target": target },
+          })
 
         // Delegated from document: these controls live inside the swapped panel, where
         // me() in a wa-* child is unreliable after a swap. Bound once per page load.
@@ -86,6 +97,34 @@
             if (!pill) return
             analyticsSwap("#analytics-panel", { product_category: pill.dataset.productCategory })
           })
+
+          // Items-table column sort. Clicking the current column flips direction;
+          // a new column starts on the direction people expect for that data:
+          // A→Z for the text columns, biggest-first for qty and money.
+          window.sortItemsBy = key => {
+            const sortInput = me("#items-sort-input")
+            const dirInput = me("#items-dir-input")
+            if (sortInput.value === key) {
+              dirInput.value = dirInput.value === "asc" ? "desc" : "asc"
+            } else {
+              sortInput.value = key
+              dirInput.value = key === "item" || key === "category" ? "asc" : "desc"
+            }
+            analyticsSwap("#items-results")
+          }
+
+          document.addEventListener("click", e => {
+            const th = e.target?.closest?.("th[data-item-sort]")
+            if (th) sortItemsBy(th.dataset.itemSort)
+          })
+
+          document.addEventListener("keydown", e => {
+            if (e.key !== "Enter" && e.key !== " ") return
+            const th = e.target?.closest?.("th[data-item-sort]")
+            if (!th) return
+            e.preventDefault()
+            sortItemsBy(th.dataset.itemSort)
+          })
         }
       </script>
 
@@ -93,6 +132,10 @@
       <!-- Owned by the trend/merchant chart filters, carried here so the selection
            survives a trip through the items view. -->
       <input type="hidden" id="category-input" name="category" value="{{ selected_category }}" />
+      <!-- Items-table sort. Lives outside the panel so clicking a header doesn't
+           depend on the element that the swap is about to replace. -->
+      <input type="hidden" id="items-sort-input" name="sort" value="{{ items_sort }}" />
+      <input type="hidden" id="items-dir-input" name="dir" value="{{ items_dir }}" />
 
       <div class="form-fields">
         <!-- Mode Selection -->

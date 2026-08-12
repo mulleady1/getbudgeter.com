@@ -81,10 +81,21 @@
       <table class="items-table" id="items-table">
         <thead>
           <tr>
-            <th>Item</th>
-            <th>Category</th>
-            <th class="col-qty">Qty</th>
-            <th class="col-total">Total</th>
+            {% for col in item_columns %}
+              <th
+                class="sortable {{ col.css }}{% if col.key == items_sort %} sorted{% endif %}"
+                data-item-sort="{{ col.key }}"
+                aria-sort="{% if col.key == items_sort %}{% if items_dir == 'asc' %}ascending{% else %}descending{% endif %}{% else %}none{% endif %}"
+                role="button"
+                tabindex="0"
+              >
+                {{ col.label }}
+                <wa-icon
+                  class="sort-caret"
+                  name="{% if col.key == items_sort and items_dir == 'asc' %}caret-up{% else %}caret-down{% endif %}"
+                ></wa-icon>
+              </th>
+            {% endfor %}
           </tr>
         </thead>
         <tbody>

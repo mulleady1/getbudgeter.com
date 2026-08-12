@@ -95,6 +95,7 @@ def test_item_search_swaps_results_and_keeps_focus(logged_in_page: Page, live_se
 
     # Only #items-results was replaced, so the input the user typed in still has focus.
     assert logged_in_page.evaluate("document.activeElement?.id") == "item-search"
+    expect(logged_in_page.locator(".items-filters")).to_have_count(1)
     assert not errors, errors
 
 
@@ -126,6 +127,45 @@ def test_switching_back_to_transactions_restores_charts(logged_in_page: Page, li
 
     expect(logged_in_page.locator("#item-search")).to_have_count(0)
     expect(logged_in_page.locator("#trend-chart-container")).to_be_visible()
+    assert not errors, errors
+
+
+def test_item_columns_sort_and_toggle_direction(logged_in_page: Page, live_server, receipt_data):
+    errors = open_analytics(logged_in_page, live_server, "?view=items")
+    logged_in_page.wait_for_selector("#item-search")
+
+    rows = logged_in_page.locator("#items-table tbody tr")
+    # Default is biggest spend first: Avocados 14.48, Pinot Noir 12.99, Whole Milk 4.29.
+    expect(rows.first).to_contain_text("Avocados")
+
+    logged_in_page.locator('th[data-item-sort="item"]').click()
+    expect(logged_in_page.locator('th[data-item-sort="item"]')).to_have_attribute("aria-sort", "ascending")
+    expect(rows.first).to_contain_text("Avocados")
+    expect(rows.last).to_contain_text("Whole Milk")
+
+    # Clicking the active column flips it.
+    logged_in_page.locator('th[data-item-sort="item"]').click()
+    expect(logged_in_page.locator('th[data-item-sort="item"]')).to_have_attribute("aria-sort", "descending")
+    expect(rows.first).to_contain_text("Whole Milk")
+
+    # A new column starts on its own default — smallest total last.
+    logged_in_page.locator('th[data-item-sort="total"]').click()
+    expect(logged_in_page.locator('th[data-item-sort="total"]')).to_have_attribute("aria-sort", "descending")
+    expect(rows.last).to_contain_text("Whole Milk")
+
+    # Each swap replaces the results, never grafts a second copy of the filters
+    # above them — the failure mode when HX-Target and the real target disagree.
+    expect(logged_in_page.locator(".items-filters")).to_have_count(1)
+    expect(logged_in_page.locator("#items-table")).to_have_count(1)
+
+    # The sort lives in the session, so it survives a reload.
+    open_analytics(logged_in_page, live_server, "?view=items")
+    logged_in_page.locator('th[data-item-sort="qty"]').click()
+    expect(logged_in_page.locator('th[data-item-sort="qty"]')).to_have_attribute("aria-sort", "descending")
+    logged_in_page.goto(f"{live_server.url}/analytics")
+    logged_in_page.wait_for_load_state("networkidle")
+    expect(logged_in_page.locator('th[data-item-sort="qty"]')).to_have_attribute("aria-sort", "descending")
+    expect(rows.first).to_contain_text("Avocados")
     assert not errors, errors
 
 

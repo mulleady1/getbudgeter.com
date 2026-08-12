@@ -2,6 +2,14 @@
 }
 
 .receipt-detail-dialog {
+  /* Matches .item-raw-names in analytics_page.css — the two tables show the same
+     data, so the raw line reads the same way on both screens. */
+  .receipt-item-raw {
+    font-size: 0.78rem;
+    color: #999;
+    margin-top: 0.15rem;
+  }
+
   .receipt-detail-layout {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
@@ -167,4 +175,14 @@
 .receipt-detail-dialog wa-dropdown[slot="header-actions"] wa-button {
   display: flex;
   align-items: center;
+}
+
+/* Top-level, not nested under .receipt-detail-dialog: wa-dropdown teleports its
+   menu to <body>, so a descendant selector would never match it. */
+.receipt-category-menu-note {
+  max-width: 20rem;
+  padding: 0.4rem 0.75rem 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: #666;
 }

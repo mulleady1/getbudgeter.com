@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from playwright.sync_api import Page, expect
 from PIL import Image
 
-from app.models import Category, Receipt, ReceiptItem
+from app.models import Receipt, ReceiptItem
 
 DRAWER = "wa-drawer.receipt-detail-dialog"
 
@@ -27,8 +27,13 @@ def receipts_page(page: Page, test_user, live_server):
     )
     receipt.image.save("receipt.png", ContentFile(buf.getvalue()), save=True)
 
-    category, _ = Category.objects.get_or_create(name="Groceries", user=test_user)
-    ReceiptItem.objects.create(receipt=receipt, description="Bananas", amount="3.50", category=category)
+    ReceiptItem.objects.create(
+        receipt=receipt,
+        description="ORG BANANAS 3LB",
+        amount="3.50",
+        normalized_name="Bananas",
+        product_category="Produce",
+    )
 
     session = SessionStore()
     session["_auth_user_id"] = str(test_user.pk)
@@ -141,11 +146,39 @@ class TestReceiptDetailDrawer:
         page = receipts_page
         drawer = open_detail_drawer(page)
 
-        page.locator(f"{DRAWER} tbody wa-badge", has_text="Groceries").click()
+        page.locator(f"{DRAWER} tbody wa-badge", has_text="Produce").click()
         page.wait_for_timeout(500)
 
         assert page.locator(DRAWER).count() == 1, "drawer was removed from the DOM"
         assert drawer.evaluate("el => el.open") is True, "opening a row's category menu dismissed the drawer"
+
+    def test_row_shows_the_normalized_name_over_the_raw_line(self, receipts_page: Page):
+        """Same shape as the analytics items table: canonical name, printed text beneath."""
+        row = receipts_page.locator(f"{DRAWER} tbody tr").first
+        open_detail_drawer(receipts_page)
+
+        expect(row).to_contain_text("Bananas")
+        expect(row.locator(".receipt-item-raw")).to_have_text("ORG BANANAS 3LB")
+
+    def test_recategorizing_an_item_repoints_every_matching_line(self, receipts_page: Page, test_user):
+        """The edit is an alias override, so it has to reach the user's other receipts too."""
+        page = receipts_page
+        other = Receipt.objects.create(
+            user=test_user, status=Receipt.READY, merchant="Safeway", total="4.00", date=date(2026, 7, 1)
+        )
+        # Different case and spacing — alias_key has to collapse it to the same item.
+        twin = ReceiptItem.objects.create(
+            receipt=other, description="Org  Bananas 3lb", amount="4.00",
+            normalized_name="Bananas", product_category="Produce",
+        )
+
+        open_detail_drawer(page)
+        page.locator(f"{DRAWER} tbody wa-badge", has_text="Produce").click()
+        page.get_by_role("menuitem", name="Snacks & Candy").click()
+
+        expect(page.locator(f"{DRAWER} tbody wa-badge").first).to_have_text("Snacks & Candy")
+        twin.refresh_from_db()
+        assert twin.product_category == "Snacks & Candy", "the other receipt's matching line was left behind"
 
     def test_header_action_buttons_are_vertically_aligned(self, receipts_page: Page):
         """The slotted ⋮ trigger must line up with the drawer's built-in close button."""

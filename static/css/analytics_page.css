@@ -301,6 +301,39 @@
     font-weight: 600;
   }
 
+  th.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus-visible {
+      color: #1976d2;
+    }
+
+    /* The caret only earns its space on the active column; on the others it
+       appears on hover so the header row stays quiet. */
+    .sort-caret {
+      font-size: 0.7em;
+      margin-left: 0.3rem;
+      opacity: 0;
+      transition: opacity 0.12s;
+    }
+
+    &:hover .sort-caret,
+    &:focus-visible .sort-caret {
+      opacity: 0.5;
+    }
+
+    &.sorted {
+      color: #1976d2;
+
+      .sort-caret {
+        opacity: 1;
+      }
+    }
+  }
+
   tbody tr {
     border-bottom: 1px solid #eee;
   }

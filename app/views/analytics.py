@@ -7,9 +7,19 @@ from django.shortcuts import render
 from rest_framework.decorators import action
 
 from ..models import Category, Transaction
-from ..services import get_item_spending, parse_date_range
+from ..services import DEFAULT_ITEM_SORT, ITEM_SORT_KEYS, get_item_spending, parse_date_range
 from ..taxonomy import PRODUCT_CATEGORIES, PRODUCT_CATEGORIES_AZ
 from .base import LoginRequiredViewSet
+
+
+# Header cells of the items table. `key` matches ITEM_SORT_KEYS; the text columns
+# have no css class so they keep the plain header styling.
+ITEM_COLUMNS = [
+    {"key": "item", "label": "Item", "css": ""},
+    {"key": "category", "label": "Category", "css": ""},
+    {"key": "qty", "label": "Qty", "css": "col-qty"},
+    {"key": "total", "label": "Total", "css": "col-total"},
+]
 
 
 def _htmx_target_id(request):
@@ -101,6 +111,10 @@ class AnalyticsViewSet(LoginRequiredViewSet):
         product_category = (source.get("product_category") or "").strip()
         if product_category not in PRODUCT_CATEGORIES:
             product_category = ""
+        items_sort = source.get("sort") or DEFAULT_ITEM_SORT
+        if items_sort not in ITEM_SORT_KEYS:
+            items_sort = DEFAULT_ITEM_SORT
+        items_dir = "asc" if source.get("dir") == "asc" else "desc"
 
         if request.GET:
             request.session["analytics_params"] = {
@@ -108,6 +122,7 @@ class AnalyticsViewSet(LoginRequiredViewSet):
                 "start_date": start_date_str, "end_date": end_date_str,
                 "category": selected_category, "view": view,
                 "q": search_query, "product_category": product_category,
+                "sort": items_sort, "dir": items_dir,
             }
 
         start_date, end_date = parse_date_range(mode, month, year, start_date_str, end_date_str)
@@ -117,6 +132,7 @@ class AnalyticsViewSet(LoginRequiredViewSet):
             "custom_start_date": start_date_str, "custom_end_date": end_date_str,
             "selected_category": selected_category, "view": view,
             "search_query": search_query, "product_category": product_category,
+            "items_sort": items_sort, "items_dir": items_dir,
             "start_date": start_date, "end_date": end_date,
         }
 
@@ -157,6 +173,8 @@ class AnalyticsViewSet(LoginRequiredViewSet):
             params["end_date"],
             params["search_query"],
             params["product_category"],
+            params["items_sort"],
+            params["items_dir"] == "desc",
         )
         return {
             "groups": groups,
@@ -164,6 +182,7 @@ class AnalyticsViewSet(LoginRequiredViewSet):
             "total_occurrences": total_occurrences,
             "category_totals": category_totals,
             "product_categories": PRODUCT_CATEGORIES_AZ,
+            "item_columns": ITEM_COLUMNS,
         }
 
     def list(self, request):

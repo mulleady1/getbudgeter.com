@@ -11,6 +11,15 @@ from ..models import ReceiptItem
 # taxonomy bucket, which means "categorized, but nothing fits".
 UNCATEGORIZED_LABEL = "Uncategorized"
 
+# Sortable columns of the items table, keyed by the value the UI sends.
+ITEM_SORT_KEYS = {
+    "item": lambda g: g["description"].lower(),
+    "category": lambda g: (g["product_category"] or "").lower(),
+    "qty": lambda g: g["count"],
+    "total": lambda g: g["total"],
+}
+DEFAULT_ITEM_SORT = "total"
+
 
 def parse_date_range(mode, month_str, year_str, start_date_str="", end_date_str=""):
     today = datetime.now().date()
@@ -40,14 +49,18 @@ def parse_date_range(mode, month_str, year_str, start_date_str="", end_date_str=
         return start_date, selected_month.replace(day=last_day)
 
 
-def get_item_spending(user, start_date, end_date, search_query="", product_category=""):
+def get_item_spending(
+    user, start_date, end_date, search_query="", product_category="", sort=DEFAULT_ITEM_SORT, descending=True
+):
     """
     Groups ReceiptItems by normalized product name for the given date range,
     falling back to the raw description for items the normalizer hasn't reached.
     Returns (groups, grand_total, total_occurrences, category_totals).
 
+    `sort` is one of ITEM_SORT_KEYS; anything else falls back to total spent.
+
     Each group is a dict: description, total, count, merchants (list), last_seen,
-    category, product_category, raw_descriptions (list).
+    product_category, raw_descriptions (list).
     Each entry in category_totals is a dict: name, total, count.
     """
     qs = ReceiptItem.objects.filter(
@@ -55,7 +68,7 @@ def get_item_spending(user, start_date, end_date, search_query="", product_categ
         receipt__date__gte=start_date,
         receipt__date__lte=end_date,
         receipt__status="READY",
-    ).select_related("receipt", "category")
+    ).select_related("receipt")
 
     if search_query:
         # Match either axis: the user may search what the receipt said or what
@@ -79,7 +92,6 @@ def get_item_spending(user, start_date, end_date, search_query="", product_categ
                 "count": 0,
                 "merchants": set(),
                 "last_seen": None,
-                "category": None,
                 "product_category": "",
                 "raw_descriptions": set(),
             }
@@ -91,8 +103,6 @@ def get_item_spending(user, start_date, end_date, search_query="", product_categ
             g["merchants"].add(item.receipt.merchant)
         if g["last_seen"] is None or item.receipt.date > g["last_seen"]:
             g["last_seen"] = item.receipt.date
-        if g["category"] is None and item.category:
-            g["category"] = item.category
         if not g["product_category"] and item.product_category:
             g["product_category"] = item.product_category
 
@@ -100,7 +110,10 @@ def get_item_spending(user, start_date, end_date, search_query="", product_categ
         bucket["total"] += item.amount
         bucket["count"] += 1
 
+    # Two passes: the requested column on top of total-spent, so ties within a
+    # category (or an equal qty) still lead with the biggest spend.
     result = sorted(groups.values(), key=lambda x: x["total"], reverse=True)
+    result.sort(key=ITEM_SORT_KEYS.get(sort, ITEM_SORT_KEYS[DEFAULT_ITEM_SORT]), reverse=descending)
     for g in result:
         g["merchants"] = sorted(g["merchants"])
         # Surface the raw text only when normalization actually merged variants.

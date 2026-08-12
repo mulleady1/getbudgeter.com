@@ -148,28 +148,41 @@
 
 {% partialdef item-row %}
   <tr style="border-bottom: 1px solid #eee;">
-    <td style="padding: 0.5rem;">{{ item.description|truncatechars:40 }}</td>
+    <td style="padding: 0.5rem;">
+      {{ item.display_name|truncatechars:40 }}
+      {# The raw line as printed, so the row still ties back to the image. #}
+      {% if item.normalized_name and item.normalized_name != item.description %}
+        <div class="receipt-item-raw">{{ item.description|truncatechars:48 }}</div>
+      {% endif %}
+    </td>
     <td style="padding: 0.5rem;">
       <wa-dropdown placement="bottom-start" distance="4">
         <span slot="trigger" style="cursor: pointer;">
-          {% if item.category %}
-            <wa-badge
-              style="--wa-color-fill-loud: {{ item.category.color }}; --wa-color-on-loud: {{ item.category.get_text_color }};"
-              >{{ item.category.name }}</wa-badge
-            >
+          {% if item.product_category %}
+            <wa-badge variant="neutral">{{ item.product_category }}</wa-badge>
           {% else %}
-            <wa-badge variant="neutral">Uncategorized</wa-badge>
+            <wa-badge variant="neutral" appearance="outlined">Uncategorized</wa-badge>
           {% endif %}
         </span>
 
-        {% for category in categories %}
+        <div class="receipt-category-menu-note">
+          Applies to every &ldquo;{{ item.description|truncatechars:32 }}&rdquo; on all your receipts.
+        </div>
+
+        {% for name in product_categories %}
           <wa-dropdown-item
-            hx-put="/receipts/items/{{ item.id }}/category"
+            hx-put="/receipts/items/{{ item.id }}/product-category"
             hx-target="closest tr"
             hx-swap="outerHTML"
-            hx-vals='{"category": "{{ category.id }}"}'
+            hx-vals='{"product_category": "{{ name }}"}'
           >
-            {{ category.name }}
+            {# Rendered on every row, hidden when unselected, so the labels stay in one column. #}
+            <wa-icon
+              slot="icon"
+              name="check"
+              {% if name != item.product_category %}style="visibility: hidden;"{% endif %}
+            ></wa-icon>
+            {{ name }}
           </wa-dropdown-item>
         {% endfor %}
       </wa-dropdown>
