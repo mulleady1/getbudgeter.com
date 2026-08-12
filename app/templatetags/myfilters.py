@@ -1,6 +1,16 @@
+import os
+
 from django import template
 
 register = template.Library()
+
+
+@register.filter
+def basename(value):
+    """Strip the directory portion off an uploaded file's stored path."""
+    if not value:
+        return ""
+    return os.path.basename(str(value))
 
 
 @register.filter

@@ -13,6 +13,7 @@ if [ "$1" = "--init" ]; then
     echo "[deploy.sh] starting... done"
 else
     echo "[deploy.sh] restarting..."
-    ssh wwa "cd /var/www/getbudgeter.com.2 && source env/bin/activate && pip install -r requirements.txt && ./restart.sh"
+    # ssh wwa "cd /var/www/getbudgeter.com.2 && source env/bin/activate && pip install -r requirements.txt && ./restart.sh"
+    ssh wwa "cd /var/www/getbudgeter.com.2 && ./restart.sh"
     echo "[deploy.sh] restarting... done"
 fi

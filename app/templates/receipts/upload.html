@@ -9,26 +9,31 @@
     {% csrf_token %}
 
     <div style="margin-bottom: 1.5rem;">
-      <label for="receipt_image" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Receipt Image</label>
+      <label for="receipt_image" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Receipt Images</label>
       <input
         type="file"
         id="receipt_image"
         name="receipt_image"
         accept="image/*"
+        multiple
         required
         style="display: block; width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
       />
       <script>
         me("#receipt_image").on("change", function (e) {
-          const file = e.target.files[0]
+          const oversized = Array.from(e.target.files).filter(f => f.size > 5 * 1024 * 1024)
           const warning = me("#file-size-warning")
           const submitBtn = me('.receipt-upload-dialog [type="submit"]')
-          if (file && file.size > 5 * 1024 * 1024) {
-            if (!warning) {
+          if (oversized.length) {
+            const names = oversized.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(1)}MB)`).join(", ")
+            const text = `Too large, please keep each image under 5MB: ${names}`
+            if (warning) {
+              warning.textContent = text
+            } else {
               const el = document.createElement("p")
               el.id = "file-size-warning"
               el.style.cssText = "font-size: 0.875rem; color: red; margin-top: 0.25rem;"
-              el.textContent = `File is ${(file.size / 1024 / 1024).toFixed(1)}MB — please choose an image under 5MB.`
+              el.textContent = text
               e.target.after(el)
             }
             submitBtn.disabled = true
@@ -39,16 +44,16 @@
         })
       </script>
       <p style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
-        Supported formats: JPG, PNG, GIF, BMP, TIFF (max 5MB)
+        Supported formats: JPG, PNG, GIF, BMP, TIFF (max 5MB each)
       </p>
       <p style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
-        Take a photo or choose from your library. The receipt will be automatically processed to extract merchant, date,
-        and items.
+        Take a photo or choose one or more images from your library. Each receipt will be automatically processed to
+        extract merchant, date, and items.
       </p>
     </div>
   </form>
 
-  <div slot="footer" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+  <div slot="footer" class="drawer-footer">
     <wa-button type="button" appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
     <wa-button form="receipt-upload-form" type="submit" variant="primary">
       <wa-icon slot="start" name="upload"></wa-icon>

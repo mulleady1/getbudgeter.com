@@ -1,21 +1,66 @@
 import logging
 import os
 import threading
-from datetime import datetime
 
 from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django_htmx.http import trigger_client_event
 from rest_framework.decorators import action
 
 from ..models import Category, Receipt, ReceiptItem
-from ..services import AIReceiptProcessor, TransactionCategorizer, get_item_spending, parse_date_range, ReceiptOCRProcessor
+from ..services import (
+    AIReceiptProcessor,
+    ItemNormalizer,
+    TransactionCategorizer,
+    ReceiptOCRProcessor,
+)
 from .base import LoginRequiredViewSet
 
 logger = logging.getLogger(__name__)
+
+ALLOWED_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff")
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
+
+
+def _validate_receipt_image(image_file):
+    """Return a human-readable reason the upload is unusable, or None if it's fine."""
+    if not image_file.name.lower().endswith(ALLOWED_IMAGE_EXTENSIONS):
+        return "not a supported image format (JPG, PNG, GIF, BMP, TIFF)"
+    if image_file.size > MAX_IMAGE_BYTES:
+        return f"{image_file.size / 1024 / 1024:.1f}MB exceeds the 5MB limit"
+    return None
+
+
+def _create_receipt_items(receipt, user, items_data, merchant):
+    """Create ReceiptItems for a processed receipt, normalized where possible.
+
+    Normalization is best-effort: if the API call fails the items are still
+    created, just with empty normalized fields for a later backfill to fill in.
+    """
+    try:
+        normalized = ItemNormalizer(user).normalize([item["description"] for item in items_data])
+    except Exception as e:
+        logger.error("Item normalization unavailable for receipt %s: %s", receipt.id, e, exc_info=True)
+        normalized = {}
+
+    categorizer = TransactionCategorizer(user)
+    created = []
+    for item_data in items_data:
+        match = normalized.get(item_data["description"])
+        created.append(
+            ReceiptItem.objects.create(
+                receipt=receipt,
+                description=item_data["description"],
+                amount=item_data["amount"],
+                category=categorizer.categorize(merchant=merchant, description=item_data["description"]),
+                normalized_name=match.name if match else "",
+                product_category=match.category if match else "",
+            )
+        )
+    return created
 
 
 def _process_receipt_background(receipt_id):
@@ -27,16 +72,15 @@ def _process_receipt_background(receipt_id):
         receipt.merchant = data["merchant"]
         receipt.date = data["date"]
         receipt.total = data["total"]
-        receipt.status = Receipt.READY
         receipt.save()
 
-        categorizer = TransactionCategorizer(receipt.user)
-        for item_data in data["items"]:
-            category = categorizer.categorize(merchant=data["merchant"], description=item_data["description"])
-            ReceiptItem.objects.create(
-                receipt=receipt, description=item_data["description"],
-                amount=item_data["amount"], category=category,
-            )
+        _create_receipt_items(receipt, receipt.user, data["items"], data["merchant"])
+
+        # Flip to READY only once the items exist. Clients poll on this status and
+        # render the item list the moment they see it, so an earlier flip shows an
+        # empty receipt for however long normalization takes.
+        receipt.status = Receipt.READY
+        receipt.save(update_fields=["status"])
 
         logger.info(
             "Background processing complete for receipt %s: %d items, total $%s",
@@ -107,45 +151,94 @@ class ReceiptViewSet(LoginRequiredViewSet):
     @action(detail=False, methods=["get", "post"])
     def upload(self, request):
         if request.method == "POST":
-            if "receipt_image" not in request.FILES:
+            image_files = request.FILES.getlist("receipt_image")
+            if not image_files:
                 return render(request, "form_error.html", {"message": "No image uploaded"}, status=400)
 
-            image_file = request.FILES["receipt_image"]
-            allowed_extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"]
-            if not any(image_file.name.lower().endswith(ext) for ext in allowed_extensions):
-                return render(
-                    request, "form_error.html",
-                    {"message": "Please upload a valid image file (JPG, PNG, GIF, BMP, TIFF)"}, status=400,
-                )
-            if image_file.size > 5 * 1024 * 1024:
-                return render(request, "form_error.html", {"message": "File size must be less than 5MB"}, status=400)
-
             try:
-                receipt = Receipt(user=request.user, status=Receipt.PENDING)
-                receipt.image = image_file
-                receipt.save()
+                accepted, rejected = [], []
+                for image_file in image_files:
+                    reason = _validate_receipt_image(image_file)
+                    if reason:
+                        rejected.append({"name": image_file.name, "reason": reason})
+                        continue
 
-                threading.Thread(target=_process_receipt_background, args=(receipt.id,), daemon=True).start()
-                logger.info("User %s uploaded receipt %s, AI processing started in background", request.user.username, receipt.id)
+                    receipt = Receipt(user=request.user, status=Receipt.PENDING)
+                    receipt.image = image_file
+                    receipt.save()
+                    threading.Thread(target=_process_receipt_background, args=(receipt.id,), daemon=True).start()
+                    accepted.append(receipt)
 
-                categories = Category.objects.filter(user=request.user).order_by("name")
-                receipt_detail_html = render_to_string(
-                    "receipts/receipt_detail.html",
-                    context={"receipt": receipt, "items": [], "categories": categories, "item_count": 0, "open": True},
+                if not accepted:
+                    message = "; ".join(f"{file['name']}: {file['reason']}" for file in rejected)
+                    return render(request, "form_error.html", {"message": message}, status=400)
+
+                logger.info(
+                    "User %s uploaded %d receipt(s) (%d rejected), AI processing started in background",
+                    request.user.username, len(accepted), len(rejected),
+                )
+
+                # Prepend in reverse so the grid ends up in the order the files were selected.
+                grid_html = "".join(
+                    render_to_string(
+                        "receipts/receipts_page.html#receipt-grid-item-partial-prepend",
+                        context={"receipt": receipt},
+                        request=request,
+                    )
+                    for receipt in reversed(accepted)
+                )
+
+                if len(image_files) == 1:
+                    categories = Category.objects.filter(user=request.user).order_by("name")
+                    receipt_detail_html = render_to_string(
+                        "receipts/receipt_detail.html",
+                        context={"receipt": accepted[0], "items": [], "categories": categories,
+                                 "item_count": 0, "open": True},
+                        request=request,
+                    )
+                    return HttpResponse(receipt_detail_html + grid_html)
+
+                batch_html = render_to_string(
+                    "receipts/upload_batch.html",
+                    context={
+                        "receipts": accepted,
+                        "rejected": rejected,
+                        "ids_param": ",".join(str(receipt.id) for receipt in accepted),
+                        "pending": True,
+                    },
                     request=request,
                 )
-                grid_item_html = render_to_string(
-                    "receipts/receipts_page.html#receipt-grid-item-partial-prepend",
-                    context={"receipt": receipt},
-                    request=request,
-                )
-                return HttpResponse(receipt_detail_html + grid_item_html)
+                return HttpResponse(batch_html + grid_html)
 
             except Exception as e:
                 logger.error("Error processing receipt upload: %s", str(e), exc_info=True)
                 return render(request, "form_error.html", {"message": f"Error processing receipt: {str(e)}"}, status=500)
 
         return render(request, "receipts/upload.html")
+
+    @action(detail=False, methods=["get"], url_path="batch-status")
+    def batch_status(self, request):
+        ids = [int(value) for value in request.GET.get("ids", "").split(",") if value.isdigit()]
+        receipts_by_id = Receipt.objects.filter(id__in=ids, user=request.user).in_bulk()
+        receipts = [receipts_by_id[receipt_id] for receipt_id in ids if receipt_id in receipts_by_id]
+
+        html = render_to_string(
+            "receipts/upload_batch.html#batch-list",
+            context={
+                "receipts": receipts,
+                "ids_param": ",".join(str(receipt.id) for receipt in receipts),
+                "pending": any(receipt.status == Receipt.PENDING for receipt in receipts),
+            },
+            request=request,
+        )
+        for receipt in receipts:
+            if receipt.status != Receipt.PENDING:
+                html += render_to_string(
+                    "receipts/receipts_page.html#receipt-grid-item-partial",
+                    context={"receipt": receipt},
+                    request=request,
+                )
+        return HttpResponse(html)
 
     @action(detail=True, methods=["get"])
     def status(self, request, pk):
@@ -194,24 +287,18 @@ class ReceiptViewSet(LoginRequiredViewSet):
             receipt.save()
 
             receipt.items.all().delete()
-            categorizer = TransactionCategorizer(request.user)
-            for item_data in data["items"]:
-                ReceiptItem.objects.create(
-                    receipt=receipt,
-                    description=item_data["description"],
-                    amount=item_data["amount"],
-                    category=categorizer.categorize(merchant=data["merchant"], description=item_data["description"]),
-                )
+            items = _create_receipt_items(receipt, request.user, data["items"], data["merchant"])
 
             logger.info(
                 "User %s processed receipt %s with %s: %d items extracted, total $%s",
-                request.user.username, pk, processing_method, len(data["items"]), receipt.total,
+                request.user.username, pk, processing_method, len(items), receipt.total,
             )
 
+            categories = Category.objects.filter(user=request.user).order_by("name")
             dialog_html = render_to_string(
                 "receipts/receipt_detail.html#dialog-content",
                 context={"process_success": True, "processing_method": processing_method, "receipt": receipt,
-                         "items": data["items"], "item_count": len(data["items"])},
+                         "items": items, "categories": categories, "item_count": len(items)},
                 request=request,
             )
             list_item_html = render_to_string(
@@ -252,32 +339,10 @@ class ReceiptViewSet(LoginRequiredViewSet):
 
     @action(detail=False, methods=["get"], url_path="items-analysis")
     def items_analysis(self, request):
-        today = datetime.now().date()
-        mode = request.GET.get("mode", "month")
-        month_str = request.GET.get("month", today.strftime("%Y-%m"))
-        year_str = request.GET.get("year", str(today.year))
-        search_query = request.GET.get("q", "").strip()
-
-        start_date, end_date = parse_date_range(mode, month_str, year_str)
-        groups, grand_total, total_occurrences = get_item_spending(
-            request.user, start_date, end_date, search_query
-        )
-
-        context = {
-            "mode": mode,
-            "month": month_str,
-            "year": year_str,
-            "search_query": search_query,
-            "start_date": start_date,
-            "end_date": end_date,
-            "groups": groups,
-            "grand_total": grand_total,
-            "total_occurrences": total_occurrences,
-        }
-
-        if request.htmx and not request.htmx.boosted:
-            return render(request, "receipts/items_analysis.html#items-results", context)
-        return render(request, "receipts/items_analysis.html", context)
+        """Receipt item analytics moved onto /analytics as its own view; keep the old
+        URL working for anyone who bookmarked it."""
+        query = request.GET.urlencode()
+        return redirect(f"/analytics?view=items&{query}" if query else "/analytics?view=items")
 
     @action(detail=False, methods=["put"], url_path=r"items/(?P<item_id>\d+)/category")
     def item_category(self, request, item_id):

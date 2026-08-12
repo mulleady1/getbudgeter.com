@@ -1,0 +1,66 @@
+{% load myfilters %}
+
+<wa-drawer label="Uploaded Receipts" class="receipt-batch-dialog" {% if not is_mobile %}style="--size: 50vw;"{% endif %}>
+  {% if rejected %}
+    <wa-callout variant="warning" style="margin-bottom: 1rem;">
+      <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+      <strong>Skipped {{ rejected|length }} file{{ rejected|length|pluralize }}</strong>
+      <ul style="margin: 0.5rem 0 0; padding-left: 1.25rem;">
+        {% for file in rejected %}
+          <li>{{ file.name }} — {{ file.reason }}</li>
+        {% endfor %}
+      </ul>
+    </wa-callout>
+  {% endif %}
+
+  {% partial batch-list %}
+
+  <div slot="footer" class="drawer-footer">
+    <wa-button appearance="plain" onclick="this.closest('wa-drawer').open = false">Close</wa-button>
+  </div>
+</wa-drawer>
+
+{% partialdef batch-list %}
+<div
+  id="receipt-batch-list"
+  {% if pending %}
+    hx-get="/receipts/batch-status?ids={{ ids_param }}" hx-trigger="every 2s" hx-target="this" hx-swap="outerHTML"
+  {% endif %}
+>
+  <div style="font-weight: 600; margin-bottom: 0.75rem;">
+    {{ receipts|length }} receipt{{ receipts|length|pluralize }}
+  </div>
+
+  {% for receipt in receipts %}
+    <div
+      class="receipt-batch-row{% if receipt.status == 'READY' %} is-ready{% endif %}"
+      {% if receipt.status == 'READY' %}
+        hx-get="/receipts/{{ receipt.id }}" hx-target="body" hx-swap="beforeend"
+      {% endif %}
+    >
+      <div class="receipt-batch-thumb">
+        {% if receipt.image %}<img src="{{ receipt.image.url }}" alt="" />{% endif %}
+      </div>
+      <div class="receipt-batch-name">
+        {% if receipt.status == 'READY' %}
+          <div style="font-weight: 500;">{{ receipt.merchant|default:"Unknown Merchant" }}</div>
+          <div style="font-size: 0.8rem; color: #666;">
+            {% if receipt.date %}{{ receipt.date|date:"M j, Y" }} · {% endif %}${{ receipt.total|default:"0.00" }}
+          </div>
+        {% else %}
+          <div style="font-weight: 500;">{{ receipt.image.name|basename }}</div>
+        {% endif %}
+      </div>
+      <div class="receipt-batch-status">
+        {% if receipt.status == 'PENDING' %}
+          <span style="color: #666;">Processing&hellip;</span>
+        {% elif receipt.status == 'FAILED' %}
+          <span style="color: #c62828;">Failed</span>
+        {% else %}
+          <span style="color: #388e3c;">Ready</span>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endpartialdef batch-list %}

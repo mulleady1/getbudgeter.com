@@ -5,6 +5,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from .taxonomy import PRODUCT_CATEGORY_CHOICES, UNCATEGORIZED
+
 
 class UserProfile(models.Model):
     """Extends the User model with additional fields"""
@@ -214,9 +216,17 @@ class Receipt(models.Model):
 
 class ReceiptItem(models.Model):
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name="items")
+    # Exactly as printed on the receipt. Never overwritten — it's the audit trail
+    # back to the image, and the input the normalizer is re-run against.
     description = models.CharField(max_length=500)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
+
+    # Blank until the normalizer has run over this item.
+    normalized_name = models.CharField(max_length=255, blank=True, db_index=True)
+    product_category = models.CharField(
+        max_length=50, blank=True, choices=PRODUCT_CATEGORY_CHOICES, db_index=True
+    )
 
     if TYPE_CHECKING:
         category_id: int | None
@@ -226,3 +236,35 @@ class ReceiptItem(models.Model):
 
     def __str__(self):
         return f"{self.description} - ${self.amount}"
+
+    @property
+    def display_name(self):
+        return self.normalized_name or self.description
+
+
+class ItemAlias(models.Model):
+    """Cached mapping from a raw receipt line to a canonical name and category.
+
+    The AI proposes; this table decides. Once a raw description is mapped it
+    never reaches the API again, so repeat purchases group identically across
+    runs and a user correction sticks permanently.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # Lowercased, whitespace-collapsed lookup key — see services.item_normalizer.alias_key.
+    raw_description = models.CharField(max_length=500, db_index=True)
+    normalized_name = models.CharField(max_length=255)
+    product_category = models.CharField(
+        max_length=50, choices=PRODUCT_CATEGORY_CHOICES, default=UNCATEGORIZED
+    )
+    # Set when a human edited the mapping, so a re-normalization pass leaves it alone.
+    is_user_override = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [["user", "raw_description"]]
+        ordering = ["raw_description"]
+        verbose_name_plural = "Item aliases"
+
+    def __str__(self):
+        return f"{self.raw_description} → {self.normalized_name} ({self.product_category})"

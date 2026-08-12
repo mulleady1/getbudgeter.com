@@ -1,5 +1,4 @@
 import json
-from calendar import monthrange
 from collections import defaultdict
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -7,8 +6,20 @@ from decimal import Decimal
 from django.shortcuts import render
 from rest_framework.decorators import action
 
-from ..models import Category, Receipt, Transaction
+from ..models import Category, Transaction
+from ..services import get_item_spending, parse_date_range
+from ..taxonomy import PRODUCT_CATEGORIES, PRODUCT_CATEGORIES_AZ
 from .base import LoginRequiredViewSet
+
+
+def _htmx_target_id(request):
+    """The id of the element this request will swap, or None for a full page load.
+
+    htmx 4 sends HX-Target as `tag#id` (e.g. `div#analytics-panel`), not the bare id.
+    """
+    if not request.htmx or request.htmx.boosted:
+        return None
+    return (request.htmx.target or "").rpartition("#")[2] or None
 
 
 class AnalyticsViewSet(LoginRequiredViewSet):
@@ -30,23 +41,18 @@ class AnalyticsViewSet(LoginRequiredViewSet):
             return {"labels": [m[0] for m in top_merchants], "data": [float(m[1]) for m in top_merchants]}
         return None
 
-    def _get_trend_chart_data(self, data_items, mode, selected_category=None, data_source="transactions"):
+    def _get_trend_chart_data(self, transactions, mode, selected_category=None):
+        filtered_items = transactions
         if selected_category and selected_category != "all":
             try:
-                if hasattr(data_items, "filter"):
-                    filtered_items = data_items.filter(category_id=int(selected_category))
-                else:
-                    filtered_items = [item for item in data_items if item.category_id == int(selected_category)]
+                filtered_items = transactions.filter(category_id=int(selected_category))
             except (ValueError, TypeError):
-                filtered_items = data_items
-        else:
-            filtered_items = data_items
+                pass
 
         if mode == "month":
             weekly_spending = defaultdict(Decimal)
             for item in filtered_items:
-                item_date = item.receipt.date if data_source == "receipts" else item.date
-                week_start = item_date - timedelta(days=item_date.weekday())
+                week_start = item.date - timedelta(days=item.date.weekday())
                 weekly_spending[week_start] += abs(item.amount)
 
             if weekly_spending:
@@ -59,8 +65,7 @@ class AnalyticsViewSet(LoginRequiredViewSet):
         else:
             monthly_spending = defaultdict(Decimal)
             for item in filtered_items:
-                item_date = item.receipt.date if data_source == "receipts" else item.date
-                monthly_spending[item_date.replace(day=1)] += abs(item.amount)
+                monthly_spending[item.date.replace(day=1)] += abs(item.amount)
 
             if monthly_spending:
                 months = sorted(monthly_spending.keys())
@@ -71,123 +76,124 @@ class AnalyticsViewSet(LoginRequiredViewSet):
                 }
         return None
 
-    def _parse_date_range(self, request):
-        today = datetime.now().date()
+    def _parse_params(self, request):
+        """
+        Read the shared controls (date range + which view) plus the per-view filters.
 
-        if not request.GET:
-            p = request.session.get("analytics_params", {})
-            mode = p.get("mode", "month")
-            month = p.get("month", today.strftime("%Y-%m"))
-            year = p.get("year", str(today.year))
-            start_date_str = p.get("start_date", "")
-            end_date_str = p.get("end_date", "")
-            selected_category = p.get("category", "all")
-            data_source = p.get("data_source", "transactions")
-        else:
-            mode = request.GET.get("mode", "month")
-            month = request.GET.get("month", today.strftime("%Y-%m"))
-            year = request.GET.get("year", str(today.year))
-            start_date_str = request.GET.get("start_date", "")
-            end_date_str = request.GET.get("end_date", "")
-            selected_category = request.GET.get("category", "all")
-            data_source = request.GET.get("data_source", "transactions")
+        The date range is deliberately shared across both views: flipping from
+        Transactions to Receipt Items should keep the period you were looking at.
+        Params round-trip through the session so a bare /analytics resumes where
+        you left off.
+        """
+        today = datetime.now().date()
+        source = request.session.get("analytics_params", {}) if not request.GET else request.GET
+
+        mode = source.get("mode") or "month"
+        month = source.get("month") or today.strftime("%Y-%m")
+        year = source.get("year") or str(today.year)
+        start_date_str = source.get("start_date") or ""
+        end_date_str = source.get("end_date") or ""
+        selected_category = source.get("category") or "all"
+        view = source.get("view") or "transactions"
+        if view not in ("transactions", "items"):
+            view = "transactions"
+        search_query = (source.get("q") or "").strip()
+        product_category = (source.get("product_category") or "").strip()
+        if product_category not in PRODUCT_CATEGORIES:
+            product_category = ""
+
+        if request.GET:
             request.session["analytics_params"] = {
                 "mode": mode, "month": month, "year": year,
                 "start_date": start_date_str, "end_date": end_date_str,
-                "category": selected_category, "data_source": data_source,
+                "category": selected_category, "view": view,
+                "q": search_query, "product_category": product_category,
             }
 
-        if mode == "custom":
-            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else today.replace(day=1)
-            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() if end_date_str else today
-        elif mode == "year":
-            try:
-                selected_year = int(year) if year else today.year
-            except ValueError:
-                selected_year = today.year
-            start_date = datetime(selected_year, 1, 1).date()
-            end_date = datetime(selected_year, 12, 31).date()
-        else:
-            try:
-                selected_month = datetime.strptime(month, "%Y-%m").date() if month else today.replace(day=1)
-            except ValueError:
-                selected_month = today.replace(day=1)
-            start_date = selected_month.replace(day=1)
-            last_day = monthrange(selected_month.year, selected_month.month)[1]
-            end_date = selected_month.replace(day=last_day)
+        start_date, end_date = parse_date_range(mode, month, year, start_date_str, end_date_str)
 
-        return mode, month, year, start_date, end_date, start_date_str, end_date_str, selected_category, data_source
+        return {
+            "mode": mode, "month": month, "year": year,
+            "custom_start_date": start_date_str, "custom_end_date": end_date_str,
+            "selected_category": selected_category, "view": view,
+            "search_query": search_query, "product_category": product_category,
+            "start_date": start_date, "end_date": end_date,
+        }
 
-    def list(self, request):
-        mode, month, year, start_date, end_date, start_date_str, end_date_str, selected_category, data_source = (
-            self._parse_date_range(request)
-        )
+    def _transactions_context(self, request, params):
+        transactions = Transaction.objects.filter(
+            user=request.user,
+            date__gte=params["start_date"],
+            date__lte=params["end_date"],
+            amount__gte=0,
+            anomaly=False,
+        ).select_related("category")
 
-        if data_source == "receipts":
-            receipts = Receipt.objects.filter(
-                user=request.user, date__gte=start_date, date__lte=end_date
-            ).prefetch_related("items__category")
-
-            items = []
-            total_count = 0
-            total_amount = Decimal("0")
-            for receipt in receipts:
-                items.extend(receipt.items.all())
-                total_count += 1
-                total_amount += receipt.total
-
-            category_spending = defaultdict(Decimal)
-            for item in items:
-                key = item.category.name if item.category else "Uncategorized"
-                category_spending[key] += abs(item.amount)
-
-            data_items = items
-            count_label = "receipts"
-            total_transactions = total_count
-            total_spent = total_amount
-        else:
-            transactions = Transaction.objects.filter(
-                user=request.user, date__gte=start_date, date__lte=end_date, amount__gte=0, anomaly=False
-            ).select_related("category")
-
-            category_spending = defaultdict(Decimal)
-            for trans in transactions:
-                key = trans.category.name if trans.category else "Uncategorized"
-                category_spending[key] += abs(trans.amount)
-
-            data_items = transactions
-            count_label = "transactions"
-            total_transactions = transactions.count()
-            total_spent = sum(abs(t.amount) for t in transactions)
+        category_spending = defaultdict(Decimal)
+        for trans in transactions:
+            key = trans.category.name if trans.category else "Uncategorized"
+            category_spending[key] += abs(trans.amount)
 
         category_chart_data = (
             {"labels": list(category_spending.keys()), "data": [float(v) for v in category_spending.values()]}
             if category_spending else None
         )
-        categories = Category.objects.filter(user=request.user).order_by("name")
-        trend_chart_data = self._get_trend_chart_data(data_items, mode, selected_category, data_source)
-        merchant_chart_data = self._get_merchant_chart_data(data_items, selected_category) if data_source == "transactions" else None
+        trend_chart_data = self._get_trend_chart_data(transactions, params["mode"], params["selected_category"])
+        merchant_chart_data = self._get_merchant_chart_data(transactions, params["selected_category"])
 
-        context = {
+        return {
             "category_chart_data": json.dumps(category_chart_data) if category_chart_data else None,
             "trend_chart_data": json.dumps(trend_chart_data) if trend_chart_data else None,
             "merchant_chart_data": json.dumps(merchant_chart_data) if merchant_chart_data else None,
-            "start_date": start_date, "end_date": end_date,
-            "total_transactions": total_transactions, "total_spent": total_spent,
-            "mode": mode, "month": month, "year": year,
-            "custom_start_date": start_date_str, "custom_end_date": end_date_str,
-            "categories": categories, "selected_category": selected_category,
-            "data_source": data_source, "count_label": count_label,
+            "categories": Category.objects.filter(user=request.user).order_by("name"),
+            "total_transactions": transactions.count(),
+            "total_spent": sum(abs(t.amount) for t in transactions),
         }
+
+    def _items_context(self, request, params):
+        groups, grand_total, total_occurrences, category_totals = get_item_spending(
+            request.user,
+            params["start_date"],
+            params["end_date"],
+            params["search_query"],
+            params["product_category"],
+        )
+        return {
+            "groups": groups,
+            "grand_total": grand_total,
+            "total_occurrences": total_occurrences,
+            "category_totals": category_totals,
+            "product_categories": PRODUCT_CATEGORIES_AZ,
+        }
+
+    def list(self, request):
+        params = self._parse_params(request)
+        context = dict(params)
+
+        if params["view"] == "items":
+            context.update(self._items_context(request, params))
+        else:
+            context.update(self._transactions_context(request, params))
+
+        # The search box lives inside the items panel, so typing swaps only the
+        # results table — replacing the whole panel would steal focus mid-keystroke.
+        target = _htmx_target_id(request)
+        if target == "items-results":
+            return render(request, "analytics/items_partial.html#items-results", context)
+        if target == "analytics-panel":
+            return render(request, "analytics/analytics_page.html#analytics-panel", context)
         return render(request, "analytics/analytics_page.html", context)
 
     @action(detail=False, methods=["get"], url_path="merchant-chart")
     def merchant_chart(self, request):
-        mode, month, year, start_date, end_date, start_date_str, end_date_str, selected_category, _ = (
-            self._parse_date_range(request)
-        )
+        params = self._parse_params(request)
+        selected_category = params["selected_category"]
         transactions = Transaction.objects.filter(
-            user=request.user, date__gte=start_date, date__lte=end_date, amount__gte=0, anomaly=False
+            user=request.user,
+            date__gte=params["start_date"],
+            date__lte=params["end_date"],
+            amount__gte=0,
+            anomaly=False,
         ).select_related("category")
         categories = Category.objects.filter(user=request.user).order_by("name")
         merchant_chart_data = self._get_merchant_chart_data(transactions, selected_category)
@@ -200,14 +206,17 @@ class AnalyticsViewSet(LoginRequiredViewSet):
 
     @action(detail=False, methods=["get"], url_path="trend-chart")
     def trend_chart(self, request):
-        mode, month, year, start_date, end_date, start_date_str, end_date_str, selected_category, _ = (
-            self._parse_date_range(request)
-        )
+        params = self._parse_params(request)
+        selected_category = params["selected_category"]
         transactions = Transaction.objects.filter(
-            user=request.user, date__gte=start_date, date__lte=end_date, amount__gte=0, anomaly=False
+            user=request.user,
+            date__gte=params["start_date"],
+            date__lte=params["end_date"],
+            amount__gte=0,
+            anomaly=False,
         ).select_related("category")
         categories = Category.objects.filter(user=request.user).order_by("name")
-        trend_chart_data = self._get_trend_chart_data(transactions, mode, selected_category)
+        trend_chart_data = self._get_trend_chart_data(transactions, params["mode"], selected_category)
         context = {
             "trend_chart_data": json.dumps(trend_chart_data) if trend_chart_data else None,
             "categories": categories,

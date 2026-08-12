@@ -4,14 +4,14 @@
   padding: 1rem 1rem 100px;
 }
 
-#date-range-form {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
+/* The form wraps the shared controls, the view switcher and the results panel, so
+   the card styling lives on the controls row rather than the form itself. */
+#analytics-form {
   .form-fields {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: flex;
     gap: 1rem;
     align-items: center;
@@ -186,5 +186,154 @@
     border-radius: 0;
     margin-bottom: 0;
     box-shadow: none;
+  }
+}
+
+.view-switcher {
+  background: white;
+  padding: 0 1.5rem 1.25rem;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem 1rem;
+
+    wa-button-group {
+      display: flex;
+      width: 100%;
+    }
+
+    wa-button-group wa-button {
+      flex: 1 1 0;
+    }
+  }
+}
+
+/* Receipt items view */
+.items-filters {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+
+  #product-category-select {
+    width: 190px;
+  }
+
+  #item-search {
+    flex: 1 1 200px;
+    max-width: 320px;
+  }
+
+  @media (max-width: 768px) {
+    #product-category-select,
+    #item-search {
+      width: 100%;
+      max-width: none;
+      flex: 1 1 100%;
+    }
+  }
+}
+
+.items-section-label {
+  color: #666;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.items-category-pills {
+  margin-bottom: 1.25rem;
+
+  .items-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pill-total {
+    font-weight: 600;
+    color: #388e3c;
+    margin-left: 0.4rem;
+  }
+
+  .pill-count {
+    color: #999;
+    margin-left: 0.3rem;
+  }
+}
+
+.items-active-filter {
+  margin-bottom: 1.25rem;
+}
+
+.items-table-wrap {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+
+  @media (max-width: 768px) {
+    padding: 1rem 0.75rem;
+  }
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+
+  thead tr {
+    border-bottom: 2px solid #ddd;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 0.6rem 0.75rem;
+  }
+
+  th {
+    font-weight: 600;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #eee;
+  }
+
+  .col-item {
+    font-weight: 500;
+  }
+
+  .col-category {
+    color: #666;
+    font-size: 0.85rem;
+  }
+
+  .col-qty {
+    text-align: center;
+    color: #666;
+  }
+
+  .col-total {
+    text-align: right;
+    font-weight: 600;
+    color: #388e3c;
+  }
+
+  th.col-qty,
+  th.col-total {
+    color: inherit;
+  }
+
+  .item-raw-names {
+    font-size: 0.78rem;
+    color: #999;
+    font-weight: 400;
+    margin-top: 0.15rem;
   }
 }

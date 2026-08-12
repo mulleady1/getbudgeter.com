@@ -1,0 +1,138 @@
+{% load myfilters %}
+{% load humanize %}
+
+<div class="stats-summary">
+  <div class="stat-item">
+    <p class="stat-label">Total Transactions</p>
+    <p class="stat-value">{{ total_transactions|intcomma }}</p>
+  </div>
+  <div class="stat-item">
+    <p class="stat-label">Total Spent</p>
+    <p class="stat-value negative">{{ total_spent|currency }}</p>
+  </div>
+  <div class="stat-item">
+    <p class="stat-label">Date Range</p>
+    <p class="stat-value">{{ start_date|date:"n/j/Y" }} - {{ end_date|date:"n/j/Y" }}</p>
+  </div>
+</div>
+
+{% if category_chart_data %}
+  <div class="chart-container category-chart-section" style="padding-bottom: 3rem;">
+    <div class="chart-filter">
+      <!-- Client-side sort only; deliberately unnamed so it stays out of the form. -->
+      <wa-select id="category-sort" size="small" value="amount">
+        <wa-option value="name">Sort by Name</wa-option>
+        <wa-option value="amount">Sort by Amount</wa-option>
+      </wa-select>
+    </div>
+    <canvas id="category-chart"></canvas>
+    <script>
+      function createCategoryChart() {
+        const originalData = {{ category_chart_data|safe }}
+        const categoryCtx = me("#category-chart").getContext("2d")
+        const colors = [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+          "#FF6384",
+          "#C9CBCF",
+          "#4BC0C0",
+          "#FF6384"
+        ]
+
+        let categoryChart = null
+
+        function sortData(sortBy) {
+          // Combine labels and data into pairs
+          const pairs = originalData.labels.map((label, i) => ({
+            label,
+            value: originalData.data[i]
+          }))
+
+          // Sort based on selection
+          if (sortBy === "name") {
+            pairs.sort((a, b) => a.label.localeCompare(b.label))
+          } else {
+            pairs.sort((a, b) => b.value - a.value)
+          }
+
+          // Split back into separate arrays
+          return {
+            labels: pairs.map(p => p.label),
+            data: pairs.map(p => p.value)
+          }
+        }
+
+        function createChart(sortBy) {
+          // Destroy existing chart
+          if (categoryChart) {
+            categoryChart.destroy()
+          }
+
+          const sortedData = sortData(sortBy)
+
+          categoryChart = new Chart(categoryCtx, {
+            type: "pie",
+            data: {
+              labels: sortedData.labels,
+              datasets: [
+                {
+                  data: sortedData.data,
+                  backgroundColor: colors
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                title: {
+                  display: true,
+                  text: "Spending by Category",
+                  font: { size: 16 }
+                },
+                legend: {
+                  position: "bottom"
+                },
+                tooltip: {
+                  callbacks: {
+                    label: context => {
+                      const label = context.label || ""
+                      const value = context.parsed || 0
+                      return (
+                        label +
+                        ": $" +
+                        value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      )
+                    }
+                  }
+                }
+              }
+            }
+          })
+        }
+
+        // Initial chart with amount sort
+        createChart("amount")
+
+        // Listen for sort changes
+        me("#category-sort").on("change", e => {
+          createChart(e.target.value)
+        })
+      }
+
+      waitFor(() => typeof window.Chart !== "undefined").then(() => createCategoryChart())
+    </script>
+  </div>
+{% endif %}
+
+<div id="trend-chart-container">{% include "analytics/trend_chart_partial.html" %}</div>
+
+<div id="merchant-chart-container">{% include "analytics/merchant_chart_partial.html" %}</div>
+
+{% if not category_chart_data and not trend_chart_data and not merchant_chart_data %}
+  <p class="empty-state">No transaction data available. Upload some transactions to see analytics.</p>
+{% endif %}

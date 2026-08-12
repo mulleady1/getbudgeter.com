@@ -67,7 +67,14 @@ htmx.on("htmx:after:process", evt => {
     }, 100)
   }
   if (!dialog.hasAttribute("data-no-autoremove")) {
-    dialog.addEventListener("wa-after-hide", () => dialog.remove(), { once: true })
+    // `wa-after-hide` bubbles, so only act on this dialog's own hide. Without the target
+    // check, any nested component that closes an overlay (a wa-dropdown menu in the header
+    // or a table row, a nested dialog, a tooltip) would tear down the whole dialog.
+    dialog.addEventListener("wa-after-hide", function onAfterHide(evt) {
+      if (evt.target !== dialog) return
+      dialog.removeEventListener("wa-after-hide", onAfterHide)
+      dialog.remove()
+    })
   }
 })
 
@@ -91,7 +98,8 @@ function customConfirm(options) {
     `
 
     const dialog = div.firstElementChild
-    dialog.addEventListener("wa-after-hide", () => {
+    dialog.addEventListener("wa-after-hide", evt => {
+      if (evt.target !== dialog) return // ignore hide events bubbling up from nested components
       resolve(yes)
       div.remove()
     })

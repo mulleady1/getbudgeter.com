@@ -13,7 +13,7 @@
     <input type="hidden" name="target_month" value="{{ target_month|date:'Y-m' }}" />
   </form>
 
-  <div slot="footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+  <div slot="footer" class="drawer-footer">
     <wa-button appearance="outlined" onclick="this.closest('wa-dialog').open = false">Cancel</wa-button>
     <wa-button type="submit" form="copy-bills-form">Copy</wa-button>
   </div>

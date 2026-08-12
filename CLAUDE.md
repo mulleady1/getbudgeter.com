@@ -143,7 +143,8 @@ Use `customConfirm()` (defined in `static/js/app.js`) instead of the native `hx-
 
 ### Forms inside drawers
 - Put the form *inside* `<wa-drawer>` with a stable `id`
-- Put Cancel/Save in `slot="footer"` with a 2-column grid layout
+- Put Cancel/Save in `slot="footer"` with `class="drawer-footer"` (defined in `app.css`) — buttons
+  split the full footer width evenly, however many there are
 - Cancel: `onclick="this.closest('wa-drawer').open = false"`
 - Save: `type="submit" form="<form-id>"`
 - `app.js` already handles auto-closing the drawer on successful HTMX response
@@ -155,10 +156,9 @@ Use `customConfirm()` (defined in `static/js/app.js`) instead of the native `hx-
     {% csrf_token %}
     ...
   </form>
-  <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false"
-               style="margin-top: 1rem; width: 100%;">Cancel</wa-button>
-    <wa-button type="submit" form="thing-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>
+  <div slot="footer" class="drawer-footer">
+    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
+    <wa-button type="submit" form="thing-form">Save</wa-button>
   </div>
 </wa-drawer>
 ```

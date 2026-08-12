@@ -3,12 +3,28 @@ from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 
+from django.db.models import Q
+
 from ..models import ReceiptItem
 
+# Shown for items the normalizer hasn't reached yet — distinct from the "Other"
+# taxonomy bucket, which means "categorized, but nothing fits".
+UNCATEGORIZED_LABEL = "Uncategorized"
 
-def parse_date_range(mode, month_str, year_str):
+
+def parse_date_range(mode, month_str, year_str, start_date_str="", end_date_str=""):
     today = datetime.now().date()
-    if mode == "year":
+    if mode == "custom":
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else today.replace(day=1)
+        except ValueError:
+            start_date = today.replace(day=1)
+        try:
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date() if end_date_str else today
+        except ValueError:
+            end_date = today
+        return start_date, end_date
+    elif mode == "year":
         try:
             year = int(year_str) if year_str else today.year
         except ValueError:
@@ -24,11 +40,15 @@ def parse_date_range(mode, month_str, year_str):
         return start_date, selected_month.replace(day=last_day)
 
 
-def get_item_spending(user, start_date, end_date, search_query=""):
+def get_item_spending(user, start_date, end_date, search_query="", product_category=""):
     """
-    Groups ReceiptItems by description (case-insensitive) for the given date range.
-    Returns (groups, grand_total, total_occurrences).
-    Each group is a dict: description, total, count, merchants (list), last_seen, category.
+    Groups ReceiptItems by normalized product name for the given date range,
+    falling back to the raw description for items the normalizer hasn't reached.
+    Returns (groups, grand_total, total_occurrences, category_totals).
+
+    Each group is a dict: description, total, count, merchants (list), last_seen,
+    category, product_category, raw_descriptions (list).
+    Each entry in category_totals is a dict: name, total, count.
     """
     qs = ReceiptItem.objects.filter(
         receipt__user=user,
@@ -38,34 +58,62 @@ def get_item_spending(user, start_date, end_date, search_query=""):
     ).select_related("receipt", "category")
 
     if search_query:
-        qs = qs.filter(description__icontains=search_query)
+        # Match either axis: the user may search what the receipt said or what
+        # we renamed it to, and they have no way of knowing which is which.
+        qs = qs.filter(
+            Q(description__icontains=search_query) | Q(normalized_name__icontains=search_query)
+        )
+    if product_category:
+        qs = qs.filter(product_category=product_category)
 
     groups = {}
+    category_totals = defaultdict(lambda: {"total": Decimal("0"), "count": 0})
+
     for item in qs.order_by("receipt__date"):
-        key = item.description.lower()
+        display = item.normalized_name or item.description
+        key = display.lower()
         if key not in groups:
             groups[key] = {
-                "description": item.description,
+                "description": display,
                 "total": Decimal("0"),
                 "count": 0,
                 "merchants": set(),
                 "last_seen": None,
                 "category": None,
+                "product_category": "",
+                "raw_descriptions": set(),
             }
         g = groups[key]
         g["total"] += item.amount
         g["count"] += 1
+        g["raw_descriptions"].add(item.description)
         if item.receipt.merchant:
             g["merchants"].add(item.receipt.merchant)
         if g["last_seen"] is None or item.receipt.date > g["last_seen"]:
             g["last_seen"] = item.receipt.date
         if g["category"] is None and item.category:
             g["category"] = item.category
+        if not g["product_category"] and item.product_category:
+            g["product_category"] = item.product_category
+
+        bucket = category_totals[item.product_category or UNCATEGORIZED_LABEL]
+        bucket["total"] += item.amount
+        bucket["count"] += 1
 
     result = sorted(groups.values(), key=lambda x: x["total"], reverse=True)
     for g in result:
         g["merchants"] = sorted(g["merchants"])
+        # Surface the raw text only when normalization actually merged variants.
+        g["raw_descriptions"] = sorted(
+            raw for raw in g["raw_descriptions"] if raw.lower() != g["description"].lower()
+        )
+
+    rolled_up = sorted(
+        ({"name": name, **totals} for name, totals in category_totals.items()),
+        key=lambda x: x["total"],
+        reverse=True,
+    )
 
     grand_total = sum(g["total"] for g in result)
     total_occurrences = sum(g["count"] for g in result)
-    return result, grand_total, total_occurrences
+    return result, grand_total, total_occurrences, rolled_up

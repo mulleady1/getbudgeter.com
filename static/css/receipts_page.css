@@ -2,27 +2,169 @@
 }
 
 .receipt-detail-dialog {
-  .receipt-footer {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 0.5rem;
-    justify-content: space-between;
-    padding-top: 1rem;
-    width: 100%;
+  .receipt-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1.5rem;
   }
-  .receipt-footer-group {
-    display: flex;
-    gap: 0.5rem;
+  /* Desktop: no accordion — the header is hidden and the body is always visible. */
+  .receipt-accordion-summary {
+    display: none;
   }
+
   @media (max-width: 768px) {
-    .receipt-footer {
-      flex-direction: column;
+    .receipt-detail-layout {
+      grid-template-columns: 1fr;
     }
-    .receipt-footer-group {
-      flex-direction: column;
+
+    .receipt-accordion {
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
-    .receipt-footer wa-button {
+    .receipt-accordion-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
       width: 100%;
+      padding: 0.75rem;
+      font: inherit;
+      font-weight: 600;
+      text-align: left;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer;
+    }
+    .receipt-accordion-summary wa-icon {
+      flex: 0 0 auto;
+      color: #666;
+      transition: transform 0.15s ease;
+    }
+    .receipt-accordion.is-open .receipt-accordion-summary wa-icon {
+      transform: rotate(180deg);
+    }
+    .receipt-accordion .receipt-accordion-body {
+      display: none;
+      padding: 0 0.75rem 0.75rem;
+    }
+    .receipt-accordion.is-open .receipt-accordion-body {
+      display: block;
     }
   }
+}
+
+.receipt-batch-dialog {
+  .receipt-batch-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.25rem;
+    border-bottom: 1px solid #eee;
+  }
+  .receipt-batch-row.is-ready {
+    cursor: pointer;
+  }
+  .receipt-batch-row.is-ready:hover {
+    background: #f5f5f5;
+  }
+  .receipt-batch-thumb {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  .receipt-batch-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .receipt-batch-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .receipt-batch-status {
+    flex: 0 0 auto;
+    font-size: 0.9rem;
+  }
+}
+
+/* Receipt list cards: whole card is the click target; text sits in a 2x2 grid. */
+.receipt-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.receipt-card:hover,
+.receipt-card:focus-visible {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.receipt-card:focus-visible {
+  outline: var(--wa-focus-ring);
+  outline-offset: 2px;
+}
+
+.receipt-card-image {
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.receipt-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 25vh;
+  object-fit: cover;
+}
+
+.receipt-card-body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem 1rem;
+  align-items: baseline;
+  padding: 1rem;
+}
+
+.receipt-card-merchant {
+  font-weight: 600;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.receipt-card-total {
+  font-weight: 500;
+  font-size: 1.2rem;
+  color: #388e3c;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.receipt-card-date,
+.receipt-card-items {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.receipt-card-items {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Align a slotted header-actions trigger with the drawer's own close button.
+   Web Awesome centers its shadow close button via `.header-actions wa-button`, which cannot
+   reach our light-DOM trigger (it sits inside a display:contents wa-dropdown), so its base
+   renders top-aligned ~2px high. Mirror the same rule here. */
+.receipt-detail-dialog wa-dropdown[slot="header-actions"] wa-button {
+  display: flex;
+  align-items: center;
 }

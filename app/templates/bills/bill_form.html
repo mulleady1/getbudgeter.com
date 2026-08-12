@@ -44,14 +44,13 @@
     <wa-checkbox name="autopay" {% if bill.autopay %}checked{% endif %}>Autopay</wa-checkbox>
   </form>
 
-  <div slot="footer" style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+  <div slot="footer" class="drawer-footer">
     <wa-button
       appearance="outlined"
       onclick="this.closest('wa-drawer').open = false"
-      style="margin-top: 1rem; width: 100%;"
     >
       Cancel
     </wa-button>
-    <wa-button type="submit" form="bill-form" style="margin-top: 1rem; width: 100%;">Save</wa-button>
+    <wa-button type="submit" form="bill-form">Save</wa-button>
   </div>
 </wa-drawer>

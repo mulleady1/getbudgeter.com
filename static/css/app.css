@@ -202,3 +202,20 @@ select {
     background-position: -200% 0;
   }
 }
+
+/* Shared drawer/dialog footer: buttons split the full width evenly. */
+.drawer-footer {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.drawer-footer > * {
+  flex: 1 1 0;
+  width: 100%;
+}
+
+.drawer-footer > wa-button::part(base) {
+  width: 100%;
+}

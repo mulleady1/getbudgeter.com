@@ -21,7 +21,18 @@
   {% endif %}
 
   <div class="analytics-container">
-    <form id="date-range-form" method="get">
+    <!--
+      One form spans the shared controls and the panel: any control can submit the
+      whole thing, so the period survives switching views and switching views keeps
+      the period. The panel swaps in place; the date range and switcher never do.
+    -->
+    <form
+      id="analytics-form"
+      hx-get="/analytics"
+      hx-target="#analytics-panel"
+      hx-swap="outerHTML"
+      hx-push-url="true"
+    >
       <script>
         // Set up debounced submit on the form itself
         var form = me()
@@ -29,28 +40,61 @@
           clearTimeout(form._submitTimeout)
           form._submitTimeout = setTimeout(() => form.requestSubmit(), 500)
         }
+
+        // Same form, different target. Passing the form as `source` lets htmx collect
+        // its data itself — Web Awesome inputs keep their native input in the shadow
+        // DOM, so only FormData on the form sees their values.
+        window.analyticsSwap = (target, values) =>
+          htmx.ajax("GET", "/analytics", { source: "#analytics-form", target, swap: "outerHTML", values })
+
+        // Delegated from document: these controls live inside the swapped panel, where
+        // me() in a wa-* child is unreliable after a swap. Bound once per page load.
+        if (!window._analyticsFiltersBound) {
+          window._analyticsFiltersBound = true
+
+          document.addEventListener("click", e => {
+            const btn = e.target?.closest?.("wa-button[data-view]")
+            if (!btn || btn.dataset.view === me("#view-input").value) return
+            me("#view-input").value = btn.dataset.view
+
+            // Paint the active state here rather than waiting for the response: the
+            // switcher sits outside the panel, so a swap never re-renders it.
+            for (const b of document.querySelectorAll("wa-button[data-view]")) {
+              const active = b.dataset.view === btn.dataset.view
+              b.setAttribute("appearance", active ? "accent" : "outlined")
+              b.setAttribute("aria-pressed", active ? "true" : "false")
+            }
+
+            me("#analytics-form").requestSubmit()
+          })
+
+          // Typing swaps the results table only, so the input keeps focus and caret.
+          document.addEventListener("input", e => {
+            if (e.target?.id !== "item-search") return
+            clearTimeout(window._itemSearchTimer)
+            window._itemSearchTimer = setTimeout(() => analyticsSwap("#items-results"), 400)
+          })
+
+          document.addEventListener("change", e => {
+            if (e.target?.id === "product-category-select") analyticsSwap("#items-results")
+          })
+
+          // Category pills and the active-filter chip both set product_category. They
+          // swap the whole panel so the select above re-renders to match.
+          document.addEventListener("click", e => {
+            const pill = e.target?.closest?.("[data-product-category]")
+            if (!pill) return
+            analyticsSwap("#analytics-panel", { product_category: pill.dataset.productCategory })
+          })
+        }
       </script>
 
-      <div class="form-fields">
-        <!--
-        <wa-select
-          label="Data Source"
-          id="data-source-select"
-          name="data_source"
-          value="{% if data_source %}{{ data_source }}{% else %}transactions{% endif %}"
-          style="width: 200px;"
-        >
-          <script>
-            me().on("change", (e) => {
-              const form = me("#date-range-form")
-              form.requestSubmit()
-            })
-          </script>
-          <wa-option value="transactions">Transactions</wa-option>
-          <wa-option value="receipts">Receipts</wa-option>
-        </wa-select>
-        -->
+      <input type="hidden" id="view-input" name="view" value="{{ view }}" />
+      <!-- Owned by the trend/merchant chart filters, carried here so the selection
+           survives a trip through the items view. -->
+      <input type="hidden" id="category-input" name="category" value="{{ selected_category }}" />
 
+      <div class="form-fields">
         <!-- Mode Selection -->
         <div class="mode-selector">
           <wa-select
@@ -62,7 +106,7 @@
             <script>
               me().on("change", e => {
                 const mode = e.target.value
-                const form = me("#date-range-form")
+                const form = me("#analytics-form")
                 const monthContainer = me("#month-input-container")
                 const yearContainer = me("#year-input-container")
                 const customDates = me("#custom-dates")
@@ -107,7 +151,7 @@
             <wa-button size="small" appearance="plain" type="button">
               <script>
                 me().on("click", () => {
-                  const form = me("#date-range-form")
+                  const form = me("#analytics-form")
                   const monthInput = me("#month-input")
                   const currentValue = monthInput.value
                   if (!currentValue) return
@@ -133,7 +177,7 @@
             <wa-input label="Month" type="month" id="month-input" name="month" value="{{ month }}">
               <script>
                 me().on("change", () => {
-                  me("#date-range-form").debouncedSubmit()
+                  me("#analytics-form").debouncedSubmit()
                 })
               </script>
             </wa-input>
@@ -143,7 +187,7 @@
             <wa-button size="small" appearance="plain" type="button">
               <script>
                 me().on("click", () => {
-                  const form = me("#date-range-form")
+                  const form = me("#analytics-form")
                   const monthInput = me("#month-input")
                   const currentValue = monthInput.value
                   if (!currentValue) return
@@ -179,7 +223,7 @@
             <wa-button size="small" appearance="plain" type="button">
               <script>
                 me().on("click", () => {
-                  const form = me("#date-range-form")
+                  const form = me("#analytics-form")
                   const yearInput = me("#year-input")
                   const currentValue = parseInt(yearInput.value)
                   if (!currentValue) return
@@ -196,7 +240,7 @@
             <wa-input label="Year" type="number" id="year-input" name="year" value="{{ year }}" min="2000" max="2099">
               <script>
                 me().on("change", () => {
-                  me("#date-range-form").debouncedSubmit()
+                  me("#analytics-form").debouncedSubmit()
                 })
               </script>
             </wa-input>
@@ -206,7 +250,7 @@
             <wa-button size="small" appearance="plain" type="button">
               <script>
                 me().on("click", () => {
-                  const form = me("#date-range-form")
+                  const form = me("#analytics-form")
                   const yearInput = me("#year-input")
                   const currentValue = parseInt(yearInput.value)
                   if (!currentValue) return
@@ -256,148 +300,41 @@
           <wa-button type="submit">Apply</wa-button>
         </div>
       </div>
-    </form>
 
-    <div id="analytics-content">
-      <div class="stats-summary">
-        <div class="stat-item">
-          <p class="stat-label">Total {% if data_source == 'receipts' %}Receipts{% else %}Transactions{% endif %}</p>
-          <p class="stat-value">{{ total_transactions|intcomma }}</p>
-        </div>
-        <div class="stat-item">
-          <p class="stat-label">Total Spent</p>
-          <p class="stat-value negative">{{ total_spent|currency }}</p>
-        </div>
-        <div class="stat-item">
-          <p class="stat-label">Date Range</p>
-          <p class="stat-value">{{ start_date|date:"n/j/Y" }} - {{ end_date|date:"n/j/Y" }}</p>
-        </div>
+      <div class="view-switcher" id="view-switcher">
+        <wa-button-group label="Analytics view">
+          <wa-button
+            type="button"
+            data-view="transactions"
+            appearance="{% if view == 'items' %}outlined{% else %}accent{% endif %}"
+            aria-pressed="{% if view == 'items' %}false{% else %}true{% endif %}"
+          >
+            <wa-icon slot="start" name="credit-card"></wa-icon>
+            Transactions
+          </wa-button>
+          <wa-button
+            type="button"
+            data-view="items"
+            appearance="{% if view == 'items' %}accent{% else %}outlined{% endif %}"
+            aria-pressed="{% if view == 'items' %}true{% else %}false{% endif %}"
+          >
+            <wa-icon slot="start" name="receipt"></wa-icon>
+            Receipt Items
+          </wa-button>
+        </wa-button-group>
       </div>
 
-      {% if category_chart_data %}
-        <div class="chart-container category-chart-section" style="padding-bottom: 3rem;">
-          <div class="chart-filter">
-            <wa-select id="category-sort" name="category-sort" size="small" value="amount">
-              <wa-option value="name">Sort by Name</wa-option>
-              <wa-option value="amount">Sort by Amount</wa-option>
-            </wa-select>
-          </div>
-          <canvas id="category-chart"></canvas>
-          <script>
-            function createCategoryChart() {
-              const originalData = {{ category_chart_data|safe }}
-              const categoryCtx = me("#category-chart").getContext("2d")
-              const colors = [
-                "#FF6384",
-                "#36A2EB",
-                "#FFCE56",
-                "#4BC0C0",
-                "#9966FF",
-                "#FF9F40",
-                "#FF6384",
-                "#C9CBCF",
-                "#4BC0C0",
-                "#FF6384"
-              ]
-
-              let categoryChart = null
-
-              function sortData(sortBy) {
-                // Combine labels and data into pairs
-                const pairs = originalData.labels.map((label, i) => ({
-                  label,
-                  value: originalData.data[i]
-                }))
-
-                // Sort based on selection
-                if (sortBy === "name") {
-                  pairs.sort((a, b) => a.label.localeCompare(b.label))
-                } else {
-                  pairs.sort((a, b) => b.value - a.value)
-                }
-
-                // Split back into separate arrays
-                return {
-                  labels: pairs.map(p => p.label),
-                  data: pairs.map(p => p.value)
-                }
-              }
-
-              function createChart(sortBy) {
-                // Destroy existing chart
-                if (categoryChart) {
-                  categoryChart.destroy()
-                }
-
-                const sortedData = sortData(sortBy)
-
-                categoryChart = new Chart(categoryCtx, {
-                  type: "pie",
-                  data: {
-                    labels: sortedData.labels,
-                    datasets: [
-                      {
-                        data: sortedData.data,
-                        backgroundColor: colors
-                      }
-                    ]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      title: {
-                        display: true,
-                        text: "Spending by Category",
-                        font: { size: 16 }
-                      },
-                      legend: {
-                        position: "bottom"
-                      },
-                      tooltip: {
-                        callbacks: {
-                          label: context => {
-                            const label = context.label || ""
-                            const value = context.parsed || 0
-                            return (
-                              label +
-                              ": $" +
-                              value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                            )
-                          }
-                        }
-                      }
-                    }
-                  }
-                })
-              }
-
-              // Initial chart with amount sort
-              createChart("amount")
-
-              // Listen for sort changes
-              me("#category-sort").on("change", e => {
-                createChart(e.target.value)
-              })
-            }
-
-            waitFor(() => typeof window.Chart !== "undefined").then(() => createCategoryChart())
-          </script>
-        </div>
-      {% endif %}
-
-      <div id="trend-chart-container">{% include "analytics/trend_chart_partial.html" %}</div>
-
-      {% if data_source != 'receipts' %}
-        <div id="merchant-chart-container">{% include "analytics/merchant_chart_partial.html" %}</div>
-      {% endif %}
-
-      {% if not category_chart_data and not trend_chart_data and not merchant_chart_data %}
-        <p class="empty-state">
-          No {% if data_source == 'receipts' %}receipt{% else %}transaction{% endif %} data available. Upload some
-          {% if data_source == 'receipts' %}receipts{% else %}transactions{% endif %} to see analytics.
-        </p>
-      {% endif %}
-    </div>
+      {% partial analytics-panel %}
+    </form>
   </div>
 {% endblock %}
+
+{% partialdef analytics-panel %}
+<div id="analytics-panel">
+  {% if view == 'items' %}
+    {% include "analytics/items_partial.html" %}
+  {% else %}
+    {% include "analytics/transactions_partial.html" %}
+  {% endif %}
+</div>
+{% endpartialdef analytics-panel %}

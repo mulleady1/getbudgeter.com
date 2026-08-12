@@ -2,14 +2,15 @@
 
 <div class="trend-chart-section">
   <div class="chart-filter" style="display: flex; align-items: center; justify-content: space-between;">
+    <!-- Unnamed: the hidden #category-input on the form is the single carrier of this
+         value, so the form doesn't submit three copies of `category`. -->
     <wa-select
-      name="category"
       size="small"
       value="{{ selected_category }}"
     >
       <script>
         me().on('change', (e) => {
-          const form = me('#date-range-form')
+          const form = me('#analytics-form')
           const formData = new FormData(form)
           const category = e.target.value
 
@@ -18,6 +19,10 @@
           if (merchantSelect) {
             merchantSelect.value = category
           }
+
+          // Park it on the shared form so the selection survives a trip through
+          // the items view and back.
+          me('#category-input').value = category
 
           // Build query string from form data
           const params = new URLSearchParams(formData)
@@ -42,7 +47,7 @@
     <wa-button size="small" appearance="plain" id="trend-see-more-btn">
       <script>
         me().on('click', () => {
-          const form = document.querySelector('#date-range-form')
+          const form = document.querySelector('#analytics-form')
           const formData = new FormData(form)
           const mode = formData.get('mode') || 'month'
 

@@ -4,44 +4,54 @@
   {% if not is_mobile %}style="--size: 50vw;"{% endif %}
   {% if open %}open{% endif %}
 >
+  <wa-dropdown slot="header-actions" placement="bottom-end">
+    <wa-button slot="trigger" appearance="plain" aria-label="Receipt actions">
+      <wa-icon name="ellipsis-vertical"></wa-icon>
+    </wa-button>
+    <wa-dropdown-item
+      hx-post="/receipts/{{ receipt.id }}/process-image?type=ocr"
+      hx-target="#receipt-detail-content-{{ receipt.id }}"
+      hx-swap="outerHTML"
+    >
+      <wa-icon slot="prefix" library="tabler" name="text-scan-2"></wa-icon>
+      Process With OCR
+    </wa-dropdown-item>
+    <wa-dropdown-item
+      hx-post="/receipts/{{ receipt.id }}/process-image?type=ai"
+      hx-target="#receipt-detail-content-{{ receipt.id }}"
+      hx-swap="outerHTML"
+    >
+      <wa-icon slot="prefix" library="tabler" name="sparkles"></wa-icon>
+      Process With AI
+    </wa-dropdown-item>
+    <wa-divider></wa-divider>
+    <wa-dropdown-item
+      variant="danger"
+      hx-delete="/receipts/{{ receipt.id }}"
+      hx-trigger="confirmed"
+      onclick="customConfirm({ text: 'Are you sure you want to delete this receipt?' }).then(yes => {
+        if (!yes) return
+        // Close the drawer once the delete lands — otherwise it lingers showing a deleted receipt.
+        const drawer = document.getElementById('receipt-detail-content-{{ receipt.id }}')?.closest('wa-drawer')
+        this.addEventListener('htmx:after:request', () => { if (drawer) drawer.open = false }, { once: true })
+        htmx.trigger(this, 'confirmed')
+      })"
+    >
+      <wa-icon slot="prefix" name="trash"></wa-icon>
+      Delete
+    </wa-dropdown-item>
+  </wa-dropdown>
+
   {% partial dialog-content %}
 
-  <div slot="footer" class="receipt-footer">
-    <div class="receipt-footer-group">
-      <wa-button
-        appearance="outlined"
-        hx-post="/receipts/{{ receipt.id }}/process-image?type=ocr"
-        hx-target=".receipt-detail-content"
-      >
-        <wa-icon slot="start" library="tabler" name="text-scan-2"></wa-icon>
-        Process With OCR
-      </wa-button>
-      <wa-button
-        appearance="outlined"
-        hx-post="/receipts/{{ receipt.id }}/process-image?type=ai"
-        hx-target=".receipt-detail-content"
-      >
-        <wa-icon slot="start" library="tabler" name="sparkles"></wa-icon>
-        Process With AI
-      </wa-button>
-      <wa-button
-        variant="danger"
-        appearance="filled-outlined"
-        hx-delete="/receipts/{{ receipt.id }}"
-        hx-confirm="Are you sure you want to delete this receipt?"
-      >
-        <wa-icon slot="start" name="trash"></wa-icon>
-        Delete
-      </wa-button>
-    </div>
-    <div class="receipt-footer-group">
-      <wa-button appearance="plain" onclick="me('.receipt-detail-dialog').open = false">Close</wa-button>
-    </div>
+  <div slot="footer" class="drawer-footer">
+    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false">Close</wa-button>
   </div>
 </wa-drawer>
 
 {% partialdef dialog-content %}
 <div
+  id="receipt-detail-content-{{ receipt.id }}"
   class="receipt-detail-content"
   {% if receipt.status == 'PENDING' %}
     hx-get="/receipts/{{ receipt.id }}/status" hx-trigger="every 2s" hx-target="this" hx-swap="outerHTML"
@@ -64,26 +74,24 @@
     </wa-callout>
   {% endif %}
 
-  <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
-    <!-- Receipt Image -->
-    <div>
-      <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
-        {% if receipt.image %}
-          <img
-            src="{{ receipt.image.url }}"
-            alt="Receipt"
-            style="width: 100%; height: auto; max-height: 50vh; object-fit: cover; display: block;"
-          />
-        {% endif %}
-      </div>
-      <div style="margin-top: 1rem;">
-        <div style="font-weight: 600; margin-bottom: 0.5rem;">Receipt Info</div>
-        {% partial merchant-field %}
-        <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
-          <span style="color: #666;">Date:</span> {{ receipt.date|date:"M j, Y" }}
-        </div>
-        <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
-          <span style="color: #666;">Total:</span> <strong style="color: #388e3c;">${{ receipt.total }}</strong>
+  <div class="receipt-detail-layout">
+    <!-- Receipt Image + Info (collapsible on mobile) -->
+    <div class="receipt-accordion" id="receipt-accordion-{{ receipt.id }}">
+      <button type="button" class="receipt-accordion-summary">
+        Receipt Image &amp; Info
+        <wa-icon name="chevron-down"></wa-icon>
+      </button>
+      <script>
+        me("#receipt-accordion-{{ receipt.id }} .receipt-accordion-summary").on("click", () => {
+          me("#receipt-accordion-{{ receipt.id }}").classToggle("is-open")
+        })
+      </script>
+
+      <div class="receipt-accordion-body">
+        {% partial receipt-image %}
+        <div style="margin-top: 1rem;">
+          <div style="font-weight: 600; margin-bottom: 0.5rem;">Receipt Info</div>
+          {% partial receipt-info %}
         </div>
       </div>
     </div>
@@ -113,6 +121,30 @@
   </div>
 </div>
 {% endpartialdef dialog-content %}
+
+{% partialdef receipt-image %}
+  <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
+    {% if receipt.image %}
+      <a href="{{ receipt.image.url }}" target="_blank" rel="noopener" title="Open full size in a new tab">
+        <img
+          src="{{ receipt.image.url }}"
+          alt="Receipt"
+          style="width: 100%; height: auto; max-height: 50vh; object-fit: cover; display: block; cursor: zoom-in;"
+        />
+      </a>
+    {% endif %}
+  </div>
+{% endpartialdef receipt-image %}
+
+{% partialdef receipt-info %}
+  {% partial merchant-field %}
+  <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+    <span style="color: #666;">Date:</span> {{ receipt.date|date:"M j, Y" }}
+  </div>
+  <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+    <span style="color: #666;">Total:</span> <strong style="color: #388e3c;">${{ receipt.total }}</strong>
+  </div>
+{% endpartialdef receipt-info %}
 
 {% partialdef item-row %}
   <tr style="border-bottom: 1px solid #eee;">
