@@ -1,0 +1,207 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+  {% csrf_token %}
+
+  <style>
+    .account-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .account-card-title {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .account-card-hint {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .account-form-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .account-current-email {
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      #account-page h1 {
+        font-size: 1.5rem !important;
+      }
+
+      .account-form-actions {
+        justify-content: stretch;
+      }
+
+      .account-form-actions wa-button {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <div id="account-page" style="max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem;">
+    <h1 style="margin: 0; font-size: 1.75rem; font-weight: 600;">Account</h1>
+
+    <p style="color: #666; margin-bottom: 1.5rem;">
+      Update your sign-in details or close your account.
+    </p>
+
+    {% partial account-email-card %}
+    {% partial account-password-card %}
+    {% partial account-delete-card %}
+  </div>
+{% endblock %}
+
+{% partialdef account-email-card %}
+<wa-card id="account-email-card" style="margin-bottom: 1.5rem;">
+  <div slot="header">
+    <h3 class="account-card-title">Email address</h3>
+  </div>
+
+  <form class="account-form" hx-post="/account/email" hx-target="#account-email-card" hx-swap="outerHTML">
+    <p class="account-card-hint">
+      You sign in with <span class="account-current-email">{{ email }}</span>. Changing it changes the email you log
+      in with.
+    </p>
+
+    <wa-input
+      label="New email address"
+      type="email"
+      name="email"
+      value="{{ email }}"
+      autocomplete="email"
+      required
+    ></wa-input>
+
+    <wa-input
+      label="Current password"
+      type="password"
+      name="password"
+      autocomplete="current-password"
+      password-toggle
+      required
+    ></wa-input>
+
+    <div class="account-form-actions">
+      <wa-button type="submit" appearance="primary">
+        <wa-icon slot="start" name="envelope"></wa-icon>
+        Update email
+      </wa-button>
+    </div>
+  </form>
+
+  {% if toast %}{% partial account-toast %}{% endif %}
+</wa-card>
+{% endpartialdef account-email-card %}
+
+{% partialdef account-password-card %}
+<wa-card id="account-password-card" style="margin-bottom: 1.5rem;">
+  <div slot="header">
+    <h3 class="account-card-title">Password</h3>
+  </div>
+
+  <form class="account-form" hx-post="/account/password" hx-target="#account-password-card" hx-swap="outerHTML">
+    <p class="account-card-hint">
+      Choose a new password. You'll stay signed in on this device.
+    </p>
+
+    <wa-input
+      label="Current password"
+      type="password"
+      name="current_password"
+      autocomplete="current-password"
+      password-toggle
+      required
+    ></wa-input>
+
+    <wa-input
+      label="New password"
+      type="password"
+      name="new_password"
+      autocomplete="new-password"
+      password-toggle
+      required
+    ></wa-input>
+
+    <wa-input
+      label="Confirm new password"
+      type="password"
+      name="confirm_password"
+      autocomplete="new-password"
+      password-toggle
+      required
+    ></wa-input>
+
+    <div class="account-form-actions">
+      <wa-button type="submit" appearance="primary">
+        <wa-icon slot="start" name="key"></wa-icon>
+        Change password
+      </wa-button>
+    </div>
+  </form>
+
+  {% if toast %}{% partial account-toast %}{% endif %}
+</wa-card>
+{% endpartialdef account-password-card %}
+
+{% partialdef account-delete-card %}
+<wa-card id="account-delete-card">
+  <div slot="header">
+    <h3 class="account-card-title" style="color: var(--wa-color-danger-60, #b91c1c);">Delete account</h3>
+  </div>
+
+  <form
+    id="delete-account-form"
+    class="account-form"
+    hx-post="/account/delete"
+    hx-trigger="confirmed"
+    hx-swap="none"
+  >
+    <wa-callout variant="danger">
+      <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+      Deleting your account permanently removes your bills, transactions, receipts, budgets and category rules. This
+      cannot be undone.
+    </wa-callout>
+
+    <wa-input
+      label="Confirm your password"
+      type="password"
+      name="password"
+      autocomplete="current-password"
+      password-toggle
+      required
+    ></wa-input>
+
+    <div class="account-form-actions">
+      <wa-button
+        type="button"
+        variant="danger"
+        onclick="customConfirm({ title: 'Delete account', text: 'This permanently deletes your account and all of your data. Are you sure?', confirmButtonText: 'Delete account' }).then(yes => { if (yes) htmx.trigger(me('#delete-account-form'), 'confirmed') })"
+      >
+        <wa-icon slot="start" name="trash"></wa-icon>
+        Delete my account
+      </wa-button>
+    </div>
+  </form>
+</wa-card>
+{% endpartialdef account-delete-card %}
+
+{% partialdef account-toast %}
+<hx-partial hx-target="#account-page" hx-swap="afterbegin">
+  <div style="position: fixed; top: 60px; right: 50%; transform: translateX(50%); z-index: 10;">
+    <wa-callout variant="success" open>
+      <script>
+        var el = me()
+        setTimeout(() => el.remove(), 5000)
+      </script>
+      {{ toast }}
+    </wa-callout>
+  </div>
+</hx-partial>
+{% endpartialdef account-toast %}

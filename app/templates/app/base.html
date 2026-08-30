@@ -53,6 +53,10 @@
                   <wa-icon slot="prefix" name="filter"></wa-icon>
                   Category Rules
                 </wa-dropdown-item>
+                <wa-dropdown-item onclick="window.location.href='/account'">
+                  <wa-icon slot="prefix" name="gear"></wa-icon>
+                  Account
+                </wa-dropdown-item>
                 <wa-divider></wa-divider>
                 <wa-dropdown-item onclick="window.location.href='/logout'">
                   <wa-icon slot="prefix" name="arrow-right-from-bracket"></wa-icon>
@@ -112,6 +116,13 @@
                     Budgets
                   </a>
                   <a href="/category-rules" hx-boost="true" class="mobile-nav-link"> Category Rules </a>
+                  <a
+                    href="/account"
+                    hx-boost="true"
+                    class="mobile-nav-link {% if request.path|startswith:'/account' %}active{% endif %}"
+                  >
+                    Account
+                  </a>
                   <a href="/logout" class="mobile-nav-link logout"> Logout </a>
                 </nav>
               </wa-drawer>

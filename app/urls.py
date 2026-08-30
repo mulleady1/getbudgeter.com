@@ -13,6 +13,7 @@ router.register("receipts",               views.ReceiptViewSet,      basename="r
 router.register("category-rules",         views.CategoryRuleViewSet, basename="category-rule")
 router.register("analytics",              views.AnalyticsViewSet,    basename="analytics")
 router.register("budgets",                views.BudgetViewSet,       basename="budget")
+router.register("account",                views.AccountViewSet,      basename="account")
 
 urlpatterns = [
     path("",        views.home,         name="home"),

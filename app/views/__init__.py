@@ -1,3 +1,4 @@
+from .account import AccountViewSet  # noqa
 from .analytics import AnalyticsViewSet  # noqa
 from .auth import home, login_view, logout_view, signup_view  # noqa
 from .bills import BillLinkViewSet, BillViewSet  # noqa
