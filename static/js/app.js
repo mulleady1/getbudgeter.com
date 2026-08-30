@@ -10,6 +10,19 @@ htmx.on("htmx:config:request", evt => {
   }
 })
 
+// htmx 4 only serializes native form controls (input/select/textarea) into GET params, and it
+// can't see inside shadow DOM, so a named wa-* component that triggers its own request sends
+// nothing. Add the source element's own name/value here.
+htmx.on("htmx:config:request", evt => {
+  const source = evt.detail.ctx.sourceElement
+  const body = evt.detail.ctx.request.body
+  if (!source.tagName.includes("-") || !source.name || source.value == null) return
+  if (typeof source.checked === "boolean" && !source.checked) return
+  if (!body.has(source.name)) {
+    body.append(source.name, source.value)
+  }
+})
+
 // Disable buttons and show spinners while a request is in flight.
 htmx.on("htmx:before:request", evt => {
   const source = evt.detail.ctx.sourceElement

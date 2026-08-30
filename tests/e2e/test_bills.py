@@ -65,6 +65,28 @@ class TestBillManagement:
 class TestAuthentication:
     """End-to-end tests for authentication flows."""
 
+    def test_month_picker_sends_month_param(self, authenticated_page: Page, live_server):
+        """Changing the month sends ?month= to the server.
+
+        Regression test: htmx 4 doesn't serialize web-component values into GET params,
+        so without the app.js `config:request` hook the picker updates visually but the
+        request goes out with no month param.
+        """
+        page = authenticated_page
+        page.goto(f"{live_server.url}/bills")
+        page.wait_for_load_state("networkidle")
+
+        bills_requests = []
+        page.on("request", lambda req: bills_requests.append(req.url) if "/bills?" in req.url else None)
+
+        page.locator('wa-button[onclick="changeMonth(1)"]').click()
+        expected_month = page.locator("wa-input#month").evaluate("el => el.value")
+        page.wait_for_timeout(1500)  # hx-trigger has delay:500ms
+
+        assert any(
+            f"month={expected_month}" in url for url in bills_requests
+        ), f"expected a /bills request with month={expected_month}, got: {bills_requests}"
+
     def test_login_with_invalid_credentials(self, page: Page, live_server):
         """Test that login fails with invalid credentials."""
         log_in(page, live_server, email="wrong@example.com", password="wrongpass")
