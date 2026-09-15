@@ -54,7 +54,7 @@
   </form>
 
   <div slot="footer" class="drawer-footer">
-    <wa-button type="button" appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
+    <wa-button type="button" appearance="outlined" hx-on:click="this.closest('wa-drawer').open = false">Cancel</wa-button>
     <wa-button form="receipt-upload-form" type="submit" variant="primary">
       <wa-icon slot="start" name="upload"></wa-icon>
       Upload

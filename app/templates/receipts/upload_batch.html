@@ -16,7 +16,7 @@
   {% partial batch-list %}
 
   <div slot="footer" class="drawer-footer">
-    <wa-button appearance="plain" onclick="this.closest('wa-drawer').open = false">Close</wa-button>
+    <wa-button appearance="plain" hx-on:click="this.closest('wa-drawer').open = false">Close</wa-button>
   </div>
 </wa-drawer>
 

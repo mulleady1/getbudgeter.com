@@ -79,7 +79,7 @@ class TestAuthentication:
         bills_requests = []
         page.on("request", lambda req: bills_requests.append(req.url) if "/bills?" in req.url else None)
 
-        page.locator('wa-button[onclick="changeMonth(1)"]').click()
+        page.locator('wa-button[hx-on\\:click="changeMonth(1)"]').click()
         expected_month = page.locator("wa-input#month").evaluate("el => el.value")
         page.wait_for_timeout(1500)  # hx-trigger has delay:500ms
 

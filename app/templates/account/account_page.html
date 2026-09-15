@@ -182,7 +182,7 @@
       <wa-button
         type="button"
         variant="danger"
-        onclick="customConfirm({ title: 'Delete account', text: 'This permanently deletes your account and all of your data. Are you sure?', confirmButtonText: 'Delete account' }).then(yes => { if (yes) htmx.trigger(me('#delete-account-form'), 'confirmed') })"
+        hx-on:click="customConfirm({ title: 'Delete account', text: 'This permanently deletes your account and all of your data. Are you sure?', confirmButtonText: 'Delete account' }).then(yes => { if (yes) htmx.trigger(me('#delete-account-form'), 'confirmed') })"
       >
         <wa-icon slot="start" name="trash"></wa-icon>
         Delete my account

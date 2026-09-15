@@ -137,7 +137,7 @@ Use `customConfirm()` (defined in `static/js/app.js`) instead of the native `hx-
   hx-trigger="confirmed"
   hx-target="#thing-list"
   hx-swap="outerHTML"
-  onclick="customConfirm().then(yes => { if (yes) htmx.trigger(this, 'confirmed') })"
+  hx-on:click="customConfirm().then(yes => { if (yes) htmx.trigger(this, 'confirmed') })"
 >
 ```
 
@@ -145,7 +145,7 @@ Use `customConfirm()` (defined in `static/js/app.js`) instead of the native `hx-
 - Put the form *inside* `<wa-drawer>` with a stable `id`
 - Put Cancel/Save in `slot="footer"` with `class="drawer-footer"` (defined in `app.css`) — buttons
   split the full footer width evenly, however many there are
-- Cancel: `onclick="this.closest('wa-drawer').open = false"`
+- Cancel: `hx-on:click="this.closest('wa-drawer').open = false"`
 - Save: `type="submit" form="<form-id>"`
 - `app.js` already handles auto-closing the drawer on successful HTMX response
 
@@ -157,11 +157,33 @@ Use `customConfirm()` (defined in `static/js/app.js`) instead of the native `hx-
     ...
   </form>
   <div slot="footer" class="drawer-footer">
-    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
+    <wa-button appearance="outlined" hx-on:click="this.closest('wa-drawer').open = false">Cancel</wa-button>
     <wa-button type="submit" form="thing-form">Save</wa-button>
   </div>
 </wa-drawer>
 ```
+
+### Content Security Policy (nonces are automatic)
+Responses carry a nonce-based `script-src` CSP (`SECURE_CSP` in `project/settings.py`) with no
+`'unsafe-inline'` and no `'unsafe-eval'`, and `base.html` loads the `hx-csp` extension with
+`safeEval:true`. What that means when writing templates:
+
+- **Never write `hx-nonce` or `nonce` by hand.** `app/template_loaders.py` stamps
+  `hx-nonce="{{ csp_nonce }}"` onto every element that has an `hx-*` attribute and
+  `nonce="{{ csp_nonce }}"` onto every `<script>` when the template *source* is loaded, before it
+  renders. Markup that comes in through a context variable is never stamped, so injected HTML
+  cannot issue htmx requests or run `hx-on` code.
+- **No inline `on*=` handlers** (`onclick`, `onchange`, `onfocus`, ...). The CSP blocks them. Write
+  `hx-on:click="..."` instead. htmx runs `hx-on` through `safeEval`, so full JavaScript works,
+  `this` is the element, and `event` is the event.
+- **Never render user data inside `hx-on:*`, `hx-vals="js:..."`, `hx-confirm="js:..."`, or
+  `hx-trigger` filters.** Those are evaluated as JavaScript and HTML escaping does not protect
+  you. Put the value in a `data-*` attribute and read `this.dataset.x`.
+- **Don't build htmx elements in JavaScript** (`el.innerHTML = '<button hx-get=...>'`). They have
+  no nonce, so hx-csp strips their `hx-*` attributes. Return the markup from the server.
+- A new third-party script host (like the chart.js CDN) must be added to `SECURE_CSP["script-src"]`.
+- A blocked element logs `htmx: [hx-csp] blocked <tag>` to the console and fires
+  `htmx:security:strip`; a blocked inline script logs a `Content Security Policy` error.
 
 ---
 

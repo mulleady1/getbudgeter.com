@@ -20,7 +20,7 @@
     </div>
 
     <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
-      <wa-button type="button" onclick="this.closest('wa-dialog').open = false" appearance="outlined">Cancel</wa-button>
+      <wa-button type="button" hx-on:click="this.closest('wa-dialog').open = false" appearance="outlined">Cancel</wa-button>
       <wa-button type="submit">Save</wa-button>
     </div>
   </form>

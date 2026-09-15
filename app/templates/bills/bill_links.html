@@ -77,7 +77,7 @@
       hx-target="#bill-links-container"
       hx-swap="outerHTML"
       hx-trigger="confirmed"
-      onclick="customConfirm().then(yes => { if (yes) { htmx.trigger(this, 'confirmed'); } })"
+      hx-on:click="customConfirm().then(yes => { if (yes) { htmx.trigger(this, 'confirmed'); } })"
     >
       <wa-icon name="trash" label="Delete"></wa-icon>
     </wa-button>

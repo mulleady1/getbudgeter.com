@@ -37,8 +37,8 @@
       placeholder="https://"
       value="{{ bill.link|default:'' }}"
       style="width: 100%;"
-      onfocus="if (this.value === '') this.value = 'https://'"
-      onblur="if (this.value === 'https://') this.value = ''"
+      hx-on:focus="if (this.value === '') this.value = 'https://'"
+      hx-on:blur="if (this.value === 'https://') this.value = ''"
     ></wa-input>
 
     <wa-checkbox name="autopay" {% if bill.autopay %}checked{% endif %}>Autopay</wa-checkbox>
@@ -47,7 +47,7 @@
   <div slot="footer" class="drawer-footer">
     <wa-button
       appearance="outlined"
-      onclick="this.closest('wa-drawer').open = false"
+      hx-on:click="this.closest('wa-drawer').open = false"
     >
       Cancel
     </wa-button>

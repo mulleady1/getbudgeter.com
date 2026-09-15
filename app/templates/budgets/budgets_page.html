@@ -34,7 +34,7 @@
 
     <div class="header">
       <div class="month-selector">
-        <wa-button size="small" onclick="changeMonth(-1)" appearance="plain">
+        <wa-button size="small" hx-on:click="changeMonth(-1)" appearance="plain">
           <wa-icon name="chevron-left" label="Previous month"></wa-icon>
         </wa-button>
         <wa-input
@@ -49,7 +49,7 @@
           hx-swap="outerHTML"
           style="width: 200px;"
         ></wa-input>
-        <wa-button size="small" onclick="changeMonth(1)" appearance="plain">
+        <wa-button size="small" hx-on:click="changeMonth(1)" appearance="plain">
           <wa-icon name="chevron-right" label="Next month"></wa-icon>
         </wa-button>
       </div>
@@ -108,7 +108,7 @@
                   hx-trigger="confirmed"
                   hx-target="#budget-list"
                   hx-swap="outerHTML"
-                  onclick="customConfirm().then(yes => { if (yes) htmx.trigger(this, 'confirmed') })"
+                  hx-on:click="customConfirm().then(yes => { if (yes) htmx.trigger(this, 'confirmed') })"
                 >
                   <wa-icon name="trash" label="Delete"></wa-icon>
                 </wa-button>

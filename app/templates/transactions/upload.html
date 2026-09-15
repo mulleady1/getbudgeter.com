@@ -35,7 +35,7 @@
   </form>
 
   <div slot="footer" class="drawer-footer">
-    <wa-button appearance="outlined" onclick="this.closest('wa-drawer').open = false">Cancel</wa-button>
+    <wa-button appearance="outlined" hx-on:click="this.closest('wa-drawer').open = false">Cancel</wa-button>
     <wa-button form="transaction-upload-form" type="submit">Upload</wa-button>
   </div>
 </wa-drawer>

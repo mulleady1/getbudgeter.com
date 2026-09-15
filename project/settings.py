@@ -14,6 +14,7 @@ import logging
 import os
 from pathlib import Path
 
+from django.utils.csp import CSP
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -64,6 +65,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -73,19 +75,41 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
+# Content Security Policy. Scripts run only from our own origin, the chart.js CDN, or with the
+# per-request nonce; no 'unsafe-inline' and no 'unsafe-eval'. `app/template_loaders.py` stamps
+# the nonce onto every <script> and every htmx element at template-load time, and the `hx-csp`
+# extension (static/js/hx-csp.js) refuses to power any htmx element that lacks a matching
+# `hx-nonce`, so injected markup cannot issue requests or run `hx-on` code.
+SECURE_CSP = {
+    "script-src": [CSP.SELF, CSP.NONCE, "https://cdn.jsdelivr.net"],
+    "object-src": [CSP.NONE],
+    "base-uri": [CSP.SELF],
+}
+
 ROOT_URLCONF = "project.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
-        "APP_DIRS": True,
         "OPTIONS": {
+            # Same loaders Django would install by default, wrapped so they stamp CSP nonces onto
+            # htmx elements and <script> tags in the template source before compilation.
+            "loaders": [
+                (
+                    "django.template.loaders.cached.Loader",
+                    [
+                        "app.template_loaders.FilesystemLoader",
+                        "app.template_loaders.AppDirectoriesLoader",
+                    ],
+                ),
+            ],
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.csp",
                 "app.context_processors.app_variables",
             ],
         },

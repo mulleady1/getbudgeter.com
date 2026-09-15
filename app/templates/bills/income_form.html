@@ -6,7 +6,7 @@
   </form>
 
   <div slot="footer" class="drawer-footer">
-    <wa-button appearance="outlined" onclick="this.closest('wa-dialog').open = false"> Cancel </wa-button>
+    <wa-button appearance="outlined" hx-on:click="this.closest('wa-dialog').open = false"> Cancel </wa-button>
     <wa-button type="submit" form="income-form">Save</wa-button>
   </div>
 </wa-dialog>
