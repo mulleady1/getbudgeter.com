@@ -123,7 +123,9 @@
 }
 
 /* Fixed ratio reserves the box before the lazy image arrives, so cards don't
-   reflow as you scroll (which would also jog the infinite-scroll trigger). */
+   reflow as you scroll (which would also jog the infinite-scroll trigger).
+   Thumbnails are pre-cropped to this ratio — keep in sync with CARD_ASPECT in
+   app/services/thumbnails.py, and re-run `backfill_thumbnails --all` if it changes. */
 .receipt-card-image {
   overflow: hidden;
   background: #f5f5f5;

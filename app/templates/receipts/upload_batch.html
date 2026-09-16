@@ -39,7 +39,7 @@
       {% endif %}
     >
       <div class="receipt-batch-thumb">
-        {% if receipt.image %}<img src="{{ receipt.image.url }}" alt="" loading="lazy" decoding="async" />{% endif %}
+        {% if receipt.image %}<img src="{{ receipt.display_image.url }}" alt="" loading="lazy" decoding="async" />{% endif %}
       </div>
       <div class="receipt-batch-name">
         {% if receipt.status == 'READY' %}

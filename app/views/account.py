@@ -121,7 +121,8 @@ class AccountViewSet(LoginRequiredViewSet):
 
         # The cascade removes the Receipt rows but not the uploaded files, so hold on to
         # the file handles and clear them once the account is actually gone.
-        receipt_images = [r.image for r in Receipt.objects.filter(user=user).exclude(image="")]
+        receipts = Receipt.objects.filter(user=user).exclude(image="")
+        receipt_images = [f for r in receipts for f in (r.image, r.thumbnail) if f]
 
         logout(request)
         user.delete()

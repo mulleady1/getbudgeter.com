@@ -3,6 +3,7 @@ from .categorization import TransactionCategorizer
 from .item_normalizer import ItemNormalizer, NormalizedItem, alias_key
 from .receipt_analysis import DEFAULT_ITEM_SORT, ITEM_SORT_KEYS, get_item_spending, parse_date_range
 from .receipt_ocr import ReceiptOCRProcessor
+from .thumbnails import build_thumbnail, generate_thumbnail
 
 __all__ = [
     "AIReceiptProcessor",
@@ -15,4 +16,6 @@ __all__ = [
     "get_item_spending",
     "parse_date_range",
     "ReceiptOCRProcessor",
+    "build_thumbnail",
+    "generate_thumbnail",
 ]

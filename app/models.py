@@ -193,6 +193,9 @@ class Receipt(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="receipts/%Y/%m/")
+    # Display-sized copy for the list views. Blank until the background pass
+    # has built it, and for any receipt uploaded before thumbnailing existed.
+    thumbnail = models.ImageField(upload_to="receipts/thumbs/%Y/%m/", blank=True)
     merchant = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField(db_index=True, null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -212,6 +215,11 @@ class Receipt(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.merchant or 'Unknown'} - ${self.total}"
+
+    @property
+    def display_image(self):
+        """The file list views should show: the thumbnail, or the original if there isn't one."""
+        return self.thumbnail or self.image
 
 
 class ReceiptItem(models.Model):

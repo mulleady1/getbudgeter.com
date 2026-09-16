@@ -17,6 +17,7 @@ from ..services import (
     TransactionCategorizer,
     ReceiptOCRProcessor,
     alias_key,
+    generate_thumbnail,
 )
 from ..taxonomy import PRODUCT_CATEGORIES, PRODUCT_CATEGORIES_AZ
 from .base import LoginRequiredViewSet
@@ -88,6 +89,12 @@ def _apply_alias_to_items(user, description, match):
 def _process_receipt_background(receipt_id):
     try:
         receipt = Receipt.objects.select_related("user").get(id=receipt_id)
+
+        # Before the AI call, which takes seconds. The upload response renders its
+        # grid cards off the original, so the sooner the thumbnail lands the sooner
+        # the next poll swaps them onto it.
+        generate_thumbnail(receipt)
+
         ai_processor = AIReceiptProcessor()
         data = ai_processor.process_receipt(receipt.image.path)
 
