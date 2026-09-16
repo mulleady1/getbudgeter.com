@@ -107,7 +107,7 @@
   hx-trigger="click, keyup[key=='Enter']"
 >
   <div class="receipt-card-image">
-    {% if receipt.image %}<img src="{{ receipt.image.url }}" alt="Receipt" />{% endif %}
+    {% if receipt.image %}<img src="{{ receipt.image.url }}" alt="Receipt" loading="lazy" decoding="async" />{% endif %}
   </div>
   <div class="receipt-card-body">
     <div class="receipt-card-merchant">{{ receipt.merchant|default:"Unknown Merchant" }}</div>
