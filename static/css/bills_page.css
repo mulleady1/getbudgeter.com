@@ -29,7 +29,7 @@
     align-items: center;
     gap: 1rem;
     grid-template-columns: 3fr 1fr 160px 80px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--wa-color-neutral-border-quiet);
     margin: 0;
     padding: 3px 0;
     animation: fadeIn 0.4s ease-in-out forwards;
@@ -121,7 +121,7 @@
       border: none;
       background: none;
       cursor: pointer;
-      color: #888;
+      color: var(--wa-color-text-quiet);
       line-height: 1;
       &:disabled {
         visibility: hidden;

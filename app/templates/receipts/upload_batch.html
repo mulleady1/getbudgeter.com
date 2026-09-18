@@ -44,7 +44,7 @@
       <div class="receipt-batch-name">
         {% if receipt.status == 'READY' %}
           <div style="font-weight: 500;">{{ receipt.merchant|default:"Unknown Merchant" }}</div>
-          <div style="font-size: 0.8rem; color: #666;">
+          <div style="font-size: 0.8rem; color: var(--wa-color-text-quiet);">
             {% if receipt.date %}{{ receipt.date|date:"M j, Y" }} · {% endif %}${{ receipt.total|default:"0.00" }}
           </div>
         {% else %}
@@ -53,7 +53,7 @@
       </div>
       <div class="receipt-batch-status">
         {% if receipt.status == 'PENDING' %}
-          <span style="color: #666;">Processing&hellip;</span>
+          <span style="color: var(--wa-color-text-quiet);">Processing&hellip;</span>
         {% elif receipt.status == 'FAILED' %}
           <span style="color: #c62828;">Failed</span>
         {% else %}

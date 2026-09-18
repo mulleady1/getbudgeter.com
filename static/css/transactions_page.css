@@ -33,12 +33,12 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    color: #bbb;
+    color: var(--wa-color-text-quiet);
   }
 
   .filter-trigger:hover {
     background: rgba(0, 0, 0, 0.05);
-    color: #666;
+    color: var(--wa-color-text-quiet);
   }
 
   .filter-trigger.active {
@@ -97,7 +97,7 @@
       flex-direction: column !important;
       align-items: stretch !important;
       padding: 1rem;
-      background: #f5f5f5;
+      background: var(--wa-color-surface-lowered);
       border-radius: 8px;
       gap: 0.75rem !important;
 
@@ -171,7 +171,7 @@
     thead {
       position: sticky;
       top: 0;
-      background: white;
+      background: var(--wa-color-surface-default);
       z-index: 10;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }

@@ -11,8 +11,13 @@ from .taxonomy import PRODUCT_CATEGORY_CHOICES, UNCATEGORIZED
 class UserProfile(models.Model):
     """Extends the User model with additional fields"""
 
+    THEME_LIGHT = "light"
+    THEME_DARK = "dark"
+    THEME_CHOICES = [(THEME_LIGHT, "Light"), (THEME_DARK, "Dark")]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     income = models.IntegerField(default=0)
+    theme = models.CharField(max_length=10, choices=THEME_CHOICES, default=THEME_LIGHT)
 
     def __str__(self):
         return f"{self.user.username}'s profile"

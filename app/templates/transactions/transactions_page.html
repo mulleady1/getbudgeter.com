@@ -279,7 +279,7 @@
                 </wa-input>
               </div>
 
-              <div id="query-count" style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+              <div id="query-count" style="margin-top: 0.5rem; color: var(--wa-color-text-quiet); font-size: 0.9rem;">
                 {% if search_query or page > 1 %}
                   Showing {{ showing_count }} of {{ total_count }} transactions
                 {% endif %}
@@ -387,7 +387,7 @@
 
         {% partial transactions-table %}
       {% else %}
-        <p style="text-align: center; padding: 2rem; color: #666;">No transactions yet. Upload a CSV to get started.</p>
+        <p style="text-align: center; padding: 2rem; color: var(--wa-color-text-quiet);">No transactions yet. Upload a CSV to get started.</p>
       {% endif %}
     </div>
   </div>
@@ -404,7 +404,7 @@
                 })
               </script>
               <thead>
-                <tr style="border-bottom: 2px solid #ddd;">
+                <tr style="border-bottom: 2px solid var(--wa-color-neutral-border-normal);">
                   <th style="width: 40px;">
                     <div style="display: flex; align-items: center;">
                       <input
@@ -544,9 +544,9 @@
 
                   <div
                     class="filter-checkbox-list"
-                    style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;"
+                    style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--wa-color-surface-border); border-radius: 4px; padding: 0.5rem;"
                   >
-                    <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
+                    <label style="display: block; padding: 0.5rem; border-bottom: 1px solid var(--wa-color-neutral-border-quiet);">
                       <input type="checkbox" id="select-all-merchants" checked />
                       <strong>(Select All)</strong>
                     </label>
@@ -589,9 +589,9 @@
 
                   <div
                     class="filter-checkbox-list"
-                    style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem;"
+                    style="max-height: 250px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--wa-color-surface-border); border-radius: 4px; padding: 0.5rem;"
                   >
-                    <label style="display: block; padding: 0.5rem; border-bottom: 1px solid #eee;">
+                    <label style="display: block; padding: 0.5rem; border-bottom: 1px solid var(--wa-color-neutral-border-quiet);">
                       <input type="checkbox" id="select-all-descriptions" checked />
                       <strong>(Select All)</strong>
                     </label>
@@ -711,7 +711,7 @@
     hx-trigger="revealed"
     hx-swap="outerHTML"
   >
-    <td colspan="7" style="text-align: center; padding: 1rem; color: #666;">
+    <td colspan="7" style="text-align: center; padding: 1rem; color: var(--wa-color-text-quiet);">
       <wa-spinner></wa-spinner> Loading more...
     </td>
   </tr>
@@ -719,7 +719,7 @@
 {% endpartialdef transaction-rows %}
 
 {% partialdef transaction-row %}
-<tr style="border-bottom: 1px solid #eee;" data-transaction-id="{{ transaction.id }}">
+<tr style="border-bottom: 1px solid var(--wa-color-neutral-border-quiet);" data-transaction-id="{{ transaction.id }}">
   <td style="width: 40px;">
     <input
       type="checkbox"

@@ -50,7 +50,7 @@
                 </wa-input>
               </div>
               {% if search_query %}
-                <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+                <div style="margin-top: 0.5rem; color: var(--wa-color-text-quiet); font-size: 0.9rem;">
                   Showing {{ showing_count }} of {{ total_count }} receipts
                 </div>
               {% endif %}
@@ -68,7 +68,7 @@
           {% partial receipt-grid-items %}
         </div>
       {% else %}
-        <p style="text-align: center; padding: 2rem; color: #666;">
+        <p style="text-align: center; padding: 2rem; color: var(--wa-color-text-quiet);">
           No receipts yet. Upload a receipt image to get started.
         </p>
       {% endif %}
@@ -88,7 +88,7 @@
     hx-get="/receipts?page={{ page|add:1 }}{% if search_query %}&q={{ search_query }}{% endif %}"
     hx-trigger="revealed"
     hx-swap="outerHTML"
-    style="grid-column: 1 / -1; text-align: center; padding: 1rem; color: #666;"
+    style="grid-column: 1 / -1; text-align: center; padding: 1rem; color: var(--wa-color-text-quiet);"
   >
     <wa-spinner></wa-spinner> Loading more...
   </div>

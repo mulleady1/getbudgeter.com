@@ -6,7 +6,7 @@
      data, so the raw line reads the same way on both screens. */
   .receipt-item-raw {
     font-size: 0.78rem;
-    color: #999;
+    color: var(--wa-color-text-quiet);
     margin-top: 0.15rem;
   }
 
@@ -26,7 +26,7 @@
     }
 
     .receipt-accordion {
-      border: 1px solid #ddd;
+      border: 1px solid var(--wa-color-surface-border);
       border-radius: 4px;
     }
     .receipt-accordion-summary {
@@ -46,7 +46,7 @@
     }
     .receipt-accordion-summary wa-icon {
       flex: 0 0 auto;
-      color: #666;
+      color: var(--wa-color-text-quiet);
       transition: transform 0.15s ease;
     }
     .receipt-accordion.is-open .receipt-accordion-summary wa-icon {
@@ -68,13 +68,13 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.6rem 0.25rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--wa-color-neutral-border-quiet);
   }
   .receipt-batch-row.is-ready {
     cursor: pointer;
   }
   .receipt-batch-row.is-ready:hover {
-    background: #f5f5f5;
+    background: var(--wa-color-surface-lowered);
   }
   .receipt-batch-thumb {
     flex: 0 0 auto;
@@ -82,7 +82,7 @@
     height: 44px;
     border-radius: 4px;
     overflow: hidden;
-    background: #f5f5f5;
+    background: var(--wa-color-surface-lowered);
   }
   .receipt-batch-thumb img {
     width: 100%;
@@ -103,10 +103,10 @@
 
 /* Receipt list cards: whole card is the click target; text sits in a 2x2 grid. */
 .receipt-card {
-  border: 1px solid #ddd;
+  border: 1px solid var(--wa-color-surface-border);
   border-radius: 8px;
   overflow: hidden;
-  background: white;
+  background: var(--wa-color-surface-default);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: box-shadow 0.15s ease;
@@ -128,7 +128,7 @@
    app/services/thumbnails.py, and re-run `backfill_thumbnails --all` if it changes. */
 .receipt-card-image {
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--wa-color-surface-lowered);
   aspect-ratio: 4 / 3;
 }
 
@@ -163,7 +163,7 @@
 
 .receipt-card-date,
 .receipt-card-items {
-  color: #666;
+  color: var(--wa-color-text-quiet);
   font-size: 0.9rem;
 }
 
@@ -188,5 +188,5 @@
   padding: 0.4rem 0.75rem 0.5rem;
   font-size: 0.78rem;
   line-height: 1.35;
-  color: #666;
+  color: var(--wa-color-text-quiet);
 }

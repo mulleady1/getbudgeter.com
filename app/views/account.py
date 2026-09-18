@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.decorators import action
 
-from ..models import Receipt
+from ..models import Receipt, UserProfile
 from .base import LoginRequiredViewSet
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,17 @@ def _form_error(request, message):
 
 class AccountViewSet(LoginRequiredViewSet):
     def list(self, request):
+        # `dark_mode` comes from the app_variables context processor.
         return render(request, "account/account_page.html", {"email": request.user.email})
+
+    @action(detail=False, methods=["post"])
+    def theme(self, request):
+        # The switch only submits its value while checked, so a missing field means "light".
+        dark = request.POST.get("theme") == UserProfile.THEME_DARK
+        profile = request.user.profile
+        profile.theme = UserProfile.THEME_DARK if dark else UserProfile.THEME_LIGHT
+        profile.save(update_fields=["theme"])
+        return render(request, "account/account_page.html#account-appearance-card", {"dark_mode": dark})
 
     @action(detail=False, methods=["post"])
     def email(self, request):

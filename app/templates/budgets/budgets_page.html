@@ -73,7 +73,7 @@
   <div style="flex: 1 1 70%; min-width: 0;">
 
     {% if showing_defaults and budget_data %}
-      <p style="font-size: 0.85rem; color: #9ca3af; margin: 0 0 1rem 0;">
+      <p style="font-size: 0.85rem; color: var(--wa-color-text-quiet); margin: 0 0 1rem 0;">
         <wa-icon name="info-circle" style="vertical-align: middle;"></wa-icon>
         No budgets set for this month — showing your defaults.
       </p>
@@ -138,7 +138,7 @@
         {% endfor %}
       </div>
     {% else %}
-      <p style="text-align: center; padding: 2rem; color: #666;">
+      <p style="text-align: center; padding: 2rem; color: var(--wa-color-text-quiet);">
         No budgets set for this month.
       </p>
     {% endif %}

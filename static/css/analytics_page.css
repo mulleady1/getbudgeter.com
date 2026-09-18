@@ -8,7 +8,7 @@
    the card styling lives on the controls row rather than the form itself. */
 #analytics-form {
   .form-fields {
-    background: white;
+    background: var(--wa-color-surface-default);
     padding: 1.5rem;
     border-radius: 8px 8px 0 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -90,7 +90,7 @@
 }
 
 .stats-summary {
-  background: #f5f5f5;
+  background: var(--wa-color-surface-lowered);
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -101,7 +101,7 @@
   .stat-item {
     .stat-label {
       margin: 0;
-      color: #666;
+      color: var(--wa-color-text-quiet);
       font-size: 0.875rem;
     }
 
@@ -134,7 +134,7 @@
 }
 
 .chart-container {
-  background: white;
+  background: var(--wa-color-surface-default);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -154,7 +154,7 @@
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: var(--wa-color-text-quiet);
 }
 
 .category-chart-section {
@@ -170,7 +170,7 @@
 
 .trend-chart-section,
 .merchant-chart-section {
-  background: white;
+  background: var(--wa-color-surface-default);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -190,7 +190,7 @@
 }
 
 .view-switcher {
-  background: white;
+  background: var(--wa-color-surface-default);
   padding: 0 1.5rem 1.25rem;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -238,7 +238,7 @@
 }
 
 .items-section-label {
-  color: #666;
+  color: var(--wa-color-text-quiet);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -261,7 +261,7 @@
   }
 
   .pill-count {
-    color: #999;
+    color: var(--wa-color-text-quiet);
     margin-left: 0.3rem;
   }
 }
@@ -271,7 +271,7 @@
 }
 
 .items-table-wrap {
-  background: white;
+  background: var(--wa-color-surface-default);
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -288,7 +288,7 @@
   font-size: 0.95rem;
 
   thead tr {
-    border-bottom: 2px solid #ddd;
+    border-bottom: 2px solid var(--wa-color-neutral-border-normal);
     text-align: left;
   }
 
@@ -335,7 +335,7 @@
   }
 
   tbody tr {
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--wa-color-neutral-border-quiet);
   }
 
   .col-item {
@@ -343,13 +343,13 @@
   }
 
   .col-category {
-    color: #666;
+    color: var(--wa-color-text-quiet);
     font-size: 0.85rem;
   }
 
   .col-qty {
     text-align: center;
-    color: #666;
+    color: var(--wa-color-text-quiet);
   }
 
   .col-total {
@@ -365,7 +365,7 @@
 
   .item-raw-names {
     font-size: 0.78rem;
-    color: #999;
+    color: var(--wa-color-text-quiet);
     font-weight: 400;
     margin-top: 0.15rem;
   }

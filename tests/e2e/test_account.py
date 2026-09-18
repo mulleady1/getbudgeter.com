@@ -72,3 +72,28 @@ def test_delete_account_requires_confirm_then_redirects(authenticated_page: Page
     page.locator("wa-dialog wa-button.confirm").click()
     page.wait_for_url(f"{live_server.url}/")
     assert not User.objects.filter(pk=test_user.pk).exists()
+
+
+def test_dark_mode_toggle_persists(authenticated_page: Page, live_server, test_user):
+    page = authenticated_page
+    page.goto(f"{live_server.url}/account")
+    html = page.locator("html")
+    expect(html).not_to_have_class("wa-dark")
+
+    page.locator("#account-appearance-card wa-switch").locator("label").click()
+    # Applied immediately on the client...
+    expect(html).to_have_class("wa-dark")
+    # ...and persisted on the server.
+    expect(page.locator("#account-appearance-card wa-switch")).to_have_attribute("checked", "")
+    test_user.refresh_from_db()
+    assert test_user.profile.theme == "dark"
+
+    page.goto(f"{live_server.url}/bills")
+    expect(page.locator("html")).to_have_class("wa-dark")
+
+    page.goto(f"{live_server.url}/account")
+    page.locator("#account-appearance-card wa-switch").locator("label").click()
+    expect(page.locator("html")).not_to_have_class("wa-dark")
+    expect(page.locator("#account-appearance-card wa-switch")).not_to_have_attribute("checked", "")
+    test_user.refresh_from_db()
+    assert test_user.profile.theme == "light"

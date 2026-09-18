@@ -17,7 +17,7 @@
 
     .account-card-hint {
       margin: 0;
-      color: #666;
+      color: var(--wa-color-text-quiet);
       font-size: 0.9rem;
     }
 
@@ -48,15 +48,38 @@
   <div id="account-page" style="max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem;">
     <h1 style="margin: 0; font-size: 1.75rem; font-weight: 600;">Account</h1>
 
-    <p style="color: #666; margin-bottom: 1.5rem;">
-      Update your sign-in details or close your account.
+    <p style="color: var(--wa-color-text-quiet); margin-bottom: 1.5rem;">
+      Update your sign-in details, choose a theme, or close your account.
     </p>
 
+    {% partial account-appearance-card %}
     {% partial account-email-card %}
     {% partial account-password-card %}
     {% partial account-delete-card %}
   </div>
 {% endblock %}
+
+{% partialdef account-appearance-card %}
+<wa-card id="account-appearance-card" style="margin-bottom: 1.5rem;">
+  <div slot="header">
+    <h3 class="account-card-title">Appearance</h3>
+  </div>
+
+  <form class="account-form" hx-post="/account/theme" hx-trigger="change" hx-target="#account-appearance-card" hx-swap="outerHTML">
+    <p class="account-card-hint">Choose how Budgeter looks on every device you sign in on.</p>
+
+    <wa-switch
+      name="theme"
+      value="dark"
+      {% if dark_mode %}checked{% endif %}
+      hint="Use a darker color scheme that is easier on the eyes in low light."
+      hx-on:change="document.documentElement.classList.toggle('wa-dark', this.checked)"
+    >
+      Dark mode
+    </wa-switch>
+  </form>
+</wa-card>
+{% endpartialdef account-appearance-card %}
 
 {% partialdef account-email-card %}
 <wa-card id="account-email-card" style="margin-bottom: 1.5rem;">

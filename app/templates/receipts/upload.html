@@ -17,7 +17,7 @@
         accept="image/*"
         multiple
         required
-        style="display: block; width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
+        style="display: block; width: 100%; padding: 0.5rem; border: 1px solid var(--wa-color-surface-border); border-radius: 4px;"
       />
       <script>
         me("#receipt_image").on("change", function (e) {
@@ -43,10 +43,10 @@
           }
         })
       </script>
-      <p style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+      <p style="font-size: 0.875rem; color: var(--wa-color-text-quiet); margin-top: 0.5rem;">
         Supported formats: JPG, PNG, GIF, BMP, TIFF (max 5MB each)
       </p>
-      <p style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
+      <p style="font-size: 0.875rem; color: var(--wa-color-text-quiet); margin-top: 0.25rem;">
         Take a photo or choose one or more images from your library. Each receipt will be automatically processed to
         extract merchant, date, and items.
       </p>

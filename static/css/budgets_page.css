@@ -29,10 +29,10 @@
   }
 
   .budget-card {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--wa-color-surface-border);
     border-radius: 8px;
     padding: 1rem;
-    background: #fff;
+    background: var(--wa-color-surface-default);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     transition: box-shadow 0.15s;
 
@@ -41,8 +41,8 @@
     }
 
     &.over-budget {
-      border-color: #fca5a5;
-      background: #fff9f9;
+      border-color: var(--wa-color-danger-border-quiet);
+      background: var(--wa-color-danger-fill-quiet);
     }
   }
 
@@ -94,7 +94,7 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #9ca3af;
+    color: var(--wa-color-text-quiet);
     margin-bottom: 0.1rem;
   }
 
@@ -105,7 +105,7 @@
 
   .progress-bar-container {
     height: 6px;
-    background: #e5e7eb;
+    background: var(--wa-color-neutral-fill-normal);
     border-radius: 999px;
     overflow: hidden;
     margin-bottom: 0.3rem;
@@ -124,7 +124,7 @@
 
   .progress-label {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--wa-color-text-quiet);
     text-align: right;
   }
 
@@ -145,7 +145,7 @@
     justify-content: space-between;
     align-items: baseline;
     padding: 0.4rem 0;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--wa-color-neutral-border-quiet);
 
     &:last-child {
       border-bottom: none;
@@ -154,7 +154,7 @@
 
   .stat-label {
     font-size: 0.85rem;
-    color: #6b7280;
+    color: var(--wa-color-text-quiet);
   }
 
   .stat-value {
@@ -168,7 +168,7 @@
 
   .overall-bar-container {
     height: 8px;
-    background: #e5e7eb;
+    background: var(--wa-color-neutral-fill-normal);
     border-radius: 999px;
     overflow: hidden;
     margin-top: 1rem;
@@ -187,7 +187,7 @@
 
   .overall-label {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--wa-color-text-quiet);
     text-align: right;
   }
 }

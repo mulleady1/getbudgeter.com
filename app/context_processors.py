@@ -1,8 +1,17 @@
 from pathlib import Path
 
+from app.models import UserProfile
 from app.util import is_mobile_device
 
 UI_VERSION = Path("UI_VERSION").read_text().strip()
+
+
+def _theme(request):
+    user = getattr(request, "user", None)
+    if user is None or not user.is_authenticated:
+        return UserProfile.THEME_LIGHT
+    profile = getattr(user, "profile", None)
+    return profile.theme if profile else UserProfile.THEME_LIGHT
 
 
 def app_variables(request):
@@ -18,4 +27,5 @@ def app_variables(request):
         "UI_VERSION": UI_VERSION,
         "is_mobile": is_mobile,
         "is_desktop": is_desktop,
+        "dark_mode": _theme(request) == UserProfile.THEME_DARK,
     }
