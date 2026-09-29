@@ -7,7 +7,15 @@
       "Bash(./env/bin/pip show:*)",
       "Bash(python -c:*)",
       "Bash(python -m py_compile:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(python manage.py makemigrations:*)",
+      "Bash(./env/bin/pip:*)",
+      "Bash(python manage.py collectstatic:*)",
+      "Bash(python manage.py:*)",
+      "Bash(mkdir:*)",
+      "Bash(./env/bin/playwright install:*)",
+      "Bash(chmod:*)",
+      "Bash(python -m pytest tests/ --collect-only)"
     ],
     "deny": [],
     "ask": []

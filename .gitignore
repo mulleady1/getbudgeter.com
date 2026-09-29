@@ -9,3 +9,4 @@ db.sqlite3
 /data
 /static_admin
 /static/js/htmx*
+/media
