@@ -1,4 +1,4 @@
-"""Backfill normalized names and product categories onto existing receipt items.
+"""Backfill normalized names and product categories onto existing receipts.
 
 Run after deploying normalization to map the historical corpus, and again after
 any change to `app.taxonomy` (with --all --clear-aliases) to remap it.
@@ -18,7 +18,7 @@ UPDATE_BATCH_SIZE = 500
 
 
 class Command(BaseCommand):
-    help = "Backfill normalized names and product categories on existing receipt items."
+    help = "Backfill normalized names and product categories on existing receipts."
 
     def add_arguments(self, parser):
         parser.add_argument("--user", help="Limit to a single username (default: every user).")
