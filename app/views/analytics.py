@@ -51,7 +51,7 @@ class AnalyticsViewSet(LoginRequiredViewSet):
             return {"labels": [m[0] for m in top_merchants], "data": [float(m[1]) for m in top_merchants]}
         return None
 
-    def _get_trend_chart_data(self, transactions, mode, selected_category=None):
+    def _get_trend_chart_data(self, transactions, mode, start_date, end_date, selected_category=None):
         filtered_items = transactions
         if selected_category and selected_category != "all":
             try:
@@ -71,6 +71,20 @@ class AnalyticsViewSet(LoginRequiredViewSet):
                     "labels": [w.strftime("Week of %b %d") for w in weeks],
                     "data": [float(weekly_spending[w]) for w in weeks],
                     "period": "Week",
+                }
+        elif end_date.year > start_date.year:
+            # A range spanning multiple calendar years would otherwise plot one point
+            # per month, which gets unreadable — collapse to one point per year instead.
+            yearly_spending = defaultdict(Decimal)
+            for item in filtered_items:
+                yearly_spending[item.date.year] += abs(item.amount)
+
+            if yearly_spending:
+                years = sorted(yearly_spending.keys())
+                return {
+                    "labels": [str(y) for y in years],
+                    "data": [float(yearly_spending[y]) for y in years],
+                    "period": "Year",
                 }
         else:
             monthly_spending = defaultdict(Decimal)
@@ -154,7 +168,9 @@ class AnalyticsViewSet(LoginRequiredViewSet):
             {"labels": list(category_spending.keys()), "data": [float(v) for v in category_spending.values()]}
             if category_spending else None
         )
-        trend_chart_data = self._get_trend_chart_data(transactions, params["mode"], params["selected_category"])
+        trend_chart_data = self._get_trend_chart_data(
+            transactions, params["mode"], params["start_date"], params["end_date"], params["selected_category"]
+        )
         merchant_chart_data = self._get_merchant_chart_data(transactions, params["selected_category"])
 
         return {
@@ -235,7 +251,9 @@ class AnalyticsViewSet(LoginRequiredViewSet):
             anomaly=False,
         ).select_related("category")
         categories = Category.objects.filter(user=request.user).order_by("name")
-        trend_chart_data = self._get_trend_chart_data(transactions, params["mode"], selected_category)
+        trend_chart_data = self._get_trend_chart_data(
+            transactions, params["mode"], params["start_date"], params["end_date"], selected_category
+        )
         context = {
             "trend_chart_data": json.dumps(trend_chart_data) if trend_chart_data else None,
             "categories": categories,
