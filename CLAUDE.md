@@ -181,7 +181,9 @@ Responses carry a nonce-based `script-src` CSP (`SECURE_CSP` in `project/setting
   you. Put the value in a `data-*` attribute and read `this.dataset.x`.
 - **Don't build htmx elements in JavaScript** (`el.innerHTML = '<button hx-get=...>'`). They have
   no nonce, so hx-csp strips their `hx-*` attributes. Return the markup from the server.
-- A new third-party script host (like the chart.js CDN) must be added to `SECURE_CSP["script-src"]`.
+- A new third-party script host must be added to `SECURE_CSP["script-src"]`. Prefer self-hosting
+  vendored JS under `static/vendor/` instead (see `static/vendor/chartjs/`) so the CSP doesn't need
+  a third-party script-src entry at all.
 - A blocked element logs `htmx: [hx-csp] blocked <tag>` to the console and fires
   `htmx:security:strip`; a blocked inline script logs a `Content Security Policy` error.
 

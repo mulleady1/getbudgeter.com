@@ -75,13 +75,13 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
-# Content Security Policy. Scripts run only from our own origin, the chart.js CDN, or with the
-# per-request nonce; no 'unsafe-inline' and no 'unsafe-eval'. `app/template_loaders.py` stamps
-# the nonce onto every <script> and every htmx element at template-load time, and the `hx-csp`
-# extension (static/js/hx-csp.js) refuses to power any htmx element that lacks a matching
-# `hx-nonce`, so injected markup cannot issue requests or run `hx-on` code.
+# Content Security Policy. Scripts run only from our own origin or with the per-request nonce;
+# no 'unsafe-inline' and no 'unsafe-eval'. `app/template_loaders.py` stamps the nonce onto every
+# <script> and every htmx element at template-load time, and the `hx-csp` extension
+# (static/js/hx-csp.js) refuses to power any htmx element that lacks a matching `hx-nonce`, so
+# injected markup cannot issue requests or run `hx-on` code.
 SECURE_CSP = {
-    "script-src": [CSP.SELF, CSP.NONCE, "https://cdn.jsdelivr.net"],
+    "script-src": [CSP.SELF, CSP.NONCE],
     "object-src": [CSP.NONE],
     "base-uri": [CSP.SELF],
 }

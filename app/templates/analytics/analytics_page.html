@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}?v={{ UI_VERSION }}"></script>
+  <script src="{% static 'vendor/chartjs/chartjs-plugin-datalabels.min.js' %}?v={{ UI_VERSION }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -17,8 +17,8 @@
   {% if request.htmx %}
     <head>
       <link rel="stylesheet" href="{% static 'css/analytics_page.css' %}?v={{ UI_VERSION }}" />
-      <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+      <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}?v={{ UI_VERSION }}"></script>
+      <script src="{% static 'vendor/chartjs/chartjs-plugin-datalabels.min.js' %}?v={{ UI_VERSION }}"></script>
     </head>
   {% endif %}
 
