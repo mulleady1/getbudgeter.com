@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from rest_framework.decorators import action
 
 from ..models import Budget, Category, Transaction
@@ -16,13 +17,13 @@ def _get_selected_month(request):
             return datetime.strptime(month_str, "%Y-%m").date()
         except ValueError:
             pass
-    return datetime.now().replace(day=1).date()
+    return timezone.localdate().replace(day=1)
 
 
 def _get_month_from_htmx_url(request):
     if request.htmx and request.htmx.current_url:
         return get_month_from_url(request.htmx.current_url)
-    return datetime.now().replace(day=1).date()
+    return timezone.localdate().replace(day=1)
 
 
 def _get_budgets_for_month(user, selected_month):

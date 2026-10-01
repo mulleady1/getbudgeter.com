@@ -73,6 +73,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
+    "app.middleware.UserTimezoneMiddleware",
 ]
 
 # Content Security Policy. Scripts run only from our own origin or with the per-request nonce;

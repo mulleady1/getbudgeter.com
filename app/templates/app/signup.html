@@ -74,6 +74,7 @@
     {% endif %}
     <form id="signup-form" method="post">
       {% csrf_token %}
+      <input type="hidden" id="timezone" name="timezone" />
       <wa-input type="text" id="email" name="email" label="Email" value="{{ email }}" required></wa-input>
       <wa-input
         type="password"
@@ -102,6 +103,7 @@
 
   <script type="module">
     const form = document.getElementById("signup-form")
+    document.getElementById("timezone").value = Intl.DateTimeFormat().resolvedOptions().timeZone
     const submitButton = form.querySelector("wa-button[type='submit']")
     form.addEventListener("submit", event => {
       submitButton.loading = true

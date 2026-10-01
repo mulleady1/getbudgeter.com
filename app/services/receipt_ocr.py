@@ -8,6 +8,7 @@ from typing import Optional
 
 import pytesseract
 from PIL import Image
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class ReceiptOCRProcessor:
             return {
                 "raw_text": raw_text,
                 "merchant": merchant or "",
-                "date": date or datetime.now().date(),
+                "date": date or timezone.localdate(),
                 "total": total,
                 "items": items,
             }

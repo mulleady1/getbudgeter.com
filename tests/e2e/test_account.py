@@ -97,3 +97,37 @@ def test_dark_mode_toggle_persists(authenticated_page: Page, live_server, test_u
     expect(page.locator("#account-appearance-card wa-switch")).not_to_have_attribute("checked", "")
     test_user.refresh_from_db()
     assert test_user.profile.theme == "light"
+
+
+@pytest.mark.browser_context_args(timezone_id="Pacific/Honolulu")
+def test_browser_timezone_backfilled_on_first_page(authenticated_page: Page, live_server, test_user):
+    page = authenticated_page
+    page.goto(f"{live_server.url}/bills")
+    page.wait_for_load_state("networkidle")
+    test_user.profile.refresh_from_db()
+    assert test_user.profile.timezone == "Pacific/Honolulu"
+
+
+@pytest.mark.browser_context_args(timezone_id="Pacific/Honolulu")
+def test_signup_captures_browser_timezone(page: Page, live_server, db):
+    page.goto(f"{live_server.url}/signup")
+    fill_wa_input(page, 'wa-input[name="email"]', "tz@example.com")
+    fill_wa_input(page, 'wa-input[name="password"]', "pw12345!")
+    fill_wa_input(page, 'wa-input[name="confirm_password"]', "pw12345!")
+    page.locator('wa-button[type="submit"]').click()
+    page.wait_for_url("**/bills")
+    assert User.objects.get(email="tz@example.com").profile.timezone == "Pacific/Honolulu"
+
+
+def test_change_timezone_from_account_page(authenticated_page: Page, live_server, test_user):
+    test_user.profile.timezone = "Pacific/Honolulu"
+    test_user.profile.save(update_fields=["timezone"])
+    page = authenticated_page
+    page.goto(f"{live_server.url}/account")
+    select = page.locator('#account-timezone-card wa-select[name="timezone"]')
+    expect(select).to_have_attribute("value", "Pacific/Honolulu")
+    select.click()
+    page.locator('#account-timezone-card wa-option[value="Europe/Berlin"]').click()
+    expect(page.locator("wa-callout", has_text="Timezone updated.")).to_be_visible()
+    test_user.profile.refresh_from_db()
+    assert test_user.profile.timezone == "Europe/Berlin"

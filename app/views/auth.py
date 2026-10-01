@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 
+from ..util import is_valid_timezone
+
 
 def home(request):
     if request.user.is_authenticated:
@@ -55,6 +57,10 @@ def signup_view(request):
 
         # Create user
         user = User.objects.create_user(username=email, email=email, password=password)
+        tz_name = request.POST.get("timezone", "")
+        if is_valid_timezone(tz_name):
+            user.profile.timezone = tz_name
+            user.profile.save(update_fields=["timezone"])
         login(request, user)
         return redirect("/")
 

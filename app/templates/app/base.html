@@ -134,5 +134,18 @@
       </header>
     {% endblock %}
     <main>{% block content %}{% endblock %}</main>
+    {% if needs_timezone %}
+      {# One-time backfill: report the browser's timezone for accounts that don't have one yet. #}
+      <div
+        hidden
+        hx-post="/account/detect-timezone"
+        hx-trigger="load"
+        hx-swap="none"
+        hx-vals="js:{timezone: Intl.DateTimeFormat().resolvedOptions().timeZone}"
+      >
+        {# Not every page renders a token, and the csrf hook in app.js reads it from the DOM. #}
+        {% csrf_token %}
+      </div>
+    {% endif %}
   </body>
 </html>

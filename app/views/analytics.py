@@ -1,9 +1,10 @@
 import json
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 from decimal import Decimal
 
 from django.shortcuts import render
+from django.utils import timezone
 from rest_framework.decorators import action
 
 from ..models import Category, Transaction
@@ -109,7 +110,7 @@ class AnalyticsViewSet(LoginRequiredViewSet):
         Params round-trip through the session so a bare /analytics resumes where
         you left off.
         """
-        today = datetime.now().date()
+        today = timezone.localdate()
         source = request.session.get("analytics_params", {}) if not request.GET else request.GET
 
         mode = source.get("mode") or "month"

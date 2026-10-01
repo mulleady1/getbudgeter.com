@@ -3,6 +3,8 @@ import random
 from datetime import datetime
 from urllib.parse import parse_qs, urlparse
 
+from django.utils import timezone
+
 from ..csv_parsers.bofa import BofAParser
 from ..csv_parsers.capital_one import CapitalOneParser
 from ..csv_parsers.citi import CitiParser
@@ -17,7 +19,7 @@ def get_month_from_url(url):
         month_str = query_params.get("month")[0]  # type: ignore
         month = datetime.strptime(month_str, "%Y-%m").date()
     except:  # noqa
-        month = datetime.now().replace(day=1)
+        month = timezone.localdate().replace(day=1)
     return month
 
 

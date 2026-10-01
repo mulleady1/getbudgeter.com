@@ -14,6 +14,14 @@ def _theme(request):
     return profile.theme if profile else UserProfile.THEME_LIGHT
 
 
+def _needs_timezone(request):
+    user = getattr(request, "user", None)
+    if user is None or not user.is_authenticated:
+        return False
+    profile = getattr(user, "profile", None)
+    return profile is not None and not profile.timezone
+
+
 def app_variables(request):
     # Detect device type and cache in session
     if "is_mobile" not in request.session:
@@ -28,4 +36,5 @@ def app_variables(request):
         "is_mobile": is_mobile,
         "is_desktop": is_desktop,
         "dark_mode": _theme(request) == UserProfile.THEME_DARK,
+        "needs_timezone": _needs_timezone(request),
     }

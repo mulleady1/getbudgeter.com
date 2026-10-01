@@ -18,6 +18,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     income = models.IntegerField(default=0)
     theme = models.CharField(max_length=10, choices=THEME_CHOICES, default=THEME_LIGHT)
+    # IANA name (e.g. "Pacific/Honolulu"). Blank until the browser reports it; requests then run in UTC.
+    timezone = models.CharField(max_length=64, blank=True, default="")
 
     def __str__(self):
         return f"{self.user.username}'s profile"

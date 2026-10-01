@@ -10,6 +10,7 @@ from pathlib import Path
 
 import anthropic
 from anthropic.types import Base64ImageSourceParam, ImageBlockParam, MessageParam, TextBlock, TextBlockParam
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -136,9 +137,9 @@ Important rules:
                     date = datetime.strptime(date_str, "%Y-%m-%d").date()
                 except ValueError:
                     logger.warning("Failed to parse date: %s", date_str)
-                    date = datetime.now().date()
+                    date = timezone.localdate()
             else:
-                date = datetime.now().date()
+                date = timezone.localdate()
 
             # Parse items
             items = []

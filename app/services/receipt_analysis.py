@@ -4,6 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.db.models import Q
+from django.utils import timezone
 
 from ..models import ReceiptItem
 
@@ -22,7 +23,7 @@ DEFAULT_ITEM_SORT = "total"
 
 
 def parse_date_range(mode, month_str, year_str, start_date_str="", end_date_str=""):
-    today = datetime.now().date()
+    today = timezone.localdate()
     if mode == "custom":
         try:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date() if start_date_str else today.replace(day=1)

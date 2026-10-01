@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.db.models.functions import Lower
 from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from rest_framework.decorators import action
 
 from ..services import TransactionCategorizer
@@ -88,7 +89,7 @@ class CategoryRuleViewSet(LoginRequiredViewSet):
 
     @action(detail=False, methods=["get"], url_path="reprocess-dialog")
     def reprocess_dialog(self, request):
-        today = datetime.now().date()
+        today = timezone.localdate()
         context = {
             # Default reprocess window: the last 30 days.
             "reprocess_start_date": (today - timedelta(days=30)).strftime("%Y-%m-%d"),

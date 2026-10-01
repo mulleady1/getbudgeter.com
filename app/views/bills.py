@@ -35,7 +35,7 @@ class BillViewSet(LoginRequiredViewSet):
         if selected_month:
             selected_month = datetime.strptime(selected_month, "%Y-%m").date()
         else:
-            selected_month = datetime.now().replace(day=1).date()
+            selected_month = timezone.localdate().replace(day=1)
 
         # Filter bills for the selected month
         bills = Bill.objects.filter(user=request.user, month=selected_month)

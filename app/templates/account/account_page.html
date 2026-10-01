@@ -53,6 +53,7 @@
     </p>
 
     {% partial account-appearance-card %}
+    {% partial account-timezone-card %}
     {% partial account-email-card %}
     {% partial account-password-card %}
     {% partial account-delete-card %}
@@ -80,6 +81,26 @@
   </form>
 </wa-card>
 {% endpartialdef account-appearance-card %}
+
+{% partialdef account-timezone-card %}
+<wa-card id="account-timezone-card" style="margin-bottom: 1.5rem;">
+  <div slot="header">
+    <h3 class="account-card-title">Timezone</h3>
+  </div>
+
+  <form class="account-form" hx-post="/account/timezone" hx-trigger="change" hx-target="#account-timezone-card" hx-swap="outerHTML">
+    <p class="account-card-hint">Decides when a new month starts, which month opens by default, and what counts as today.</p>
+
+    <wa-select name="timezone" label="Timezone" value="{{ current_timezone }}">
+      {% for tz in timezone_choices %}
+        <wa-option value="{{ tz }}">{{ tz }}</wa-option>
+      {% endfor %}
+    </wa-select>
+  </form>
+
+  {% if toast %}{% partial account-toast %}{% endif %}
+</wa-card>
+{% endpartialdef account-timezone-card %}
 
 {% partialdef account-email-card %}
 <wa-card id="account-email-card" style="margin-bottom: 1.5rem;">

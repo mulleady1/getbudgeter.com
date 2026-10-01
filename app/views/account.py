@@ -1,4 +1,6 @@
 import logging
+from datetime import timezone as dt_timezone
+from zoneinfo import ZoneInfo
 
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.models import User
@@ -8,9 +10,11 @@ from django.core.validators import validate_email
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils import timezone
 from rest_framework.decorators import action
 
 from ..models import Receipt, UserProfile
+from ..util import is_valid_timezone, timezone_choices
 from .base import LoginRequiredViewSet
 
 logger = logging.getLogger(__name__)
@@ -23,10 +27,20 @@ def _form_error(request, message):
     return render(request, "form_error.html", {"message": message}, status=400)
 
 
+def _timezone_context(user):
+    current = user.profile.timezone or "UTC"
+    choices = timezone_choices()
+    # A valid alias the browser reported (e.g. "US/Hawaii") isn't in the picker; keep it selectable.
+    if current not in choices:
+        choices = [current, *choices]
+    return {"current_timezone": current, "timezone_choices": choices}
+
+
 class AccountViewSet(LoginRequiredViewSet):
     def list(self, request):
         # `dark_mode` comes from the app_variables context processor.
-        return render(request, "account/account_page.html", {"email": request.user.email})
+        context = {"email": request.user.email, **_timezone_context(request.user)}
+        return render(request, "account/account_page.html", context)
 
     @action(detail=False, methods=["post"])
     def theme(self, request):
@@ -36,6 +50,35 @@ class AccountViewSet(LoginRequiredViewSet):
         profile.theme = UserProfile.THEME_DARK if dark else UserProfile.THEME_LIGHT
         profile.save(update_fields=["theme"])
         return render(request, "account/account_page.html#account-appearance-card", {"dark_mode": dark})
+
+    @action(detail=False, methods=["post"], url_path="timezone")
+    def set_timezone(self, request):
+        tz_name = request.POST.get("timezone", "")
+        if not is_valid_timezone(tz_name):
+            return _form_error(request, "Choose a valid timezone.")
+        profile = request.user.profile
+        profile.timezone = tz_name
+        profile.save(update_fields=["timezone"])
+        return render(
+            request,
+            "account/account_page.html#account-timezone-card",
+            {**_timezone_context(request.user), "toast": "Timezone updated."},
+        )
+
+    @action(detail=False, methods=["post"], url_path="detect-timezone")
+    def detect_timezone(self, request):
+        """Backfill for accounts with no timezone. base.html posts the browser's zone once."""
+        tz_name = request.POST.get("timezone", "")
+        profile = request.user.profile
+        res = HttpResponse()
+        if profile.timezone or not is_valid_timezone(tz_name):
+            return res
+        profile.timezone = tz_name
+        profile.save(update_fields=["timezone"])
+        # This page was rendered in UTC; reload it if that put it on the wrong day.
+        if timezone.localdate(timezone=ZoneInfo(tz_name)) != timezone.localdate(timezone=dt_timezone.utc):
+            res.headers["HX-Refresh"] = "true"
+        return res
 
     @action(detail=False, methods=["post"])
     def email(self, request):
