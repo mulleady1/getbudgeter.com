@@ -1,0 +1,85 @@
+{% extends "staff/base.html" %}
+{% load humanize %}
+
+{% block staff_content %}
+  {% with user=activity.user %}
+    <div class="staff-head">
+      <div>
+        <p class="quiet" style="margin: 0; font-size: 0.875rem;"><a href="/admin/users">Users</a> / #{{ user.pk }}</p>
+        <h1>{{ user.username }}</h1>
+      </div>
+      {% include "staff/_signals.html" %}
+    </div>
+
+    <div class="staff-grid">
+      <wa-card>
+        <div slot="header"><h3 class="staff-card-title">Account</h3></div>
+        <table class="staff-table">
+          <tbody>
+            <tr><th>Email</th><td>{{ user.email|default:"—" }}</td></tr>
+            <tr><th>Joined</th><td>{{ user.date_joined|date:"Y-m-d H:i:s" }} <span class="quiet">({{ user.date_joined|naturaltime }})</span></td></tr>
+            <tr><th>Last login</th><td>{% if user.last_login %}{{ user.last_login|date:"Y-m-d H:i:s" }} <span class="quiet">({{ user.last_login|naturaltime }})</span>{% else %}never{% endif %}</td></tr>
+            <tr><th>Timezone</th><td>{{ user.profile.timezone|default:"not reported" }}</td></tr>
+            <tr><th>Theme</th><td>{{ user.profile.theme }}</td></tr>
+            <tr><th>Flags</th><td>{% if user.is_staff %}staff{% endif %} {% if user.is_superuser %}superuser{% endif %} {% if not user.is_active %}inactive{% endif %}</td></tr>
+            <tr><th>Content</th><td>{{ activity.bills }} bills, {{ activity.transactions }} transactions, {{ activity.receipts }} receipts, {{ activity.budgets }} budgets</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top: 0.75rem;">
+          <a href="/admin/auth/user/{{ user.pk }}/change/" style="font-size: 0.875rem;">Edit in Django admin</a>
+        </div>
+      </wa-card>
+
+      <wa-card>
+        <div slot="header"><h3 class="staff-card-title">Signup &amp; traffic</h3></div>
+        <table class="staff-table">
+          <tbody>
+            {% if signup %}
+              <tr><th>Signup IP</th><td class="mono">{{ signup.log.ip|default:"—" }}</td></tr>
+              <tr><th>Signup user agent</th><td class="mono wrap">{% if signup.log.is_bot %}<wa-badge variant="danger">bot</wa-badge>{% endif %} {{ signup.log.user_agent|default:"(none)" }}</td></tr>
+              <tr>
+                <th>Time on site before signup</th>
+                <td>
+                  {% if signup.seconds_on_site is None %}
+                    <wa-badge variant="warning">no earlier request</wa-badge> <span class="quiet">posted the form without ever loading a page</span>
+                  {% else %}
+                    {{ signup.seconds_on_site|floatformat:0 }}s
+                    {% if signup.seconds_on_site < 3 %}<wa-badge variant="warning">too fast to type</wa-badge>{% endif %}
+                    <span class="quiet">first hit: {{ signup.first_hit.method }} {{ signup.first_hit.path }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% else %}
+              <tr><th>Signup</th><td class="quiet">not logged (account predates request logging)</td></tr>
+            {% endif %}
+            <tr><th>Requests logged</th><td>{{ activity.requests|intcomma }} <span class="quiet">({{ activity.htmx_requests }} via htmx, {{ activity.bot_requests }} from bot user agents)</span></td></tr>
+            <tr><th>First seen</th><td>{{ activity.first_seen|date:"Y-m-d H:i:s"|default:"—" }}</td></tr>
+            <tr><th>Last seen</th><td>{{ activity.last_seen|date:"Y-m-d H:i:s"|default:"—" }}</td></tr>
+            <tr><th>Distinct IPs</th><td>{{ distinct_ips }}</td></tr>
+          </tbody>
+        </table>
+        {% if agents %}
+          <h4 style="margin: 1rem 0 0.25rem; font-size: 0.9rem;">User agents</h4>
+          <table class="staff-table">
+            <tbody>
+              {% for row in agents %}
+                <tr>
+                  <td class="mono wrap">{% if row.is_bot %}<wa-badge variant="danger">bot</wa-badge>{% endif %} {{ row.user_agent|default:"(none)" }}</td>
+                  <td class="num">{{ row.n }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </wa-card>
+    </div>
+
+    <wa-card>
+      <div slot="header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="staff-card-title">Latest requests</h3>
+        <a href="/admin/requests?user={{ user.pk }}" style="font-size: 0.875rem;">All {{ activity.requests|intcomma }}</a>
+      </div>
+      {% include "staff/_request_rows.html" with logs=recent %}
+    </wa-card>
+  {% endwith %}
+{% endblock %}

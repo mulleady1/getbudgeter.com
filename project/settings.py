@@ -64,6 +64,8 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    # Outermost so it times the full stack and sees the final user/session on the way out.
+    "app.middleware.RequestLogMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.csp.ContentSecurityPolicyMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -190,3 +192,11 @@ CSRF_TRUSTED_ORIGINS = ["https://getbudgeter.com"]
 
 TRAILING_SLASH = False
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
+
+# Requests the activity log (`RequestLogMiddleware`) ignores: assets, and the staff pages that
+# read the log, so browsing them doesn't fill them. Only those exact pages are excluded, not all
+# of /admin/, because scanners probing Django admin are worth seeing. The middleware deletes rows
+# older than the retention once a day on its own; `manage.py prune_request_logs` does it on demand.
+REQUEST_LOG_EXCLUDE_PREFIXES = (STATIC_URL, MEDIA_URL, "/admin/activity", "/admin/users", "/admin/requests")
+REQUEST_LOG_RETENTION_DAYS = 90
+REQUEST_LOG_EXCLUDE_PATHS = ("/favicon.ico",)

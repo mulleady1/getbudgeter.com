@@ -1,0 +1,211 @@
+{% extends "staff/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block extra_scripts %}
+  <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}?v={{ UI_VERSION }}"></script>
+{% endblock %}
+
+{% block staff_content %}
+  {% if request.htmx %}
+    <head>
+      <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}?v={{ UI_VERSION }}"></script>
+    </head>
+  {% endif %}
+
+  <div class="staff-head">
+    <h1>Activity</h1>
+    <wa-select
+      size="small"
+      name="period"
+      value="{{ period }}"
+      hx-get="/admin/activity"
+      hx-push-url="true"
+      hx-target="#staff-overview"
+      hx-swap="outerHTML"
+      hx-trigger="change"
+      style="min-width: 180px;"
+    >
+      {% for key, label in periods %}
+        <wa-option value="{{ key }}">{{ label }}</wa-option>
+      {% endfor %}
+    </wa-select>
+  </div>
+
+  {% partial overview %}
+{% endblock %}
+
+{% partialdef overview %}
+<div id="staff-overview">
+  <div class="stat-tiles">
+    <div class="stat-tile">
+      <div class="stat-label">Requests</div>
+      <div class="stat-value">{{ stats.requests|intcomma }}</div>
+      <div class="stat-sub">{{ period_label|lower }}</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">From bot user agents</div>
+      <div class="stat-value">{{ stats.bot_pct }}%</div>
+      <div class="stat-sub">{{ stats.bot_requests|intcomma }} requests</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Signed-in users active</div>
+      <div class="stat-value">{{ stats.active_users|intcomma }}</div>
+      <div class="stat-sub">{{ stats.visitors|intcomma }} anonymous sessions</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">New signups</div>
+      <div class="stat-value">{{ stats.signups|intcomma }}</div>
+      <div class="stat-sub"><a href="/admin/users">all users</a></div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Not found (404)</div>
+      <div class="stat-value">{{ stats.not_found|intcomma }}</div>
+      <div class="stat-sub">mostly scanners probing</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Server errors (5xx)</div>
+      <div class="stat-value">{{ stats.errors|intcomma }}</div>
+      <div class="stat-sub"><a href="/admin/requests?status=5xx">see them</a></div>
+    </div>
+  </div>
+
+  <wa-card style="margin-bottom: 1.5rem;">
+    <div slot="header"><h3 class="staff-card-title">Requests per day</h3></div>
+    {% if stats.requests %}
+      <div class="staff-chart">
+        <canvas id="staff-daily-chart"></canvas>
+      </div>
+      <script>
+        ;(() => {
+          const daily = {{ daily_json|safe }}
+          const render = () => {
+            const existing = Chart.getChart('staff-daily-chart')
+            if (existing) existing.destroy()
+            const dark = document.documentElement.classList.contains('wa-dark')
+            const ink = dark ? '#c3c2b7' : '#6b6b66'
+            const grid = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
+            new Chart(me('#staff-daily-chart').getContext('2d'), {
+              type: 'bar',
+              data: {
+                labels: daily.labels,
+                datasets: [
+                  { label: 'Browser user agents', data: daily.humans, backgroundColor: dark ? '#3987e5' : '#2a78d6', borderRadius: 4, borderSkipped: false, maxBarThickness: 28 },
+                  { label: 'Bot user agents', data: daily.bots, backgroundColor: dark ? '#d95926' : '#eb6834', borderRadius: 4, borderSkipped: false, maxBarThickness: 28 },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                  legend: { position: 'bottom', labels: { color: ink, boxWidth: 12, usePointStyle: true } },
+                },
+                scales: {
+                  x: { stacked: true, grid: { display: false }, ticks: { color: ink, maxRotation: 0, autoSkip: true } },
+                  y: { stacked: true, beginAtZero: true, grid: { color: grid }, ticks: { color: ink, precision: 0 } },
+                },
+              },
+            })
+          }
+          waitFor(() => typeof window.Chart !== 'undefined').then(render)
+        })()
+      </script>
+    {% else %}
+      <p class="quiet" style="margin: 0;">No requests logged yet for this period.</p>
+    {% endif %}
+  </wa-card>
+
+  <div class="staff-grid">
+    <wa-card>
+      <div slot="header"><h3 class="staff-card-title">Recent signups</h3></div>
+      {% if recent_signups %}
+        <div class="staff-table-wrap">
+          <table class="staff-table">
+            <thead><tr><th>User</th><th>Joined</th><th>Signals</th></tr></thead>
+            <tbody>
+              {% for activity in recent_signups %}
+                <tr>
+                  <td><a href="/admin/users/{{ activity.user.pk }}">{{ activity.user.username }}</a></td>
+                  <td class="quiet">{{ activity.user.date_joined|naturaltime }}</td>
+                  <td>{% include "staff/_signals.html" %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="quiet" style="margin: 0;">No signups {{ period_label|lower }}.</p>
+      {% endif %}
+    </wa-card>
+
+    <wa-card>
+      <div slot="header"><h3 class="staff-card-title">Top paths</h3></div>
+      <div class="staff-table-wrap">
+        <table class="staff-table">
+          <thead><tr><th>Path</th><th class="num">Hits</th></tr></thead>
+          <tbody>
+            {% for row in top_paths %}
+              <tr>
+                <td class="mono wrap">{{ row.method }} <a href="/admin/requests?path={{ row.path|urlencode }}">{{ row.path }}</a></td>
+                <td class="num">{{ row.n|intcomma }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="2" class="quiet">Nothing yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </wa-card>
+
+    <wa-card>
+      <div slot="header"><h3 class="staff-card-title">Top user agents</h3></div>
+      <div class="staff-table-wrap">
+        <table class="staff-table">
+          <thead><tr><th>User agent</th><th class="num">Hits</th></tr></thead>
+          <tbody>
+            {% for row in top_agents %}
+              <tr>
+                <td>
+                  {% if row.is_bot %}<wa-badge variant="danger">bot</wa-badge>{% endif %}
+                  <span class="mono truncate" title="{{ row.user_agent }}">{{ row.user_agent|default:"(no user agent)" }}</span>
+                </td>
+                <td class="num">{{ row.n|intcomma }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="2" class="quiet">Nothing yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </wa-card>
+
+    <wa-card>
+      <div slot="header"><h3 class="staff-card-title">404 paths (probes)</h3></div>
+      <div class="staff-table-wrap">
+        <table class="staff-table">
+          <thead><tr><th>Path</th><th class="num">Hits</th></tr></thead>
+          <tbody>
+            {% for row in probes %}
+              <tr>
+                <td class="mono wrap">{{ row.path }}</td>
+                <td class="num">{{ row.n|intcomma }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="2" class="quiet">No 404s {{ period_label|lower }}.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </wa-card>
+  </div>
+
+  <wa-card>
+    <div slot="header" style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 class="staff-card-title">Latest requests</h3>
+      <a href="/admin/requests" style="font-size: 0.875rem;">Browse all</a>
+    </div>
+    {% include "staff/_request_rows.html" with logs=recent %}
+  </wa-card>
+</div>
+{% endpartialdef overview %}

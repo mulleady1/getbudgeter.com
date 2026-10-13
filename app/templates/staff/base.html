@@ -1,0 +1,180 @@
+{% extends "app/base.html" %}
+{% load myfilters %}
+
+{% block extra_styles %}
+  <style>
+    .staff-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+    .staff-page h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+    }
+    .staff-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .staff-tabs {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--wa-color-surface-border);
+      overflow-x: auto;
+    }
+    .staff-tabs a {
+      white-space: nowrap;
+      padding: 0.5rem 0.75rem;
+      text-decoration: none;
+      color: var(--wa-color-text-quiet);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .staff-tabs a.active {
+      color: var(--wa-color-text-normal);
+      border-bottom-color: var(--wa-color-brand-60, #2a78d6);
+      font-weight: 600;
+    }
+    .staff-hint {
+      color: var(--wa-color-text-quiet);
+      font-size: 0.9rem;
+      margin: 0 0 1rem;
+    }
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .staff-card-title {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    .stat-tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-tile {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--wa-color-surface-border);
+      border-radius: var(--wa-border-radius-m, 8px);
+      background: var(--wa-color-surface-default);
+    }
+    .stat-tile .stat-label {
+      font-size: 0.8rem;
+      color: var(--wa-color-text-quiet);
+    }
+    .stat-tile .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .stat-tile .stat-sub {
+      font-size: 0.8rem;
+      color: var(--wa-color-text-quiet);
+    }
+    .staff-table-wrap {
+      overflow-x: auto;
+    }
+    table.staff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    table.staff-table th,
+    table.staff-table td {
+      text-align: left;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--wa-color-surface-border);
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    table.staff-table th {
+      color: var(--wa-color-text-quiet);
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+    table.staff-table td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    table.staff-table th.num {
+      text-align: right;
+    }
+    table.staff-table td.wrap {
+      white-space: normal;
+      word-break: break-all;
+      min-width: 18rem;
+    }
+    .mono {
+      font-family: var(--wa-font-family-code, ui-monospace, monospace);
+      font-size: 0.8rem;
+    }
+    .truncate {
+      max-width: 28rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+    .quiet {
+      color: var(--wa-color-text-quiet);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+    .staff-filters {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      margin-bottom: 1rem;
+    }
+    .staff-filters wa-input,
+    .staff-filters wa-select {
+      min-width: 160px;
+    }
+    .staff-chart {
+      position: relative;
+      height: 220px;
+    }
+    .pager {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .staff-page a {
+      color: inherit;
+    }
+    @media (max-width: 768px) {
+      .staff-page h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+  {% block staff_styles %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+  <div class="staff-page">
+    <nav class="staff-tabs">
+      <a href="/admin/activity" class="{% if request.path == '/admin/activity' %}active{% endif %}">Overview</a>
+      <a href="/admin/users" class="{% if request.path|startswith:'/admin/users' %}active{% endif %}">Users</a>
+      <a href="/admin/requests" class="{% if request.path|startswith:'/admin/requests' %}active{% endif %}">Requests</a>
+      <a href="/admin/" style="margin-left: auto;">Django admin</a>
+    </nav>
+    {% block staff_content %}{% endblock %}
+  </div>
+{% endblock %}

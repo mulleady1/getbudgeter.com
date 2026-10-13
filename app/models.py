@@ -283,3 +283,45 @@ class ItemAlias(models.Model):
 
     def __str__(self):
         return f"{self.raw_description} → {self.normalized_name} ({self.product_category})"
+
+
+class RequestLog(models.Model):
+    """One row per HTTP request, written by `app.middleware.RequestLogMiddleware`.
+
+    Powers the staff activity pages. Bodies are never stored; the query string is kept
+    only for GETs, so passwords and uploads never land here.
+    """
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    # SET_NULL so the trail survives an account deletion (bots sign up and vanish).
+    user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="request_logs"
+    )
+    session_key = models.CharField(max_length=40, blank=True, db_index=True)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    method = models.CharField(max_length=8)
+    path = models.CharField(max_length=500, db_index=True)
+    query = models.CharField(max_length=500, blank=True)
+    status = models.PositiveSmallIntegerField()
+    duration_ms = models.PositiveIntegerField(default=0)
+    user_agent = models.CharField(max_length=500, blank=True)
+    referer = models.CharField(max_length=500, blank=True)
+    is_htmx = models.BooleanField(default=False)
+    # The user agent looks automated (crawler, HTTP library, headless browser, or missing).
+    is_bot = models.BooleanField(default=False, db_index=True)
+
+    if TYPE_CHECKING:
+        user_id: int | None
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.created_at:%Y-%m-%d %H:%M:%S} {self.method} {self.path} {self.status}"
+
+    @property
+    def full_path(self):
+        return f"{self.path}?{self.query}" if self.query else self.path

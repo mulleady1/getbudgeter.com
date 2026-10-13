@@ -1,0 +1,72 @@
+{% extends "staff/base.html" %}
+{% load humanize %}
+
+{% block staff_content %}
+  <h1 style="margin-bottom: 1rem;">Requests</h1>
+
+  <form
+    class="staff-filters"
+    hx-get="/admin/requests"
+    hx-trigger="change delay:300ms, submit"
+    hx-push-url="true"
+    hx-target="#request-list"
+    hx-swap="outerHTML"
+  >
+    <wa-select size="small" name="who" label="Who" value="{{ filters.who }}">
+      {% for key, label in who_choices %}
+        <wa-option value="{{ key }}">{{ label }}</wa-option>
+      {% endfor %}
+    </wa-select>
+    <wa-select size="small" name="status" label="Status" value="{{ filters.status }}">
+      {% for key, label in status_choices %}
+        <wa-option value="{{ key }}">{{ label }}</wa-option>
+      {% endfor %}
+    </wa-select>
+    <wa-input size="small" name="path" label="Path contains" value="{{ filters.path }}" with-clear></wa-input>
+    <wa-input size="small" name="user" label="User id or email" value="{{ filters.user }}" with-clear></wa-input>
+    <wa-button size="small" type="submit" appearance="outlined">Filter</wa-button>
+  </form>
+
+  {% partial request-list %}
+{% endblock %}
+
+{% partialdef request-list %}
+<div id="request-list">
+  <p class="quiet" style="margin: 0 0 0.5rem; font-size: 0.875rem;">
+    {{ page.paginator.count|intcomma }} requests, page {{ page.number }} of {{ page.paginator.num_pages }}
+  </p>
+  {% include "staff/_request_rows.html" with logs=page.object_list %}
+  <div class="pager">
+    <span>
+      {% if page.has_previous %}
+        <wa-button
+          size="small"
+          appearance="outlined"
+          hx-get="/admin/requests?page={{ page.previous_page_number }}{% if query %}&{{ query }}{% endif %}"
+          hx-push-url="true"
+          hx-target="#request-list"
+          hx-swap="outerHTML"
+        >
+          <wa-icon slot="start" name="chevron-left"></wa-icon>
+          Newer
+        </wa-button>
+      {% endif %}
+    </span>
+    <span>
+      {% if page.has_next %}
+        <wa-button
+          size="small"
+          appearance="outlined"
+          hx-get="/admin/requests?page={{ page.next_page_number }}{% if query %}&{{ query }}{% endif %}"
+          hx-push-url="true"
+          hx-target="#request-list"
+          hx-swap="outerHTML"
+        >
+          Older
+          <wa-icon slot="end" name="chevron-right"></wa-icon>
+        </wa-button>
+      {% endif %}
+    </span>
+  </div>
+</div>
+{% endpartialdef request-list %}

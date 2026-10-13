@@ -6,3 +6,9 @@ from .budgets import BudgetViewSet  # noqa
 from .category_rules import CategoryRuleViewSet  # noqa
 from .receipts import ReceiptViewSet  # noqa
 from .transactions import CategoryViewSet, TransactionViewSet  # noqa
+from .staff import (  # noqa
+    overview as staff_overview,
+    requests as staff_requests,
+    user_detail as staff_user_detail,
+    users as staff_users,
+)

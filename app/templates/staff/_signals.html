@@ -1,0 +1,13 @@
+{# Verdict badge plus one chip per signal for a `UserActivity`. #}
+<span class="chips">
+  {% if activity.verdict == "bot" %}
+    <wa-badge variant="danger">Likely bot</wa-badge>
+  {% elif activity.verdict == "suspicious" %}
+    <wa-badge variant="warning">Suspicious</wa-badge>
+  {% else %}
+    <wa-badge variant="success">Looks human</wa-badge>
+  {% endif %}
+  {% for signal in activity.signals %}
+    <wa-badge variant="neutral" appearance="outlined" title="{{ signal.detail }}">{{ signal.label }}</wa-badge>
+  {% endfor %}
+</span>

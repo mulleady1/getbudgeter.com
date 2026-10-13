@@ -19,7 +19,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from app import views
+
 urlpatterns = [
+    # Staff activity pages live under /admin/ but are ours, not Django admin's. They must come
+    # before the admin include because its catch-all would otherwise swallow them.
+    path("admin/activity",        views.staff_overview,    name="staff-overview"),
+    path("admin/users",           views.staff_users,       name="staff-users"),
+    path("admin/users/<int:pk>",  views.staff_user_detail, name="staff-user-detail"),
+    path("admin/requests",        views.staff_requests,    name="staff-requests"),
     path("admin/", admin.site.urls),
     path("", include("app.urls")),
 ]

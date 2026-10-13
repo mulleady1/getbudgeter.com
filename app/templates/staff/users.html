@@ -1,0 +1,73 @@
+{% extends "staff/base.html" %}
+{% load humanize %}
+
+{% block staff_content %}
+  <div class="staff-head">
+    <h1>Users</h1>
+    <wa-select
+      size="small"
+      name="show"
+      value="{{ show }}"
+      hx-get="/admin/users"
+      hx-push-url="true"
+      hx-target="#user-list"
+      hx-swap="outerHTML"
+      hx-trigger="change"
+      style="min-width: 180px;"
+    >
+      <wa-option value="all">All users</wa-option>
+      <wa-option value="flagged">Flagged only</wa-option>
+    </wa-select>
+  </div>
+  <p class="staff-hint">
+    Signals are heuristics: a bot user agent or a non-email username is strong evidence, the rest is circumstantial.
+    Accounts created before request logging existed only have the circumstantial kind. Hover a chip for what it means.
+  </p>
+
+  {% partial user-list %}
+{% endblock %}
+
+{% partialdef user-list %}
+<div id="user-list">
+  <p class="quiet" style="margin: 0 0 0.5rem; font-size: 0.875rem;">
+    {% if show == "flagged" %}{{ activities|length }} flagged of {{ total_users }} users{% else %}{{ total_users }} users, {{ flagged_count }} flagged{% endif %}
+  </p>
+  <div class="staff-table-wrap">
+    <table class="staff-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Joined</th>
+          <th>Last login</th>
+          <th>Last seen</th>
+          <th class="num">Requests</th>
+          <th class="num" title="bills / transactions / receipts / budgets">Content</th>
+          <th>Timezone</th>
+          <th>Signals</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for activity in activities %}
+          {% with user=activity.user %}
+            <tr>
+              <td>
+                <a href="/admin/users/{{ user.pk }}">{{ user.username }}</a>
+                {% if user.is_staff %}<wa-badge variant="brand">staff</wa-badge>{% endif %}
+              </td>
+              <td class="quiet" title="{{ user.date_joined|date:'Y-m-d H:i' }}">{{ user.date_joined|naturaltime }}</td>
+              <td class="quiet" title="{{ user.last_login|date:'Y-m-d H:i' }}">{{ user.last_login|naturaltime|default:"never" }}</td>
+              <td class="quiet" title="{{ activity.last_seen|date:'Y-m-d H:i' }}">{{ activity.last_seen|naturaltime|default:"—" }}</td>
+              <td class="num">{{ activity.requests|intcomma }}</td>
+              <td class="num">{{ activity.bills }} / {{ activity.transactions }} / {{ activity.receipts }} / {{ activity.budgets }}</td>
+              <td class="quiet">{{ user.profile.timezone|default:"—" }}</td>
+              <td>{% include "staff/_signals.html" %}</td>
+            </tr>
+          {% endwith %}
+        {% empty %}
+          <tr><td colspan="8" class="quiet">No users match.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endpartialdef user-list %}

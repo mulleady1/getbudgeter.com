@@ -59,6 +59,12 @@
                   <wa-icon slot="prefix" name="gear"></wa-icon>
                   Account
                 </wa-dropdown-item>
+                {% if user.is_staff %}
+                  <wa-dropdown-item hx-on:click="window.location.href='/admin/activity'">
+                    <wa-icon slot="prefix" name="chart-line"></wa-icon>
+                    Activity
+                  </wa-dropdown-item>
+                {% endif %}
                 <wa-divider></wa-divider>
                 <wa-dropdown-item hx-on:click="window.location.href='/logout'">
                   <wa-icon slot="prefix" name="arrow-right-from-bracket"></wa-icon>
@@ -125,6 +131,15 @@
                   >
                     Account
                   </a>
+                  {% if user.is_staff %}
+                    <a
+                      href="/admin/activity"
+                      hx-boost="true"
+                      class="mobile-nav-link {% if request.path|startswith:'/admin/' %}active{% endif %}"
+                    >
+                      Activity
+                    </a>
+                  {% endif %}
                   <a href="/logout" class="mobile-nav-link logout"> Logout </a>
                 </nav>
               </wa-drawer>

@@ -1,0 +1,53 @@
+{# A table of `RequestLog` rows. Pass `logs`. #}
+<div class="staff-table-wrap">
+  <table class="staff-table">
+    <thead>
+      <tr>
+        <th>When</th>
+        <th>Who</th>
+        <th>Request</th>
+        <th class="num">Status</th>
+        <th class="num">ms</th>
+        <th>User agent</th>
+        <th>IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+        <tr>
+          <td class="quiet" title="{{ log.created_at|date:'Y-m-d H:i:s' }}">{{ log.created_at|date:"M j, H:i:s" }}</td>
+          <td>
+            {% if log.user %}
+              <a href="/admin/users/{{ log.user.pk }}">{{ log.user.username }}</a>
+            {% else %}
+              <span class="quiet mono" title="session {{ log.session_key }}">anon {{ log.session_key|slice:":6" }}</span>
+            {% endif %}
+          </td>
+          <td class="mono wrap">
+            {{ log.method }} {{ log.full_path }}
+            {% if log.is_htmx %}<wa-badge variant="neutral" appearance="outlined">htmx</wa-badge>{% endif %}
+          </td>
+          <td class="num">
+            {% if log.status >= 500 %}
+              <wa-badge variant="danger">{{ log.status }}</wa-badge>
+            {% elif log.status >= 400 %}
+              <wa-badge variant="warning">{{ log.status }}</wa-badge>
+            {% elif log.status >= 300 %}
+              <span class="quiet">{{ log.status }}</span>
+            {% else %}
+              {{ log.status }}
+            {% endif %}
+          </td>
+          <td class="num quiet">{{ log.duration_ms }}</td>
+          <td>
+            {% if log.is_bot %}<wa-badge variant="danger">bot</wa-badge>{% endif %}
+            <span class="mono truncate" style="max-width: 16rem;" title="{{ log.user_agent }}">{{ log.user_agent|default:"(none)" }}</span>
+          </td>
+          <td class="mono quiet">{{ log.ip|default:"" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="quiet">No requests match.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
