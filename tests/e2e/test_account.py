@@ -117,7 +117,7 @@ def test_signup_captures_browser_timezone(page: Page, live_server, db):
     page.fill('input[name="confirm_password"]', "pw12345!")
     # The signup view rejects submissions faster than a person could type (see SIGNUP_MIN_SECONDS).
     page.wait_for_timeout(SIGNUP_MIN_SECONDS * 1000 + 200)
-    page.locator('wa-button[type="submit"]').click()
+    page.locator('button[type="submit"]').click()
     page.wait_for_url("**/bills")
     assert User.objects.get(email="tz@example.com").profile.timezone == "Pacific/Honolulu"
 

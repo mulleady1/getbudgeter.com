@@ -37,7 +37,7 @@ def log_in(page: Page, live_server, email: str = TEST_EMAIL, password: str = TES
     page.goto(f"{live_server.url}/login")
     page.fill('input[name="email"]', email)
     page.fill('input[name="password"]', password)
-    page.locator('wa-button[type="submit"]').click()
+    page.locator('button[type="submit"]').click()
     page.wait_for_load_state("networkidle")
 
 

@@ -90,8 +90,6 @@
     {% endif %}
     <form id="signup-form" method="post">
       {% csrf_token %}
-      {# Enter in a field only submits a form that has a native submit button; wa-button isn't one. #}
-      <button type="submit" hidden tabindex="-1" aria-hidden="true"></button>
       <input type="hidden" id="timezone" name="timezone" />
       <input type="hidden" name="form_token" value="{{ form_token }}" />
       <div class="extra-field" aria-hidden="true">
@@ -118,7 +116,7 @@
         />
       </div>
       <div style="padding-top: 0.5rem;">
-        <wa-button type="submit" style="width: 100%;">Signup</wa-button>
+        <button type="submit" style="width: 100%;">Signup</button>
       </div>
       <div style="padding-top: 0.5rem;">
         <a href="/login">Login</a>
@@ -129,10 +127,11 @@
   <script type="module">
     const form = document.getElementById("signup-form")
     document.getElementById("timezone").value = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const submitButton = form.querySelector("wa-button[type='submit']")
-    form.addEventListener("submit", event => {
-      submitButton.loading = true
+    const submitButton = form.querySelector("button[type='submit']")
+    form.addEventListener("submit", () => {
+      // Block double submits; the browser has already captured the form data by now.
       submitButton.disabled = true
+      submitButton.setAttribute("aria-busy", "true")
     })
   </script>
 {% endblock %}

@@ -32,3 +32,18 @@ def test_login_fields_are_in_the_light_dom(page: Page, live_server, db):
     page.goto(f"{live_server.url}/login")
     assert page.locator("form input[type=password]").count() == 1
     assert page.locator("wa-input").count() == 0
+
+
+def test_submit_button_disables_while_submitting(page: Page, live_server, test_user):
+    page.goto(f"{live_server.url}/login")
+    page.fill('input[name="email"]', TEST_EMAIL)
+    page.fill('input[name="password"]', TEST_PASSWORD)
+    # The page's own submit listener runs first and disables the button; this one, registered
+    # after it, records what it saw in sessionStorage, which survives the navigation that follows.
+    page.evaluate(
+        """() => { const b = document.querySelector("button[type=submit]");
+                   document.forms[0].addEventListener("submit", () => sessionStorage.setItem("wasDisabled", b.disabled)) }"""
+    )
+    page.press('input[name="password"]', "Enter")
+    page.wait_for_url("**/bills")
+    assert page.evaluate("sessionStorage.getItem('wasDisabled')") == "true"
