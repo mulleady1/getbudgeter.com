@@ -2,6 +2,7 @@ import pytest
 from django.contrib.auth.models import User
 from playwright.sync_api import Page, expect
 
+from app.views.auth import SIGNUP_MIN_SECONDS
 from tests.conftest import TEST_EMAIL, TEST_PASSWORD, fill_wa_input
 
 
@@ -111,9 +112,11 @@ def test_browser_timezone_backfilled_on_first_page(authenticated_page: Page, liv
 @pytest.mark.browser_context_args(timezone_id="Pacific/Honolulu")
 def test_signup_captures_browser_timezone(page: Page, live_server, db):
     page.goto(f"{live_server.url}/signup")
-    fill_wa_input(page, 'wa-input[name="email"]', "tz@example.com")
-    fill_wa_input(page, 'wa-input[name="password"]', "pw12345!")
-    fill_wa_input(page, 'wa-input[name="confirm_password"]', "pw12345!")
+    page.fill('input[name="email"]', "tz@example.com")
+    page.fill('input[name="password"]', "pw12345!")
+    page.fill('input[name="confirm_password"]', "pw12345!")
+    # The signup view rejects submissions faster than a person could type (see SIGNUP_MIN_SECONDS).
+    page.wait_for_timeout(SIGNUP_MIN_SECONDS * 1000 + 200)
     page.locator('wa-button[type="submit"]').click()
     page.wait_for_url("**/bills")
     assert User.objects.get(email="tz@example.com").profile.timezone == "Pacific/Honolulu"

@@ -14,6 +14,7 @@ from app.models import Bill, Budget, Receipt, RequestLog, Transaction
 # Lowercase substrings that mark a user agent as a crawler, an HTTP library, a scanner or a
 # headless browser. Real browsers (Chrome, Safari, Firefox, Edge, mobile WebViews) contain none.
 BOT_UA_MARKERS = (
+    "mozlila",  # misspelled Mozilla: a long-lived scanner signature
     "bot",
     "crawl",
     "spider",
@@ -67,10 +68,13 @@ def prune_request_logs(days):
 
 
 def is_bot_user_agent(user_agent):
-    """True when the user agent is missing or names an automated client."""
+    """True when the user agent is missing, names an automated client, or is a bare "Mozilla/5.0"
+    with no browser details after it, which no real browser ever sends."""
     if not user_agent or not user_agent.strip():
         return True
-    ua = user_agent.lower()
+    ua = user_agent.strip().lower()
+    if ua in ("mozilla/5.0", "mozilla/4.0"):
+        return True
     return any(marker in ua for marker in BOT_UA_MARKERS)
 
 

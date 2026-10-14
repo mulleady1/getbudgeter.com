@@ -1,11 +1,13 @@
 """Per-user timezones: capture at signup, browser backfill, account setting, and the default month."""
 
+import time
 from datetime import date, datetime, timezone as dt_timezone
 from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import User
 
+from app.views.auth import make_signup_token
 from tests.conftest import TEST_EMAIL
 
 # 9:20pm Sep 30 in Honolulu, already Oct 1 in UTC.
@@ -22,7 +24,13 @@ class TestSignup:
     def _signup(self, client, tz):
         return client.post(
             "/signup",
-            {"email": "new@example.com", "password": "pw12345!", "confirm_password": "pw12345!", "timezone": tz},
+            {
+                "email": "new@example.com",
+                "password": "pw12345!",
+                "confirm_password": "pw12345!",
+                "timezone": tz,
+                "form_token": make_signup_token(time.time() - 10),
+            },
         )
 
     def test_stores_browser_timezone(self, client):

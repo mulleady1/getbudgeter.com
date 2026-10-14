@@ -1,5 +1,6 @@
 """Request logging middleware, bot heuristics, and the staff activity pages."""
 
+import time
 from datetime import timedelta
 
 import pytest
@@ -8,6 +9,7 @@ from django.utils import timezone
 
 from app.models import Bill, RequestLog
 from app.services.activity import is_bot_user_agent, looks_like_email, signup_details, user_activities
+from app.views.auth import make_signup_token
 from tests.conftest import TEST_EMAIL, TEST_PASSWORD
 
 CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
@@ -22,7 +24,19 @@ def staff_client(client, db):
 
 
 class TestHeuristics:
-    @pytest.mark.parametrize("ua", ["", "   ", PYTHON, "curl/8.4.0", "Mozilla/5.0 (compatible; Googlebot/2.1)", "HeadlessChrome/120"])
+    @pytest.mark.parametrize(
+        "ua",
+        [
+            "",
+            "   ",
+            PYTHON,
+            "curl/8.4.0",
+            "Mozilla/5.0 (compatible; Googlebot/2.1)",
+            "HeadlessChrome/120",
+            "Mozilla/5.0",
+            "Mozlila/5.0 (Linux; Android 7.0; SM-G892A Build/NRD90M)",
+        ],
+    )
     def test_bot_user_agents(self, ua):
         assert is_bot_user_agent(ua)
 
@@ -119,7 +133,12 @@ class TestUserSignals:
         client.get("/signup", HTTP_USER_AGENT=CHROME)
         client.post(
             "/signup",
-            {"email": "new@example.com", "password": "pw12345!", "confirm_password": "pw12345!"},
+            {
+                "email": "new@example.com",
+                "password": "pw12345!",
+                "confirm_password": "pw12345!",
+                "form_token": make_signup_token(time.time() - 10),
+            },
             HTTP_USER_AGENT=CHROME,
         )
         details = signup_details(User.objects.get(username="new@example.com"))
@@ -127,7 +146,15 @@ class TestUserSignals:
         assert details["seconds_on_site"] is not None and details["seconds_on_site"] < 5
 
     def test_signup_details_without_earlier_hit(self, client):
-        client.post("/signup", {"email": "bot@example.com", "password": "pw12345!", "confirm_password": "pw12345!"})
+        client.post(
+            "/signup",
+            {
+                "email": "bot@example.com",
+                "password": "pw12345!",
+                "confirm_password": "pw12345!",
+                "form_token": make_signup_token(time.time() - 10),
+            },
+        )
         details = signup_details(User.objects.get(username="bot@example.com"))
         assert details["seconds_on_site"] is None
 
@@ -236,3 +263,51 @@ def test_circumstantial_signals_alone_are_only_suspicious(test_user):
     test_user.save()
     activity = user_activities([test_user])[0]
     assert len(activity.signals) == 3 and activity.verdict == "suspicious"
+
+
+@pytest.mark.django_db
+class TestSignupBotChecks:
+    FIELDS = {"email": "new@example.com", "password": "pw12345!", "confirm_password": "pw12345!"}
+
+    def _post(self, client, **extra):
+        return client.post("/signup", {**self.FIELDS, **extra})
+
+    def test_get_issues_a_token(self, client):
+        res = client.get("/signup")
+        assert 'name="form_token" value="' in res.content.decode()
+        assert 'name="website"' in res.content.decode()
+
+    def test_rejects_post_without_token(self, client):
+        res = self._post(client)
+        assert res.status_code == 400 and not User.objects.filter(username="new@example.com").exists()
+
+    def test_rejects_forged_token(self, client):
+        res = self._post(client, form_token="abc:def")
+        assert res.status_code == 400
+
+    def test_rejects_instant_submit(self, client):
+        res = self._post(client, form_token=make_signup_token())
+        assert res.status_code == 400 and not User.objects.exists()
+
+    def test_rejects_filled_honeypot(self, client):
+        res = self._post(client, form_token=make_signup_token(time.time() - 10), website="http://spam.example")
+        assert res.status_code == 400 and not User.objects.exists()
+
+    def test_accepts_human_pace(self, client):
+        res = self._post(client, form_token=make_signup_token(time.time() - 10))
+        assert res.status_code == 302 and User.objects.filter(username="new@example.com").exists()
+
+    def test_rejection_keeps_the_same_token_so_a_retry_works(self, client):
+        token = make_signup_token()
+        res = self._post(client, form_token=token)
+        assert f'value="{token}"' in res.content.decode()
+
+    def test_expired_token_is_rejected(self, client):
+        res = self._post(client, form_token=make_signup_token(time.time() - 7 * 60 * 60))
+        assert res.status_code == 400
+
+
+def test_robots_txt(client):
+    res = client.get("/robots.txt")
+    assert res.status_code == 200 and res["Content-Type"].startswith("text/plain")
+    assert "Disallow: /" in res.content.decode() and "Allow: /$" in res.content.decode()

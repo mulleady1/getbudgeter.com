@@ -5,6 +5,7 @@ from .bills import BillLinkViewSet, BillViewSet  # noqa
 from .budgets import BudgetViewSet  # noqa
 from .category_rules import CategoryRuleViewSet  # noqa
 from .receipts import ReceiptViewSet  # noqa
+from .robots import robots_txt  # noqa
 from .transactions import CategoryViewSet, TransactionViewSet  # noqa
 from .staff import (  # noqa
     overview as staff_overview,

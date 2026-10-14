@@ -33,10 +33,10 @@ def fill_wa_input(page: Page, host_selector: str, value: str):
 
 
 def log_in(page: Page, live_server, email: str = TEST_EMAIL, password: str = TEST_PASSWORD):
-    """Drive the real login form."""
+    """Drive the real login form. Its fields are plain inputs (for password managers), not wa-input."""
     page.goto(f"{live_server.url}/login")
-    fill_wa_input(page, 'wa-input[name="email"]', email)
-    fill_wa_input(page, 'wa-input[name="password"]', password)
+    page.fill('input[name="email"]', email)
+    page.fill('input[name="password"]', password)
     page.locator('wa-button[type="submit"]').click()
     page.wait_for_load_state("networkidle")
 

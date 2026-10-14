@@ -58,6 +58,22 @@
       flex-direction: column;
       gap: 1.2rem;
     }
+    /* Plain inputs in the light DOM, not wa-input: password managers can't see into shadow roots. */
+    .login-container label {
+      display: block;
+    }
+    .login-container label .required::after {
+      content: "*";
+      margin-left: 0.1em;
+    }
+    /* Honeypot: off-screen, not display:none, so form-stuffing scripts still treat it as real. */
+    .login-container .extra-field {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
   </style>
   <div class="login-container">
     <div class="login-logo">
@@ -74,15 +90,14 @@
     {% endif %}
     <form id="login-form" method="post">
       {% csrf_token %}
-      <wa-input type="email" id="email" name="email" label="Email" value="{{ email }}" required></wa-input>
-      <wa-input
-        type="password"
-        id="password"
-        name="password"
-        label="Password"
-        value="{{ password }}"
-        required
-      ></wa-input>
+      <div>
+        <label for="email"><span class="required">Email</span></label>
+        <input type="email" id="email" name="email" value="{{ email }}" autocomplete="username" required />
+      </div>
+      <div>
+        <label for="password"><span class="required">Password</span></label>
+        <input type="password" id="password" name="password" value="{{ password }}" autocomplete="current-password" required />
+      </div>
       <div style="padding-top: 0.5rem;">
         <wa-button type="submit" style="width: 100%;">Login</wa-button>
       </div>

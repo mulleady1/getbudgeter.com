@@ -58,6 +58,22 @@
       flex-direction: column;
       gap: 1.2rem;
     }
+    /* Plain inputs in the light DOM, not wa-input: password managers can't see into shadow roots. */
+    .signup-container label {
+      display: block;
+    }
+    .signup-container label .required::after {
+      content: "*";
+      margin-left: 0.1em;
+    }
+    /* Honeypot: off-screen, not display:none, so form-stuffing scripts still treat it as real. */
+    .signup-container .extra-field {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
   </style>
   <div class="signup-container">
     <div class="signup-logo">
@@ -75,23 +91,30 @@
     <form id="signup-form" method="post">
       {% csrf_token %}
       <input type="hidden" id="timezone" name="timezone" />
-      <wa-input type="text" id="email" name="email" label="Email" value="{{ email }}" required></wa-input>
-      <wa-input
-        type="password"
-        id="password"
-        name="password"
-        label="Password"
-        value="{{ password }}"
-        required
-      ></wa-input>
-      <wa-input
-        type="password"
-        id="confirm_password"
-        name="confirm_password"
-        label="Confirm Password"
-        value="{{ confirm_password }}"
-        required
-      ></wa-input>
+      <input type="hidden" name="form_token" value="{{ form_token }}" />
+      <div class="extra-field" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+      <div>
+        <label for="email"><span class="required">Email</span></label>
+        <input type="email" id="email" name="email" value="{{ email }}" autocomplete="username" required />
+      </div>
+      <div>
+        <label for="password"><span class="required">Password</span></label>
+        <input type="password" id="password" name="password" value="{{ password }}" autocomplete="new-password" required />
+      </div>
+      <div>
+        <label for="confirm_password"><span class="required">Confirm Password</span></label>
+        <input
+          type="password"
+          id="confirm_password"
+          name="confirm_password"
+          value="{{ confirm_password }}"
+          autocomplete="new-password"
+          required
+        />
+      </div>
       <div style="padding-top: 0.5rem;">
         <wa-button type="submit" style="width: 100%;">Signup</wa-button>
       </div>
