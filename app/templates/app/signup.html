@@ -90,6 +90,8 @@
     {% endif %}
     <form id="signup-form" method="post">
       {% csrf_token %}
+      {# Enter in a field only submits a form that has a native submit button; wa-button isn't one. #}
+      <button type="submit" hidden tabindex="-1" aria-hidden="true"></button>
       <input type="hidden" id="timezone" name="timezone" />
       <input type="hidden" name="form_token" value="{{ form_token }}" />
       <div class="extra-field" aria-hidden="true">

@@ -90,6 +90,8 @@
     {% endif %}
     <form id="login-form" method="post">
       {% csrf_token %}
+      {# Enter in a field only submits a form that has a native submit button; wa-button isn't one. #}
+      <button type="submit" hidden tabindex="-1" aria-hidden="true"></button>
       <div>
         <label for="email"><span class="required">Email</span></label>
         <input type="email" id="email" name="email" value="{{ email }}" autocomplete="username" required />
